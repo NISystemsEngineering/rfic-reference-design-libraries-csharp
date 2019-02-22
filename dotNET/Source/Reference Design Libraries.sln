@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxWLAN", "SA\RFmx WLAN\RFmxWLAN.csproj", "{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SG", "SG\SG.csproj", "{89ABCAC5-CEDB-4535-BD58-E205A97834D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Supply", "Supply\Supply.csproj", "{6E38C48B-DD17-4438-9366-E336528E62AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.csproj", "{AA108F43-00F3-43C4-91C0-5C5E142792B0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SA", "SA", "{2B079B61-B71B-440E-BFF7-0DF80927B5C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmx SpecAn", "SA\RFmx SpecAn\RFmx SpecAn.csproj", "{3D1BC0F6-273C-4A44-82F6-3BB933862FFB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E38C48B-DD17-4438-9366-E336528E62AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E38C48B-DD17-4438-9366-E336528E62AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E38C48B-DD17-4438-9366-E336528E62AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E38C48B-DD17-4438-9366-E336528E62AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA108F43-00F3-43C4-91C0-5C5E142792B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA108F43-00F3-43C4-91C0-5C5E142792B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA108F43-00F3-43C4-91C0-5C5E142792B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D1BC0F6-273C-4A44-82F6-3BB933862FFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D1BC0F6-273C-4A44-82F6-3BB933862FFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D1BC0F6-273C-4A44-82F6-3BB933862FFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D1BC0F6-273C-4A44-82F6-3BB933862FFB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9E8F4D28-AC1D-4A06-8C62-FC96097890B9} = {2B079B61-B71B-440E-BFF7-0DF80927B5C5}
+		{3D1BC0F6-273C-4A44-82F6-3BB933862FFB} = {2B079B61-B71B-440E-BFF7-0DF80927B5C5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D020C05D-4EF8-45D5-8E12-D76DE5E66039}
+	EndGlobalSection
+EndGlobal

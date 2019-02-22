@@ -1,0 +1,350 @@
+﻿using System;
+using NationalInstruments.RFmx.InstrMX;
+using NationalInstruments.DataInfrastructure;
+using NationalInstruments.RFmx.WlanMX;
+using NationalInstruments.ModularInstruments.NIRfsg;
+
+namespace NationalInstruments.ReferenceDesignLibraries.SA
+{
+    public class RFmxWLAN
+    {
+        //Structs were chosen over a basic class due to the ease of viewing function inputs inside of TestStand (avoiding encapsulation)
+        //This has the downside of requiring two steps to initialize the struct to the default values
+        #region Type_Definitionss
+        public struct CommonConfiguration
+        {
+            public double CenterFrequency_Hz;
+            public double ReferenceLevel_dBm;
+            public double ExternalAttenuation_dB;
+            public string FrequencyReferenceSource;
+            public string DigitalEdgeSource;
+            public RFmxWlanMXDigitalEdgeTriggerEdge DigitalEdgeType;
+            public double TriggerDelay_s;
+            public bool EnableTrigger;
+            public string LOSource;
+            public double LOOffset;
+            public void SetDefaults()
+            {
+                CenterFrequency_Hz = 1e9;
+                ReferenceLevel_dBm = 0;
+                ExternalAttenuation_dB = 0;
+                FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock;
+                DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0;
+                DigitalEdgeType = RFmxWlanMXDigitalEdgeTriggerEdge.Rising;
+                TriggerDelay_s = 0;
+                EnableTrigger = true;
+                LOSource = RFmxInstrMXConstants.LOSourceLOIn;
+                LOOffset = 0;
+            }
+        }
+
+        public struct SignalConfiguration
+        {
+            public bool AutoDetectSignal;
+            public RFmxWlanMXStandard Standard;
+            public double ChannelBandwidth_Hz;
+            
+            public void SetDefaults()
+            {
+                AutoDetectSignal = true;
+                Standard = RFmxWlanMXStandard.Standard802_11ac;
+                ChannelBandwidth_Hz = 20e6;
+            }
+        }
+
+        public struct AutoLevelConfiguration
+        {
+            public bool AutoLevelReferenceLevel;
+            public double AutoLevelMeasureTime_s;
+
+            public void SetDefaults()
+            {
+                AutoLevelReferenceLevel = false;
+                AutoLevelMeasureTime_s = 10e-3;
+            }
+        }
+
+        #region Measurement Definitions
+        public struct TxPConfiguration
+        {
+            public RFmxWlanMXTxpAveragingEnabled AveragingEnabled;
+            public int AveragingCount;
+            public double MaximumMeasurementInterval_s;
+
+            public void SetDefaults ()
+            {
+                AveragingEnabled = RFmxWlanMXTxpAveragingEnabled.False;
+                AveragingCount = 10;
+                MaximumMeasurementInterval_s = 1e-3;
+            }
+        }
+        #endregion
+        public struct TxPResults
+        {
+            public double AveragePowerMean_dBm;
+            public double PeakPowerMaximum_dBm;
+            public AnalogWaveform<float> PowerVsTime;
+        }
+        public struct OFDMModAccConfiguration
+        {
+            public double AcquisitionLength_s;
+            public int MeasurementOffset_sym;
+            public int MaximumMeasurementLength_sym;
+            public RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled OptimizeDynamicRangeForEvmEnabled;
+            public double OptimizeDynamicRangeForEVMMargin_dB;
+            public RFmxWlanMXOfdmModAccAveragingEnabled AveragingEnabled;
+            public int AveragingCount;
+
+            public void SetDefaults()
+            {
+                AcquisitionLength_s = 0; //This will trigger auto-length mode in the code
+                MeasurementOffset_sym = 0;
+                MaximumMeasurementLength_sym = 16;
+                OptimizeDynamicRangeForEvmEnabled = RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled.True;
+                OptimizeDynamicRangeForEVMMargin_dB = 0;
+                AveragingEnabled = RFmxWlanMXOfdmModAccAveragingEnabled.False;
+                AveragingCount = 10;
+            }
+        }
+        public struct SEMConfiguration
+        {
+            public struct CustomMaskConfiguration
+            {
+                public double NumberOfOffsets;
+                public double[] OffsetStartFrequency;
+                public double[] OffsetStopFrequency;
+                public RFmxWlanMXSemOffsetSideband[] OffsetSideband;
+                public double[] RelativeLimitStart;
+                public double[] RelativeLimitStop;
+            }
+
+            public double SweepTime_s;
+            public RFmxWlanMXSemAveragingEnabled AveragingEnabled;
+            public int AveragingCount;
+            public RFmxWlanMXSemMaskType MaskType;
+            public CustomMaskConfiguration customMaskConfigurations;
+
+
+            public void SetDefaults()
+            {
+                SweepTime_s = 1e-3;
+                AveragingEnabled = RFmxWlanMXSemAveragingEnabled.False;
+                AveragingCount = 5;
+                MaskType = RFmxWlanMXSemMaskType.Standard;
+                customMaskConfigurations = null;
+            }
+        }
+        public struct OFDMModAccResults
+        {
+            public AnalogWaveform<float> EVMperSymbolTrace;
+            public ComplexSingle[] DataConstellation;
+            public double CompositeRMSEVMMean_dB;
+            public double CompositeDataRMSEVMMean_dB;
+            public double CompositePilotRMSEVMMean_dB;
+            public int NumberOfSymbolsUsed;
+        }
+        public struct TxPServoConfiguration
+        {
+            public double TargetTxPPower_dBm;
+            public double Tolerance_dBm;
+            public int MaxNumberOfIterations;
+
+            public void SetDefaults()
+            {
+                TargetTxPPower_dBm = 0;
+                Tolerance_dBm = 0.05;
+                MaxNumberOfIterations = 10;
+            }
+        }
+        public struct TxPServoResults
+        {
+            public double[] ServoTrace;
+            public double FinalInputPower_dBm;
+            public double FinalOutputPower_dBm;
+        }
+        #endregion
+        #region Instrument Configuration
+        public static void ConfigureCommon(ref RFmxInstrMX sessionHandle, ref RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, 
+            AutoLevelConfiguration autoLevelConfig, string selectorString = "")
+        {
+            sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
+            sessionHandle.SetLOSource("", commonConfig.LOSource);
+            sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
+            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
+            wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
+
+            if (autoLevelConfig.AutoLevelReferenceLevel) wlanSignal.AutoLevel(selectorString, autoLevelConfig.AutoLevelMeasureTime_s);
+            else wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
+
+        }
+
+        public static void ConfigureRF(ref RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, AutoLevelConfiguration autoLevelConfig, string selectorString = "")
+        {
+            wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
+            wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
+
+            //Make sure all other parameters are configured before calling autolevel
+            if (autoLevelConfig.AutoLevelReferenceLevel)
+            { 
+                wlanSignal.AutoLevel(selectorString, autoLevelConfig.AutoLevelMeasureTime_s);
+            }
+            else
+            {
+                wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
+            }
+        }
+        #endregion
+        #region Measurement Configuration
+        public static void ConfigureSignal(ref RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
+        {
+
+            if (signalConfig.AutoDetectSignal)
+            {
+                wlanSignal.AutoDetectSignal(selectorString,10);
+            }
+            else
+            {
+                wlanSignal.ConfigureStandard(selectorString, signalConfig.Standard);
+                wlanSignal.ConfigureChannelBandwidth(selectorString, signalConfig.ChannelBandwidth_Hz);
+            }
+
+        }
+
+        public static void ConfigureTxP(ref RFmxWlanMX wlanSignal, TxPConfiguration txPConfig, string selectorString = "")
+        {
+
+            wlanSignal.Txp.Configuration.SetMeasurementEnabled(selectorString, true);
+            wlanSignal.Txp.Configuration.SetAllTracesEnabled(selectorString, true);
+            //Disabled because we are triggering by default
+            wlanSignal.Txp.Configuration.SetBurstDetectionEnabled(selectorString, RFmxWlanMXTxpBurstDetectionEnabled.False);
+
+            wlanSignal.Txp.Configuration.ConfigureAveraging(selectorString, txPConfig.AveragingEnabled, txPConfig.AveragingCount);
+            wlanSignal.Txp.Configuration.ConfigureMaximumMeasurementInterval(selectorString, txPConfig.MaximumMeasurementInterval_s);
+        }
+        public static void ConfigureOFDMModAcc(ref RFmxWlanMX wlanSignal, OFDMModAccConfiguration modAccConfig, string selectorString = "")
+        {
+            RFmxWlanMXOfdmModAccAcquisitionLengthMode acMode;
+
+            if (modAccConfig.AcquisitionLength_s == 0) acMode = RFmxWlanMXOfdmModAccAcquisitionLengthMode.Auto;
+            else acMode = RFmxWlanMXOfdmModAccAcquisitionLengthMode.Manual;
+
+            wlanSignal.OfdmModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
+            wlanSignal.OfdmModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
+
+            wlanSignal.OfdmModAcc.Configuration.ConfigureAcquisitionLength(selectorString, acMode, modAccConfig.AcquisitionLength_s);
+            wlanSignal.OfdmModAcc.Configuration.ConfigureMeasurementLength(selectorString,
+                modAccConfig.MeasurementOffset_sym, modAccConfig.MaximumMeasurementLength_sym);
+            wlanSignal.OfdmModAcc.Configuration.ConfigureOptimizeDynamicRangeForEvm(selectorString, modAccConfig.OptimizeDynamicRangeForEvmEnabled,
+                modAccConfig.OptimizeDynamicRangeForEVMMargin_dB);
+            wlanSignal.OfdmModAcc.Configuration.ConfigureAveraging(selectorString, modAccConfig.AveragingEnabled, modAccConfig.AveragingCount);
+
+            //Disable the following measurements because SG clocks and LOs are being shared; hence, any measured error would be invalid
+            wlanSignal.OfdmModAcc.Configuration.SetFrequencyErrorEstimationMethod(selectorString, RFmxWlanMXOfdmModAccFrequencyErrorEstimationMethod.Disabled);
+            wlanSignal.OfdmModAcc.Configuration.SetIQGainImbalanceCorrectionEnabled(selectorString, RFmxWlanMXOfdmModAccIQGainImbalanceCorrectionEnabled.False);
+            wlanSignal.OfdmModAcc.Configuration.SetIQQuadratureErrorCorrectionEnabled(selectorString, RFmxWlanMXOfdmModAccIQQuadratureErrorCorrectionEnabled.False);
+            wlanSignal.OfdmModAcc.Configuration.SetIQTimingSkewCorrectionEnabled(selectorString, RFmxWlanMXOfdmModAccIQTimingSkewCorrectionEnabled.False);
+            
+
+            //The following values are defaults, but called out explicitly for clarity
+            wlanSignal.OfdmModAcc.Configuration.SetEvmUnit(selectorString, RFmxWlanMXOfdmModAccEvmUnit.dB);
+            wlanSignal.OfdmModAcc.Configuration.ConfigureChannelEstimationType(selectorString, RFmxWlanMXOfdmModAccChannelEstimationType.ChannelEstimationReference);
+            wlanSignal.OfdmModAcc.Configuration.SetBurstStartDetectionEnabled(selectorString, RFmxWlanMXOfdmModAccBurstStartDetectionEnabled.False); //Triggering, so no burst detection
+            wlanSignal.OfdmModAcc.Configuration.SetAmplitudeTrackingEnabled(selectorString, RFmxWlanMXOfdmModAccAmplitudeTrackingEnabled.False);
+            wlanSignal.OfdmModAcc.Configuration.SetPhaseTrackingEnabled(selectorString, RFmxWlanMXOfdmModAccPhaseTrackingEnabled.False);
+            wlanSignal.OfdmModAcc.Configuration.SetChannelEstimationSmoothingEnabled(selectorString, RFmxWlanMXOfdmModAccChannelEstimationSmoothingEnabled.False);
+            wlanSignal.OfdmModAcc.Configuration.SetCommonClockSourceEnabled(selectorString, RFmxWlanMXOfdmModAccCommonClockSourceEnabled.True);
+
+        }
+        /*public static void ConfigureSEM(ref RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
+        {
+            wlanSignal.Sem.Configuration.SetMeasurementEnabled(selectorString, true);
+            wlanSignal.Sem.Configuration.SetAllTracesEnabled(selectorString, true);
+
+            wlanSignal.Sem.Configuration.ConfigureSweepTime(selectorString, RFmxWlanMXSemSweepTimeAuto.False, semConfig.SweepTime_s);
+            wlanSignal.Sem.Configuration.SetAveragingEnabled(selectorString, semConfig.AveragingEnabled);
+            wlanSignal.Sem.Configuration.SetAveragingCount(selectorString, semConfig.AveragingCount);
+
+            wlanSignal.Sem.Configuration.SetSpanAuto(selectorString, RFmxWlanMXSemSpanAuto.True);
+
+            wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, semConfig.MaskType);
+            if (semConfig.MaskType == RFmxWlanMXSemMaskType.Custom)
+            {
+                wlanSignal.Sem.Configuration.con
+            }
+        }*/
+        public static TxPServoResults TxPServoPower(ref RFmxWlanMX wlanSignal, ref NIRfsg rfsgSession, TxPServoConfiguration servoConfig,
+            AutoLevelConfiguration autoLevelConfig, string selectorString = "")
+        {
+            //Duplicate the existing configuration so that we can select only TxP for the power servo to save time, 
+            //but not disrupt all of the other user enabled measurements. 
+            wlanSignal.CloneSignalConfiguration("servo_txp", out RFmxWlanMX servoTxpSession);
+            servoTxpSession.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.Txp, false);
+            double[] servoTrace = new double[servoConfig.MaxNumberOfIterations];
+            double powerLevel = 0, outputPower = 0, margin = 0;
+            bool servoSucess = false;
+            for (int i = 0; i < servoConfig.MaxNumberOfIterations; i++)
+            {
+                if (autoLevelConfig.AutoLevelReferenceLevel) servoTxpSession.AutoLevel(selectorString, autoLevelConfig.AutoLevelMeasureTime_s);
+                servoTxpSession.Initiate(selectorString, "");
+
+                powerLevel = rfsgSession.RF.PowerLevel;
+                servoTxpSession.Txp.Results.FetchMeasurement(selectorString, 10, out outputPower, out _);
+
+                margin = servoConfig.TargetTxPPower_dBm - outputPower;
+                servoTrace[i] = outputPower;
+
+                if (Math.Abs(margin) <= servoConfig.Tolerance_dBm) //Servo complete; exit the loop
+                {
+                    servoSucess = true;
+                    break;
+                }
+                else //Still more room to go
+                {
+                    rfsgSession.RF.PowerLevel = powerLevel + margin;
+                    rfsgSession.Utility.WaitUntilSettled(1000);
+                }
+            }
+            //If we auto-leveled we need to set the original configuration to the newly calculated ref level
+            servoTxpSession.GetReferenceLevel(selectorString, out double newRefLevel);
+            wlanSignal.ConfigureReferenceLevel(selectorString, newRefLevel);
+
+            servoTxpSession.Dispose();
+
+            TxPServoResults servoResults = new TxPServoResults();
+            servoResults.FinalInputPower_dBm = powerLevel;
+            servoResults.FinalOutputPower_dBm = outputPower;
+            servoResults.ServoTrace = servoTrace;
+
+            if (!servoSucess)
+            {
+                throw new System.TimeoutException("WLAN TxP Power Servo exceeded max iterations without success.");
+            }
+            return servoResults;
+        }
+        #endregion
+        #region Measurement Results
+        public static TxPResults FetchTxP(ref RFmxWlanMX wlanSignal, string selectorString = "")
+        {
+            TxPResults txpResults = new TxPResults();
+     
+            wlanSignal.Txp.Results.FetchPowerTrace(selectorString, 10, ref txpResults.PowerVsTime);
+            wlanSignal.Txp.Results.FetchMeasurement(selectorString, 10, out txpResults.AveragePowerMean_dBm, out txpResults.PeakPowerMaximum_dBm);
+
+            return txpResults;
+        }
+
+        public static OFDMModAccResults FetchOFDMModAcc(ref RFmxWlanMX wlanSignal, string selectorString = "")
+        {
+            OFDMModAccResults modAccResults = new OFDMModAccResults();
+            wlanSignal.OfdmModAcc.Results.FetchChainRmsEvmPerSymbolMeanTrace(selectorString, 10, ref modAccResults.EVMperSymbolTrace);
+            wlanSignal.OfdmModAcc.Results.FetchDataConstellationTrace(selectorString, 10, ref modAccResults.DataConstellation);
+            wlanSignal.OfdmModAcc.Results.FetchCompositeRmsEvm(selectorString, 10, out modAccResults.CompositeRMSEVMMean_dB,
+                out modAccResults.CompositeDataRMSEVMMean_dB, out modAccResults.CompositePilotRMSEVMMean_dB);
+            wlanSignal.OfdmModAcc.Results.FetchNumberOfSymbolsUsed(selectorString, 10, out modAccResults.NumberOfSymbolsUsed);
+
+            return modAccResults;
+        }
+        #endregion
+    }
+}
