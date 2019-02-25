@@ -131,7 +131,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 AveragingEnabled = RFmxWlanMXSemAveragingEnabled.False;
                 AveragingCount = 5;
                 MaskType = RFmxWlanMXSemMaskType.Standard;
-                customMaskConfigurations = null;
             }
         }
         public struct OFDMModAccResults
