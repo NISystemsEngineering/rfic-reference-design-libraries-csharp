@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>NationalInstruments.ReferenceDesignLibraries.Examples.SGExample</StartupObject>
+    <StartupObject>NationalInstruments.ReferenceDesignLibraries.Examples.ScopeExample</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NationalInstruments.Common, Version=17.5.40.49153, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL" />
@@ -47,6 +47,7 @@
     <Reference Include="NationalInstruments.ModularInstruments.NIRfsgPlayback.Fx40, Version=3.0.0.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
       <Private>False</Private>
     </Reference>
+    <Reference Include="NationalInstruments.ModularInstruments.NIScope.Fx45, Version=18.7.0.49152, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL" />
     <Reference Include="NationalInstruments.RFmx.InstrMX.Fx40, Version=3.0.0.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
       <Private>False</Private>
     </Reference>
@@ -67,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SA.RFmxSpecAn Example.cs" />
+    <Compile Include="Scope Example.cs" />
     <Compile Include="Supply Example.cs" />
     <Compile Include="SG Example.cs" />
     <Compile Include="SA.RFmxWLAN Example.cs" />
@@ -80,6 +82,10 @@
     <ProjectReference Include="..\SA\RFmx WLAN\RFmxWLAN.csproj">
       <Project>{9e8f4d28-ac1d-4a06-8c62-fc96097890b9}</Project>
       <Name>RFmxWLAN</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Scope\Scope.csproj">
+      <Project>{7659ca3a-45d7-4a1c-8253-98615f119cf3}</Project>
+      <Name>Scope</Name>
     </ProjectReference>
     <ProjectReference Include="..\SG\SG.csproj">
       <Project>{89abcac5-cedb-4535-bd58-e205a97834d9}</Project>
