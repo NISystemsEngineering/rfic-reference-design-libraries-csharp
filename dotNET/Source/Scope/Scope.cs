@@ -13,6 +13,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double VerticalRange_V;
             public double VerticalOffset_V;
             public ScopeVerticalCoupling ScopeCouplingMode;
+            public double ProbeAttenuation;
 
             //General Settings
             public ScopeInputImpedance InputImpedance;
@@ -26,6 +27,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 VerticalRange_V = 1,
                 VerticalOffset_V = 0,
                 ScopeCouplingMode = ScopeVerticalCoupling.DC,
+                ProbeAttenuation = 1,
                 InputImpedance = ScopeConfiguration.ScopeInputImpedance.FiftyOhm,
                 ScopeClockSource = ScopeInputClockSource.PxiClock.ToString(),
             };
@@ -58,6 +60,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             scope.Channels[channelNames].InputImpedance = (double)scopeConfig.InputImpedance;
             scope.Channels[channelNames].Range = scopeConfig.VerticalRange_V;
             scope.Channels[channelNames].Offset = scopeConfig.VerticalOffset_V;
+            scope.Channels[channelNames].ProbeAttenuation = scopeConfig.ProbeAttenuation;
 
             scope.Timing.ReferenceClockSource = ScopeInputClockSource.FromString(scopeConfig.ScopeClockSource);
             

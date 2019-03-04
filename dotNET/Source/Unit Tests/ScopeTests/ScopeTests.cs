@@ -48,6 +48,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             Assert.AreEqual(scopeConfig.ScopeCouplingMode, testScope.Channels["0"].Coupling, "Coupling");
             Assert.AreEqual(scopeConfig.VerticalOffset_V, testScope.Channels["0"].Offset, "Offset");
             Assert.AreEqual(scopeConfig.VerticalRange_V, testScope.Channels["0"].Range, "Range");
+            Assert.AreEqual(scopeConfig.ProbeAttenuation, testScope.Channels["0"].ProbeAttenuation, "Probe Attenuation");
             Assert.AreEqual(scopeConfig.ScopeClockSource, testScope.Timing.ReferenceClockSource.ToString(),"Clock Source");
 
 
