@@ -76,7 +76,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
             pinSet.Ppmu.Source();
         }
-        public static void ConfigureAndBurstPattern(NIDigital nIDigital, string patternStartLabel, TriggerConfiguration triggerConfig)
+        public static void InitiatePatternGeneration(NIDigital nIDigital, string patternStartLabel, TriggerConfiguration triggerConfig)
         {
             switch (triggerConfig.BurstTriggerType)
             {
@@ -88,7 +88,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     break;
                 case TriggerType.DigitalEdge:
                     nIDigital.Trigger.StartTrigger.DigitalEdge.Configure(triggerConfig.DigitalEdgeSource, triggerConfig.DigitalEdgeType);
-                    nIDigital.PatternControl.BurstPattern("", patternStartLabel, true, TimeSpan.FromSeconds(10));
+
+                    // This call to BurstPattern returns immediately because waitUntilDone is 'false.'
+                    nIDigital.PatternControl.BurstPattern("", patternStartLabel, true, false, TimeSpan.FromSeconds(10));
                     break;
                 case TriggerType.None:
                     nIDigital.PatternControl.BurstPattern(string.Empty, patternStartLabel, true, TimeSpan.FromSeconds(10));
