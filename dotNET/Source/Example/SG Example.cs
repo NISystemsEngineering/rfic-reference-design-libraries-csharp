@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using NationalInstruments.ModularInstruments.NIRfsg;
 using static NationalInstruments.ReferenceDesignLibraries.SG;
 
@@ -9,7 +10,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         static void Main()
         {
             string resourceName = "VST2";
-            string filePath = @"C:\Users\SiLabs\Desktop\11ac_MCS9_BW_40M_IQ_80M.tdms";
+            string filePath = Path.GetFullPath(@"Support Files\80211a_20M_48Mbps.tdms");
 
             NIRfsg nIRfsg = new NIRfsg(resourceName, false, false);
             InstrumentConfiguration instrConfig = new InstrumentConfiguration();
