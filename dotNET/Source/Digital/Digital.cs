@@ -52,7 +52,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             nIDigital.LoadPinMap(projectFiles.PinMapFile);
             nIDigital.LoadSpecifications(projectFiles.SpecificationsFiles);
-            nIDigital.LoadLevels(projectFiles.SpecificationsFiles);
+            nIDigital.LoadLevels(projectFiles.PinLevelsFiles);
             nIDigital.LoadTiming(projectFiles.TimingFiles);
             foreach (string path in projectFiles.DigitalPatternFiles) nIDigital.LoadPattern(path);
 
