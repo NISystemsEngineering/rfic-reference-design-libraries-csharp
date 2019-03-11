@@ -97,6 +97,12 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     break;
             }
         }
+        public static void DisconnectAndClose(NIDigital nIDigital)
+        {
+            //Disconnect all pins before closing
+            nIDigital.PinAndChannelMap.GetPinSet("").SelectedFunction = SelectedFunction.Disconnect;
+            nIDigital.Close();
+        }
         #endregion
         #region Results
         #endregion
