@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Collections;
 using System.IO;
 using NationalInstruments.ModularInstruments.NIDigital;
 using static NationalInstruments.ReferenceDesignLibraries.Digital;
@@ -11,6 +12,7 @@ namespace MIPI_RFFE
     {
         public static void Main()
         {
+            /*
             NIDigital digital = new NIDigital("PXI1Slot2", false, false, "");
 
             string pinMapPath = Path.GetFullPath(@"Support Files\PinMap.pinmap");
@@ -28,7 +30,20 @@ namespace MIPI_RFFE
                 DigitalPatternFiles = new string[1] { patternPath }
             };
 
-            BurstRFFE(digital, new RegisterData(), "", RFFECommand.Reg0Write);
+            BurstRFFE(digital, new RegisterData(), "", RFFECommand.Reg0Write, GetDefaultTriggerConfiguration());*/
+            uint x = 0xC;
+            string byteString = Convert.ToString(x, 2);
+            Console.WriteLine(byteString);
+
+            char[] cArray = byteString.ToCharArray();
+            uint[] rArray = new uint[cArray.Length];
+
+            //byte[] result = Convert.FromBase64CharArray(cArray, 0, cArray.Length);
+            for (int i = 0; i < cArray.Length; i++) {
+                rArray[i] = (uint)char.GetNumericValue(cArray[i]);
+            }
+
+            Console.ReadKey();
     }
 
     }
