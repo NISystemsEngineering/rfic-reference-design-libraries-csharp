@@ -41,7 +41,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             return new TriggerConfiguration
             {
-                BurstTriggerType = TriggerType.DigitalEdge,
+                BurstTriggerType = TriggerType.None,
                 DigitalEdgeType = DigitalEdge.Rising,
                 DigitalEdgeSource = "PXI_Trig0",
             };
