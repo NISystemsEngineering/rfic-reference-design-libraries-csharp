@@ -44,7 +44,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.DigitalProtocols.Tests
             RegisterData testData = new RegisterData
             {
                 SlaveAddress = 0xF, //15
-                WriteRegisterData = new byte[1] {8}
+                WriteRegisterData = new byte[1] { 8 },
+                ByteCount = 1
             };
 
             RFFECommand Reg0 = RFFECommand.Reg0Write;
@@ -53,8 +54,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.DigitalProtocols.Tests
             Reg0.CreateSourceData(testData, out uint[] sourceData, out int numByte);
             uint[] knownData = BitStringToArray("111100010001");
 
-            CollectionAssert.AreEqual(sourceData, knownData, "Reg0Write data should match known data");
+            CollectionAssert.AreEqual(sourceData, knownData, "Reg0Write data should match known data (medium data)");
 
+            //Additional tests validate that the padding is correctly applied
+            testData.SlaveAddress = 0x1;
+            testData.WriteRegisterData[0] = 0x1;
+            Reg0.CreateSourceData(testData, out sourceData, out numByte);
+
+            knownData = BitStringToArray("000100000010");
+            CollectionAssert.AreEqual(sourceData, knownData, "Reg0Write data should match known data (min data)");
+
+            testData.SlaveAddress = 0xF;
+            testData.WriteRegisterData[0] = 0x7F;
+            Reg0.CreateSourceData(testData, out sourceData, out numByte);
+
+            knownData = BitStringToArray("111111111111");
+            CollectionAssert.AreEqual(sourceData, knownData, "Reg0Write data should match known data (max data)");
         }
     }
 }

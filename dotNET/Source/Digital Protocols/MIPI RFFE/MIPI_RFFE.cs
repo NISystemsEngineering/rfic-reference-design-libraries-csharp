@@ -67,7 +67,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.DigitalProtocols
                 //For Reg0Write, build 4 bit SA and 7 bit Data with parity.
                 //COMMAND/ADDRESS/DATA FRAME
 
-                string slaveAddress = Convert.ToString(regData.SlaveAddress, 2);
+                string slaveAddress = Convert.ToString(regData.SlaveAddress, 2).PadLeft(4, '0');
                 //Only take the first element of register data
                 string data = Convert.ToString(regData.WriteRegisterData[0], 2).PadLeft(7,'0');
 
