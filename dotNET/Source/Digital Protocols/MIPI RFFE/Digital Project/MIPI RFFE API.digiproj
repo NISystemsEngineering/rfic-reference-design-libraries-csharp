@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SourceFile Checksum="4D9A674DF1E3BCE36989FF116F4D4B6A" xmlns="http://www.ni.com/PlatformFramework">
+	<SourceModelFeatureSet>
+		<ParsableNamespace AssemblyFileVersion="4.7.1.49769" FeatureSetName="Digital Pattern Editor" MinimumParsableVersion="4.6.0.0" MinimumSemanticallyEquivalentVersion="4.6.0.0" Name="http://www.ni.com/PatternBasedDigital" Version="4.6.0.49152" />
+		<ParsableNamespace AssemblyFileVersion="4.7.1.49769" FeatureSetName="Editor" MinimumParsableVersion="4.5.0.0" MinimumSemanticallyEquivalentVersion="4.5.0.0" Name="http://www.ni.com/PlatformFramework" Version="4.6.0.1" />
+		<ApplicationVersionInfo Build="4.7.1.49769" Name="Digital Pattern Editor" Version="17.1.0" />
+	</SourceModelFeatureSet>
+	<Project xmlns="http://www.ni.com/PlatformFramework">
+		<ProjectSettings Id="1" ModelDefinitionType="ProjectSettings" Name="ZProjectSettings" />
+		<EmbeddedDefinitionReference Bindings="Envoy,DefinitionReference,NationalInstruments.ProjectExplorer.Modeling.ProjectDataManager,ProjectDefaultCopyPasteServiceOptOut,EmbeddedReference" Id="2" ModelDefinitionType="NationalInstruments.ProjectExplorer.Modeling.ProjectDataManager" Name="ProjectExplorer">
+			<ProjectExplorer />
+		</EmbeddedDefinitionReference>
+		<NameScopingEnvoy Bindings="Envoy,DefinitionReference,DefaultTarget,EmbeddedReference,ScopingEnvoy,NameScopingEnvoy" Id="3" ModelDefinitionType="DefaultTarget" Name="DefaultTarget">
+			<DefaultTarget />
+			<FileReference Bindings="Envoy,DefinitionReference,PinMap,FileReference" Id="14" ModelDefinitionType="PinMap" Name="PinMap\.pinmap" StoragePath="PinMap.pinmap" p4:IsActive="True" xmlns:p4="http://www.ni.com/PatternBasedDigital" />
+			<FileReference Bindings="Envoy,DefinitionReference,TimingDefinition,FileReference" Id="15" ModelDefinitionType="TimingDefinition" Name="Timing\.digitiming" StoragePath="Timing.digitiming" p4:IsActive="True" xmlns:p4="http://www.ni.com/PatternBasedDigital" />
+			<FileReference Bindings="Envoy,DefinitionReference,PinLevelsDefinition,FileReference" Id="16" ModelDefinitionType="PinLevelsDefinition" Name="PinLevels\.digilevels" StoragePath="PinLevels.digilevels" p4:IsActive="True" xmlns:p4="http://www.ni.com/PatternBasedDigital" />
+			<FileReference Bindings="Envoy,DefinitionReference,SpecificationsDefinition,FileReference" Id="24" ModelDefinitionType="SpecificationsDefinition" Name="Specifications\.specs" StoragePath="Specifications.specs" />
+			<FileReference Bindings="Envoy,DefinitionReference,SourceWaveformDefinition,FileReference" Id="37" ModelDefinitionType="SourceWaveformDefinition" Name="SourceWaveform_RegWriteExt\.tdms" StoragePath="SourceWaveform_RegWriteExt.tdms" />
+			<FileReference Bindings="Envoy,DefinitionReference,CaptureWaveformDefinition,FileReference" Id="71" ModelDefinitionType="CaptureWaveformDefinition" Name="CaptureWaveform_RegReadExt\.digicapture" StoragePath="CaptureWaveform_RegReadExt.digicapture" />
+			<FileReference Bindings="Envoy,DefinitionReference,SourceWaveformDefinition,FileReference" Id="72" ModelDefinitionType="SourceWaveformDefinition" Name="SourceWaveform_RegReadExt\.tdms" StoragePath="SourceWaveform_RegReadExt.tdms" />
+			<FileReference Bindings="Envoy,DefinitionReference,DigitalPatternEditor.PatternDefinition,FileReference" Id="93" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="RFFE_Reg0Write\.digipat" StoragePath="RFFE Command Patterns\RFFE_Reg0Write.digipat" />
+			<FileReference Bindings="Envoy,DefinitionReference,DigitalPatternEditor.PatternDefinition,FileReference" Id="94" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="RFFE_RegRead\.digipat" StoragePath="RFFE Command Patterns\RFFE_RegRead.digipat" />
+			<FileReference Bindings="Envoy,DefinitionReference,DigitalPatternEditor.PatternDefinition,FileReference" Id="95" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="RFFE_RegWriteExt\.digipat" StoragePath="RFFE Command Patterns\RFFE_RegWriteExt.digipat" />
+			<FileReference Bindings="Envoy,DefinitionReference,DigitalPatternEditor.PatternDefinition,FileReference" Id="96" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="RFFE_RegWriteExtLong\.digipat" StoragePath="RFFE Command Patterns\RFFE_RegWriteExtLong.digipat" />
+			<FileReference Bindings="Envoy,DefinitionReference,DigitalPatternEditor.PatternDefinition,FileReference" Id="97" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="RFFE_RegWrite\.digipat" StoragePath="RFFE Command Patterns\RFFE_RegWrite.digipat" />
+			<FileReference Bindings="Envoy,DefinitionReference,DigitalPatternEditor.PatternDefinition,FileReference" Id="98" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="RFFE_RegReadExtLong\.digipat" StoragePath="RFFE Command Patterns\RFFE_RegReadExtLong.digipat" />
+			<FileReference Bindings="Envoy,DefinitionReference,DigitalPatternEditor.PatternDefinition,FileReference" Id="99" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="RFFE_RegReadExt\.digipat" StoragePath="RFFE Command Patterns\RFFE_RegReadExt.digipat" />
+		</NameScopingEnvoy>
+		<EmbeddedDefinitionReference Bindings="Envoy,DefinitionReference,DigitalPatternEditor.ProjectPropertiesDefinition,EmbeddedReference" Id="7" ModelDefinitionType="DigitalPatternEditor.ProjectPropertiesDefinition" Name="ProjectProperties">
+			<ProjectPropertiesDefinition xmlns="http://www.ni.com/PatternBasedDigital" />
+		</EmbeddedDefinitionReference>
+	</Project>
+	<ProjectInformation Author="" xmlns="http://www.ni.com/PlatformFramework">
+		<p.Description></p.Description>
+	</ProjectInformation>
+</SourceFile>
