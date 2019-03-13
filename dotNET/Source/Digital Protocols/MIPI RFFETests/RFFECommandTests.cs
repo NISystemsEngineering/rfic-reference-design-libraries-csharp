@@ -15,35 +15,46 @@ namespace NationalInstruments.ReferenceDesignLibraries.DigitalProtocols.Tests
         [TestMethod()]
         public void CalculateParityTest()
         {
-            RFFECommand test = RFFECommand.Reg0Write;
-
-            //Create Private object for testing private class methods
-            PrivateObject priv = new PrivateObject(test);
-
             //Should be odd parity - 0
             string bitString = "111110000000";
-            var result = priv.Invoke("CalculateParity", bitString);
+            string result = CalculateParity(bitString);
             Assert.AreEqual(result, "0");
 
             //Should be odd parity - 1
             bitString = "111110000001";
-            result = priv.Invoke("CalculateParity", bitString);
+            result = CalculateParity(bitString);
             Assert.AreEqual(result, "1");
         }
 
         [TestMethod()]
         public void BitStringToArrayTest()
         {
-            RFFECommand test = RFFECommand.Reg0Write;
-            //Create Private object for testing private class methods
-            PrivateObject priv = new PrivateObject(test);
 
             string bitString = "11110000";
             uint[] bitArray = new uint[8] {1,1,1,1,0,0,0,0};
 
             //REsult should be the same bit array represented above
-            uint[] result = (uint[])priv.Invoke("BitStringToArray", bitString);
+            uint[] result = BitStringToArray(bitString);
             CollectionAssert.AreEqual(result, bitArray);
+        }
+
+        [TestMethod()]
+        public void Reg0WriteTest()
+        {
+            RegisterData testData = new RegisterData
+            {
+                SlaveAddress = 0xF, //15
+                WriteRegisterData = new byte[1] {8}
+            };
+
+            RFFECommand Reg0 = RFFECommand.Reg0Write;
+
+            //Result should be 111100010001
+            Reg0.CreateSourceData(testData, out uint[] sourceData, out int numByte);
+            uint[] knownData = BitStringToArray("111100010001");
+
+            CollectionAssert.AreEqual(sourceData, knownData, "Reg0Write data should match known data");
+
         }
     }
 }
