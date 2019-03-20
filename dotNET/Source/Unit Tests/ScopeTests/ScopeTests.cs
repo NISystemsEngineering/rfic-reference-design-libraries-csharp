@@ -27,9 +27,19 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             Assert.AreEqual(measConfig.SampleRate_Hz, testScope.Acquisition.SampleRateMin);
             Assert.AreEqual(measConfig.ScopeTriggerSource, testScope.Trigger.Source.ToString());
             Assert.AreEqual(measConfig.TriggerEdge, testScope.Trigger.EdgeTrigger.Slope);
+            Assert.AreEqual(measConfig.ScopeTriggerType, testScope.Trigger.Type);
 
             //Validate that the measurement time is properly calculated by teh code
             Assert.AreEqual(measConfig.MeasurementTime_s, testScope.Acquisition.TimePerRecord.TotalSeconds, 1e-6);
+
+            //Validate that various trigges are setup correctly
+            measConfig.ScopeTriggerType = ScopeTriggerType.Immediate;
+            ConfigureMeasurement(testScope, measConfig, "0");
+            Assert.AreEqual(measConfig.ScopeTriggerType, testScope.Trigger.Type);
+
+            measConfig.ScopeTriggerType = ScopeTriggerType.Software;
+            ConfigureMeasurement(testScope, measConfig, "0");
+            Assert.AreEqual(measConfig.ScopeTriggerType, testScope.Trigger.Type);
 
             testScope.Close();
         }

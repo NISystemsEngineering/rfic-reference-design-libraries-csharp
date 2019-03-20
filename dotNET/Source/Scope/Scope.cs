@@ -34,6 +34,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         }
         public struct MeasurementConfiguration
         {
+            public ScopeTriggerType ScopeTriggerType;
             public string ScopeTriggerSource;
             public ScopeTriggerSlope TriggerEdge;
             public double SampleRate_Hz;
@@ -43,6 +44,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             return new MeasurementConfiguration
             {
+                ScopeTriggerType = ScopeTriggerType.DigitalEdge,
                 ScopeTriggerSource = ScopeTriggerSource.Rtsi0, //Equivalent to PXI_Trig_0
                 TriggerEdge = ScopeTriggerSlope.Positive, //Rising edge
                 SampleRate_Hz = 20.00E+6,
@@ -68,8 +70,21 @@ namespace NationalInstruments.ReferenceDesignLibraries
         }
         public static void ConfigureMeasurement(NIScope scope, MeasurementConfiguration measurementConfig, string channelNames = "0")
         {
-            scope.Trigger.ConfigureTriggerDigital(ScopeTriggerSource.FromString(measurementConfig.ScopeTriggerSource),
-                measurementConfig.TriggerEdge, PrecisionTimeSpan.Zero, PrecisionTimeSpan.Zero);
+            switch (measurementConfig.ScopeTriggerType)
+            {
+                case ScopeTriggerType.DigitalEdge:
+                    scope.Trigger.ConfigureTriggerDigital(ScopeTriggerSource.FromString(measurementConfig.ScopeTriggerSource),
+                        measurementConfig.TriggerEdge, PrecisionTimeSpan.Zero, PrecisionTimeSpan.Zero);
+                    break;
+                case ScopeTriggerType.Immediate:
+                    scope.Trigger.ConfigureTriggerImmediate();
+                    break;
+                case ScopeTriggerType.Software:
+                    scope.Trigger.ConfigureTriggerSoftware(PrecisionTimeSpan.Zero, PrecisionTimeSpan.Zero);
+                    break;
+                default:
+                    throw new System.NotImplementedException("The functionality for the requested NI-SCOPE trigger type has not been implemented.");
+            }
 
             scope.Acquisition.SampleRateMin = measurementConfig.SampleRate_Hz;
             scope.Acquisition.NumberOfPointsMin = (long)Math.Round(scope.Acquisition.SampleRate * measurementConfig.MeasurementTime_s);
