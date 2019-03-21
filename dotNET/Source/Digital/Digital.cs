@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.IO;
 using NationalInstruments.ModularInstruments.NIDigital;
 
 
@@ -50,10 +51,30 @@ namespace NationalInstruments.ReferenceDesignLibraries
         #region Configuration
         public static void LoadProjectFiles(NIDigital nIDigital, ProjectFiles projectFiles)
         {
-            nIDigital.LoadPinMap(projectFiles.PinMapFile);
-            nIDigital.LoadSpecifications(projectFiles.SpecificationsFiles);
-            nIDigital.LoadLevels(projectFiles.PinLevelsFiles);
-            nIDigital.LoadTiming(projectFiles.TimingFiles);
+            if (string.IsNullOrEmpty(projectFiles.PinMapFile))
+            {
+                throw new System.ArgumentException("A pin map file is required by the instrument", "ProjectFiles.PinMapFile");
+            }
+            else nIDigital.LoadPinMap(projectFiles.PinMapFile);
+
+            if (projectFiles.SpecificationsFiles.Length > 0)
+            {
+                nIDigital.LoadSpecifications(projectFiles.SpecificationsFiles);
+            } //Specifications sheets are not required by the instrument
+
+            if (projectFiles.PinLevelsFiles.Length > 0)
+            {
+                nIDigital.LoadLevels(projectFiles.PinLevelsFiles);
+            }
+            else throw new System.ArgumentException("At least one levels sheet must be supplied to the instrument", "PinLevelsFiles");
+
+            if (projectFiles.TimingFiles.Length > 0)
+            {
+                nIDigital.LoadTiming(projectFiles.TimingFiles);
+            }
+            else throw new System.ArgumentException("At least one timing sheet must be supplied to the instrument", "TimingFiles");
+            
+
             foreach (string path in projectFiles.DigitalPatternFiles) nIDigital.LoadPattern(path);
 
             if (projectFiles.PinLevelsFiles.Length == 1 && projectFiles.TimingFiles.Length == 1)
@@ -106,5 +127,35 @@ namespace NationalInstruments.ReferenceDesignLibraries
         #endregion
         #region Results
         #endregion
+        public class Utilities
+        {
+            public static ProjectFiles SearchForProjectFiles(string searchDirectory, bool recursiveSearch)
+            {
+                ProjectFiles results = new ProjectFiles();
+
+                if (!Directory.Exists(searchDirectory))
+                    throw new System.IO.DirectoryNotFoundException();
+
+                //Setup search options for the file search
+                SearchOption searchOpt;
+                if (recursiveSearch) searchOpt = SearchOption.AllDirectories;
+                else searchOpt = SearchOption.TopDirectoryOnly;
+
+                string[] pinMapFiles = Directory.GetFiles(searchDirectory, "*.pinmap", searchOpt);
+                if (pinMapFiles.Length > 1)
+                {
+                    throw new System.ArgumentOutOfRangeException("More than one Pin Map files were" +
+                        "found in the specified search directory. The instrument can only load one at a time");
+                }
+                else if (pinMapFiles.Length == 1) results.PinMapFile = pinMapFiles[0];
+
+                results.DigitalPatternFiles = Directory.GetFiles(searchDirectory, "*.digipat", searchOpt);
+                results.PinLevelsFiles = Directory.GetFiles(searchDirectory, "*.digilevels", searchOpt);
+                results.SpecificationsFiles = Directory.GetFiles(searchDirectory, "*.specs", searchOpt);
+                results.TimingFiles = Directory.GetFiles(searchDirectory, "*.digitiming", searchOpt);
+
+                return results;
+            }
+        }
     }
 }
