@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Ivi.Driver;
 using NationalInstruments.DataInfrastructure;
 using NationalInstruments.ModularInstruments.NIRfsg;
@@ -42,28 +43,37 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public int[] BurstStartLocations;
             public int[] BurstStopLocations;
         }
-        public enum PAENMode { Disabled, Static, Dynamic };
-        public struct DynamicGenerationAndPAENConfiguration
+        public struct WaveformTimingConfiguration
         {
             public double DutyCycle_Percent;
             public double PreBurstTime_s;
             public double PostBurstTime_s;
+
+            public void SetDefaults()
+            {
+                DutyCycle_Percent = 50;
+                PreBurstTime_s = 1e-6;
+                PostBurstTime_s = 1e-6;
+            }
+        }
+        public enum PAENMode { Disabled, Static, Dynamic };
+        public struct PAENConfiguration
+        {
             public PAENMode PAEnableMode;
             public RfsgMarkerEventOutputBehaviour PAEnableTriggerMode;
-            public double CommandLengthTime_s;
+            public double CommandEnableTime_s;
+            public double CommandDisableTime_s;
             public string PAEnableTriggerExportTerminal;
-
+            
             public void SetDefaults()
             {
                 //Default configuration is set for a DUT with a simple digital toggle high/low
                 //for PA Enable
-                DutyCycle_Percent = 50;
-                PreBurstTime_s = 500e-9;
-                PostBurstTime_s = 500e-9;
                 PAEnableMode = PAENMode.Dynamic;
                 PAEnableTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.Pfi0.ToString();
-                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Pulse;
-                CommandLengthTime_s = 0;
+                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle;
+                CommandEnableTime_s = 0;
+                CommandDisableTime_s = 0;
             }
         }
         #endregion
@@ -144,29 +154,30 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, -1.5);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
-        public static void ConfigureDynamicGenerationAndPAEnableControl(ref NIRfsg rfsgHandle, ref Waveform waveform, DynamicGenerationAndPAENConfiguration dynamicConfig, 
-            out double period, out double idleTime)
+        public static void ConfigureWaveformTimingAndPAControl(ref NIRfsg rfsgHandle, ref Waveform waveform, WaveformTimingConfiguration waveTiming,
+            PAENConfiguration paenConfig, out double period, out double idleTime)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
-            string scriptName = String.Format("{0}{1}", waveform.WaveformName, dynamicConfig.DutyCycle_Percent);
+            string scriptName = String.Format("{0}{1}", waveform.WaveformName, waveTiming.DutyCycle_Percent);
 
-            if (dynamicConfig.DutyCycle_Percent <= 0)
+            if (waveTiming.DutyCycle_Percent <= 0)
             {
-                throw new System.ArgumentOutOfRangeException("DutyCycle_Percent", dynamicConfig.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
+                throw new System.ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
             }
 
             //Calculate various timining information
-            double dutyCycle = dynamicConfig.DutyCycle_Percent / 100;
-            double totalBurstTime = dynamicConfig.PreBurstTime_s + waveform.BurstLength_s + dynamicConfig.PostBurstTime_s;
+            double dutyCycle = waveTiming.DutyCycle_Percent / 100;
+            double totalBurstTime = waveTiming.PreBurstTime_s + waveform.BurstLength_s + waveTiming.PostBurstTime_s;
             idleTime = (totalBurstTime / dutyCycle) - totalBurstTime;
             period = totalBurstTime + idleTime;
 
             //Convert all time based values to sample based values
-            long preBurstSamp, postBurstSamp, idleSamp, commandSamples;
-            preBurstSamp = (long)Math.Round(dynamicConfig.PreBurstTime_s * waveform.SampleRate);
-            postBurstSamp = (long)Math.Round(dynamicConfig.PostBurstTime_s * waveform.SampleRate);
-            idleSamp = (long)Math.Round(idleTime * waveform.SampleRate);
-            commandSamples = (long)Math.Round(dynamicConfig.CommandLengthTime_s * waveform.SampleRate);
+            long preBurstSamp, postBurstSamp, idleSamp, enableSamples, disableSamples;
+            preBurstSamp = TimeToSamples(waveTiming.PreBurstTime_s, waveform.SampleRate);
+            postBurstSamp = TimeToSamples(waveTiming.PostBurstTime_s, waveform.SampleRate);
+            idleSamp = TimeToSamples(idleTime, waveform.SampleRate);
+            enableSamples = TimeToSamples(paenConfig.CommandEnableTime_s, waveform.SampleRate);
+            disableSamples = TimeToSamples(paenConfig.CommandDisableTime_s, waveform.SampleRate);
 
             //RFSG enforces a minimum wait time of 8 samples, so ensure that the minimum pre/post burst time
             // and idle time are at least 8 samples long
@@ -180,21 +191,20 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             #region Script Building
             //If we have a static PA Enable mode, ensure that we trigger at the beginning of the script prior to looping.
-            //You must explicitly disable the PA after aborting generation.
-            if (dynamicConfig.PAEnableMode == PAENMode.Static)
+            if (paenConfig.PAEnableMode == PAENMode.Static)
                 sb.AppendLine("wait 8 marker1(7)");
 
             //Configure for endless repeating
-            sb.AppendLine("Repeat forever");
+            sb.AppendLine("Repeat until scriptTrigger0");
 
             //Configure the idle time prior to each packet generation
             sb.Append($"wait {idleSamp}");
 
             //If PAEN Mode is dynamic we need to trigger the PA to enable
-            if (dynamicConfig.PAEnableMode == PAENMode.Dynamic)
+            if (paenConfig.PAEnableMode == PAENMode.Dynamic)
             {
                 //PA Enable is triggered at or before the last sample of the wait period
-                long PAEnableTriggerLoc = idleSamp - commandSamples - 1;
+                long PAEnableTriggerLoc = idleSamp - enableSamples - 1;
                 sb.Append($" marker1({PAEnableTriggerLoc})");
             }
 
@@ -203,17 +213,17 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //Configure waiting for the pre-burst time
             sb.AppendLine($"wait {preBurstSamp}");
 
-            //Configure generation of the selected waveform but only for the burst length
-            sb.Append($"generate {waveform.WaveformName} subset({waveform.BurstStartLocations[0]},{waveform.BurstStopLocations[0]})");
+            //Configure generation of the selected waveform but only for the burst length; send a trigger at the beginning of each burst
+            sb.Append($"generate {waveform.WaveformName} subset({waveform.BurstStartLocations[0]},{waveform.BurstStopLocations[0]}) marker0(0)");
 
             //Check to see if the command time is longer than the post-burst time, which determines when the PA disable command needs sent
-            bool LongCommand = dynamicConfig.PostBurstTime_s < dynamicConfig.CommandLengthTime_s;
+            bool LongCommand = waveTiming.PostBurstTime_s <= paenConfig.CommandDisableTime_s;
 
-            if (dynamicConfig.PAEnableMode == PAENMode.Dynamic && LongCommand)
+            if (paenConfig.PAEnableMode == PAENMode.Dynamic && LongCommand)
             {
                 //Trigger is placed a number of samples from the end of the burst corresponding with
                 //how much longer than the post burst time it is
-                long PADisableTriggerLoc = waveform.BurstStopLocations[0] - (commandSamples - postBurstSamp) - 1;
+                long PADisableTriggerLoc = waveform.BurstStopLocations[0] - (disableSamples - postBurstSamp) - 1;
                 sb.Append($" marker1({PADisableTriggerLoc})");
             }
             sb.AppendLine();
@@ -223,14 +233,19 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             //If the ommand time is shorter than the post-burst time, the disable trigger must be sent
             //during the post-burst time 
-            if (dynamicConfig.PAEnableMode == PAENMode.Dynamic && !LongCommand)
+            if (paenConfig.PAEnableMode == PAENMode.Dynamic && !LongCommand)
             {
-                long PADisableTriggerLoc = postBurstSamp - commandSamples - 1;
+                long PADisableTriggerLoc = postBurstSamp - disableSamples - 1;
                 sb.Append($" marker1({PADisableTriggerLoc})");
             }
             sb.AppendLine();
             //Close out the script
             sb.AppendLine("end repeat");
+
+            //If we have a static PA Enable mode, ensure that we trigger at the end of the script prior to concluding.
+            if (paenConfig.PAEnableMode == PAENMode.Static)
+                sb.AppendLine("wait 10 marker1(0)");
+
             sb.AppendLine("end script");
             #endregion
 
@@ -238,11 +253,15 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, sb.ToString());
 
             //Configure the triggering for PA enable if selected
-            if (dynamicConfig.PAEnableMode != PAENMode.Disabled)
+            if (paenConfig.PAEnableMode != PAENMode.Disabled)
             {
                 rfsgHandle.DeviceEvents.MarkerEvents[1].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(
-                    dynamicConfig.PAEnableTriggerExportTerminal);
-                rfsgHandle.DeviceEvents.MarkerEvents[1].OutputBehaviour = dynamicConfig.PAEnableTriggerMode;
+                    paenConfig.PAEnableTriggerExportTerminal);
+                rfsgHandle.DeviceEvents.MarkerEvents[1].OutputBehaviour = paenConfig.PAEnableTriggerMode;
+
+                //Configure scriptTrigger0 for software triggering. This way, when it is time to abort we can stop
+                //the loop and trigger the appropriate off command if PAEN mode is Static
+                rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
             }
         }
         public static void ConfigureRF(ref NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
@@ -294,6 +313,39 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Arb.Scripting.SelectedScriptName = cachedScriptName;
             rfsgHandle.Utility.Commit();
         }
+        public static void AbortDynamicGeneration(ref NIRfsg rfsgHandle, int timeOut_ms = 1000)
+        {
+            //This should trigger the generator to stop infinite generation and trigger any post
+            //generation commands. For the static PA enable case, this should trigger the requisite
+            //off command to disable the PA.
+            rfsgHandle.Triggers.ScriptTriggers[0].SendSoftwareEdgeTrigger();
+
+            int sleepTime_ms = 20;
+            int maxIterations = (int)Math.Ceiling((double)timeOut_ms / sleepTime_ms);
+            RfsgGenerationStatus genStatus = rfsgHandle.CheckGenerationStatus();
+
+            //Poll the generation status until it is complete or the timeout period is reached
+            if (genStatus == RfsgGenerationStatus.InProgress)
+            {
+                for (int i = 0; i < maxIterations; i++)
+                {
+                    genStatus = rfsgHandle.CheckGenerationStatus();
+                    if (genStatus == RfsgGenerationStatus.Complete)
+                        break;
+                    else
+                        Thread.Sleep(sleepTime_ms);
+                }
+
+                //This will only be true if we time out
+                if (genStatus == RfsgGenerationStatus.InProgress)
+                {
+                    //If we timeed out then we need to call an explicit abort
+                    rfsgHandle.Abort();
+                    throw new System.TimeoutException("Dynamic generation did not complete in the specified timeout period. Increase the timeout period" +
+                        "or ensure that scripTrigger0 is properly configured to stop generation");
+                }
+            }
+        }
         public static void CloseInstrument(ref NIRfsg rfsgHandle)
         {
             rfsgHandle.Abort();
@@ -331,6 +383,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //Since we already scaled the data, the max value is simply 1
             waveform.PAPR_dB = 20 * Math.Log10(1 / rms);
 
+        }
+        private static long TimeToSamples(double time, double sampleRate)
+        {
+            return (long)Math.Round(time * sampleRate);
         }
 
         public class Utilities

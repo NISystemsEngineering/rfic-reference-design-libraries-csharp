@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>NationalInstruments.ReferenceDesignLibraries.Examples.Digital_Example</StartupObject>
+    <StartupObject>NationalInstruments.ReferenceDesignLibraries.Examples.SGExample</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NationalInstruments.Common, Version=17.5.40.49153, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL" />
@@ -103,6 +103,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Support Files\80211a_20M_48Mbps.tdms">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Support Files\Pattern.digipat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

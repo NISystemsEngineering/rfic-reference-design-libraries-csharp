@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.RFmx.WlanMX;
 using NationalInstruments.ModularInstruments.NIRfsg;
@@ -12,7 +13,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         {
             #region Configure Generation
             string resourceName = "VST2";
-            string filePath = @"C:\Users\Public\Documents\National Instruments\NI RFIC Test Software\Waveforms\80211ac_80M_MCS9.tdms";
+            string filePath = Path.GetFullPath(@"Support Files\80211a_20M_48Mbps.tdms");
 
             NIRfsg nIRfsg = new NIRfsg(resourceName, false, false);
             InstrumentConfiguration instrConfig = new InstrumentConfiguration();
@@ -24,15 +25,21 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             DownloadWaveform(ref nIRfsg, ref waveform);
 
-            WaveformGenerationTiming timing = new WaveformGenerationTiming
+            WaveformTimingConfiguration timing = new WaveformTimingConfiguration
             {
                 DutyCycle_Percent = 60,
-                PFIPortMode = WaveformGenerationTiming.PFIMode.Disabled,
                 PreBurstTime_s = 1e-9,
                 PostBurstTime_s = 1e-9,
             };
 
-            CreatedAndDownloadScript(ref nIRfsg, ref waveform, timing, out double period, out _);
+            PAENConfiguration paenConfig = new PAENConfiguration
+            {
+                PAEnableMode = PAENMode.Dynamic,
+                PAEnableTriggerExportTerminal = "PFI0",
+                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle
+            };
+
+            ConfigureWaveformTimingAndPAControl(ref nIRfsg, ref waveform, timing, paenConfig, out double period, out _);
             nIRfsg.Initiate();
             #endregion
 
@@ -47,7 +54,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             AutoLevelConfiguration autoLevel = new AutoLevelConfiguration
             {
-                AutoLevelMeasureTime_s = period,
+                //AutoLevelMeasureTime_s = period,
                 AutoLevelReferenceLevel = true
             };
 

@@ -15,25 +15,35 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             NIRfsg nIRfsg = new NIRfsg(resourceName, false, false);
             InstrumentConfiguration instrConfig = new InstrumentConfiguration();
             instrConfig.SetDefaults();
+            instrConfig.CarrierFrequency_Hz = 2e9;
 
             ConfigureInstrument(ref nIRfsg, instrConfig);
             Waveform waveform = LoadWaveformFromTDMS(ref nIRfsg, filePath);
 
             DownloadWaveform(ref nIRfsg, ref waveform);
-            
-            WaveformGenerationTiming timing = new WaveformGenerationTiming
+
+            WaveformTimingConfiguration dynamicConfig = new WaveformTimingConfiguration
             {
                 DutyCycle_Percent = 20,
-                PFIPortMode = WaveformGenerationTiming.PFIMode.Static,
-                PreBurstTime_s = 1e-06,
-                PostBurstTime_s = 1e-06,
+                PreBurstTime_s = 500e-9,
+                PostBurstTime_s = 500e-9,
+            };
+            PAENConfiguration paenConfig = new PAENConfiguration
+            {
+                PAEnableMode = PAENMode.Dynamic,
+                PAEnableTriggerExportTerminal = "PFI0",
+                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle,
+                CommandEnableTime_s = 0,
+                CommandDisableTime_s = 0,
             };
 
-            CreatedAndDownloadScript(ref nIRfsg, ref waveform, timing, out _, out _);
+            ConfigureWaveformTimingAndPAControl(ref nIRfsg, ref waveform, dynamicConfig, paenConfig, out _, out _);
 
-            waveform = GetWaveformParametersByName(ref nIRfsg, waveform.WaveformName);
+            nIRfsg.Initiate();
 
-            TogglePFILine(ref nIRfsg, RfsgMarkerEventToggleInitialState.DigitalLow);
+            Console.ReadKey();
+
+            AbortDynamicGeneration(ref nIRfsg);
             CloseInstrument(ref nIRfsg);
         }
     }
