@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("MIPI RFFE")]
 [assembly: AssemblyCulture("")]
 
+[assembly: AssemblyFileVersion("1.3.2.0")]
 // Setting ComVisible to false makes the types in this assembly not visible
 // to COM components.  If you need to access a type in this assembly from
 // COM, set the ComVisible attribute to true on that type.
