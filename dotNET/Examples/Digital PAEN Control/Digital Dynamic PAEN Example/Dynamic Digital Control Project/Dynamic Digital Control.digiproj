@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SourceFile Checksum="A6BC54644B943347A02CF51E5CD6F7CB" xmlns="http://www.ni.com/PlatformFramework">
+	<SourceModelFeatureSet>
+		<ParsableNamespace AssemblyFileVersion="5.3.0.61650" FeatureSetName="Digital Pattern Editor" Name="http://www.ni.com/PatternBasedDigital" OldestCompatibleVersion="4.5.0.0" Version="4.6.0.49152" />
+		<ParsableNamespace AssemblyFileVersion="5.3.0.61650" FeatureSetName="Editor" Name="http://www.ni.com/PlatformFramework" OldestCompatibleVersion="5.2.0.49153" Version="5.2.0.49153" />
+		<ApplicationVersionInfo Build="5.3.0.61650" Name="Digital Pattern Editor" Version="18.0.0" />
+	</SourceModelFeatureSet>
+	<Project xmlns="http://www.ni.com/PlatformFramework">
+		<ProjectSettings Id="1" ModelDefinitionType="ProjectSettings" Name="ZProjectSettings" />
+		<EmbeddedDefinitionReference Id="2" ModelDefinitionType="NationalInstruments.ProjectExplorer.Modeling.ProjectDataManager" Name="ProjectExplorer">
+			<ProjectExplorer />
+		</EmbeddedDefinitionReference>
+		<NameScopingEnvoy Id="3" ModelDefinitionType="DefaultTarget" Name="DefaultTarget">
+			<DefaultTarget />
+			<FileReference Id="14" ModelDefinitionType="PinMap" Name="PinMap\.pinmap" StoragePath="PinMap.pinmap" p4:IsActive="True" xmlns:p4="http://www.ni.com/PatternBasedDigital" />
+			<FileReference Id="15" ModelDefinitionType="TimingDefinition" Name="Timing\.digitiming" StoragePath="Timing.digitiming" p4:IsActive="True" xmlns:p4="http://www.ni.com/PatternBasedDigital" />
+			<FileReference Id="16" ModelDefinitionType="PinLevelsDefinition" Name="PinLevels\.digilevels" StoragePath="PinLevels.digilevels" p4:IsActive="True" xmlns:p4="http://www.ni.com/PatternBasedDigital" />
+			<FileReference Id="24" ModelDefinitionType="SpecificationsDefinition" Name="Specifications\.specs" StoragePath="Specifications.specs" />
+			<EmbeddedDefinitionReference Id="100" ModelDefinitionType="{http://www.ni.com/PatternBasedDigital}CaptureResultsDefinition" Name="CaptureResults">
+				<CaptureResultsDefinition xmlns="http://www.ni.com/PatternBasedDigital" />
+			</EmbeddedDefinitionReference>
+			<EmbeddedDefinitionReference Id="102" ModelDefinitionType="{http://www.ni.com/PatternBasedDigital}BurstResultsDefinition" Name="BurstResults">
+				<BurstResultsDefinition xmlns="http://www.ni.com/PatternBasedDigital" />
+			</EmbeddedDefinitionReference>
+			<EmbeddedDefinitionReference Id="104" ModelDefinitionType="{http://www.ni.com/PatternBasedDigital}SystemInfoDefinition" Name="SystemInfo">
+				<SystemInfoDefinition xmlns="http://www.ni.com/PatternBasedDigital" />
+			</EmbeddedDefinitionReference>
+			<EmbeddedDefinitionReference Id="105" ModelDefinitionType="{http://www.ni.com/PatternBasedDigital}DigitalScopeDefinition" Name="DigitalScope">
+				<DigitalScopeDefinition xmlns="http://www.ni.com/PatternBasedDigital" />
+			</EmbeddedDefinitionReference>
+			<FileReference Id="116" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="RFFE_PA_Enable\.digipat" StoragePath="RFFE Command Patterns\RFFE_PA_Enable.digipat" />
+			<FileReference Id="117" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="RFFE_PA_Disable\.digipat" StoragePath="RFFE Command Patterns\RFFE_PA_Disable.digipat" />
+			<FileReference Id="118" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="RFFE_Reg0Write\.digipat" StoragePath="RFFE Command Patterns\RFFE_Reg0Write.digipat" />
+			<FileReference Id="119" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="Dynamic\ Digital\ Enable\.digipat" StoragePath="Control Patterns\Dynamic Digital Enable.digipat" />
+			<FileReference Id="120" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="Dynamic\ Reg0Write\.digipat" StoragePath="Control Patterns\Dynamic Reg0Write.digipat" />
+			<FileReference Id="121" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="Dynamic\ Template\.digipat" StoragePath="Control Patterns\Dynamic Template.digipat" />
+			<FileReference Id="122" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="Dynamic\ MIPI\ RFFE\ Control\.digipat" StoragePath="Control Patterns\Dynamic MIPI RFFE Control.digipat" />
+			<FileReference Id="123" ModelDefinitionType="DigitalPatternEditor.PatternDefinition" Name="Digital\ Wait\.digipat" StoragePath="Digital Wait.digipat" />
+		</NameScopingEnvoy>
+		<EmbeddedDefinitionReference Id="7" ModelDefinitionType="DigitalPatternEditor.ProjectPropertiesDefinition" Name="ProjectProperties">
+			<ProjectPropertiesDefinition xmlns="http://www.ni.com/PatternBasedDigital" />
+		</EmbeddedDefinitionReference>
+	</Project>
+	<ProjectInformation xmlns="http://www.ni.com/PlatformFramework" />
+</SourceFile>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PinLevelsFile xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.0" xmlns="http://www.ni.com/Semiconductor/PinLevels">
+  <PinLevelsSheet>
+    <DigitalPinLevelSets>
+      <DigitalPinLevelSet pin="RFFECLK">
+        <Vil>DC.outputlow</Vil>
+        <Vih>DC.outputhigh</Vih>
+        <Vol>DC.outputhigh/2</Vol>
+        <Voh>DC.outputhigh/2</Voh>
+        <Vterm>0</Vterm>
+        <TerminationMode>HighZ</TerminationMode>
+      </DigitalPinLevelSet>
+      <DigitalPinLevelSet pin="RFFEDATA">
+        <Vil>DC.outputlow</Vil>
+        <Vih>DC.outputhigh</Vih>
+        <Vol>DC.outputhigh/2</Vol>
+        <Voh>DC.outputhigh/2</Voh>
+        <Iol>DC.activeload</Iol>
+        <Ioh>-DC.activeload</Ioh>
+        <Vcom>0</Vcom>
+        <Vterm>0</Vterm>
+        <TerminationMode>ActiveLoad</TerminationMode>
+      </DigitalPinLevelSet>
+      <DigitalPinLevelSet pin="RFFEVIO">
+        <Vil>DC.outputlow</Vil>
+        <Vih>DC.outputhigh</Vih>
+        <Vol>DC.outputhigh/2</Vol>
+        <Voh>DC.outputhigh/2</Voh>
+        <Vterm>0</Vterm>
+        <TerminationMode>HighZ</TerminationMode>
+      </DigitalPinLevelSet>
+      <DigitalPinLevelSet pin="PFI0">
+        <Vil>0.8</Vil>
+        <Vih>2</Vih>
+        <Vol>0.2</Vol>
+        <Voh>2.9</Voh>
+        <Vterm>0</Vterm>
+        <TerminationMode>HighZ</TerminationMode>
+        <Comment>From spec sheet of 5840</Comment>
+      </DigitalPinLevelSet>
+    </DigitalPinLevelSets>
+  </PinLevelsSheet>
+</PinLevelsFile>
