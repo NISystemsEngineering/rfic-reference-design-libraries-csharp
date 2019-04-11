@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.IO;
+using Ivi.Driver;
 using NationalInstruments.ModularInstruments.NIDigital;
 
 
@@ -53,7 +54,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             if (string.IsNullOrEmpty(projectFiles.PinMapFile))
             {
-                throw new System.ArgumentException("A pin map file is required by the instrument", "ProjectFiles.PinMapFile");
+                throw new ArgumentException("A pin map file is required by the instrument", "ProjectFiles.PinMapFile");
             }
             else nIDigital.LoadPinMap(projectFiles.PinMapFile);
 
@@ -66,13 +67,13 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 nIDigital.LoadLevels(projectFiles.PinLevelsFiles);
             }
-            else throw new System.ArgumentException("At least one levels sheet must be supplied to the instrument", "PinLevelsFiles");
+            else throw new ArgumentException("At least one levels sheet must be supplied to the instrument", "PinLevelsFiles");
 
             if (projectFiles.TimingFiles.Length > 0)
             {
                 nIDigital.LoadTiming(projectFiles.TimingFiles);
             }
-            else throw new System.ArgumentException("At least one timing sheet must be supplied to the instrument", "TimingFiles");
+            else throw new ArgumentException("At least one timing sheet must be supplied to the instrument", "TimingFiles");
             
 
             foreach (string path in projectFiles.DigitalPatternFiles) nIDigital.LoadPattern(path);
@@ -96,6 +97,12 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     break;
             }
             pinSet.Ppmu.Source();
+        }
+        public static void ApplyPinTDROffset(NIDigital nIDigital, string pinName, double cableDelay_s)
+        {
+            //Create a new PrecisionTimeSpan array with the cable delay value
+            PrecisionTimeSpan[] offsets = new PrecisionTimeSpan[1] { PrecisionTimeSpan.FromSeconds(cableDelay_s) };
+            nIDigital.PinAndChannelMap.GetPinSet(pinName).ApplyTdrOffsets(offsets);
         }
         public static void InitiatePatternGeneration(NIDigital nIDigital, string patternStartLabel, TriggerConfiguration triggerConfig)
         {
@@ -134,7 +141,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 ProjectFiles results = new ProjectFiles();
 
                 if (!Directory.Exists(searchDirectory))
-                    throw new System.IO.DirectoryNotFoundException();
+                    throw new DirectoryNotFoundException();
 
                 //Setup search options for the file search
                 SearchOption searchOpt;
@@ -144,7 +151,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 string[] pinMapFiles = Directory.GetFiles(searchDirectory, "*.pinmap", searchOpt);
                 if (pinMapFiles.Length > 1)
                 {
-                    throw new System.ArgumentOutOfRangeException("More than one Pin Map files were" +
+                    throw new ArgumentOutOfRangeException("More than one Pin Map files were" +
                         "found in the specified search directory. The instrument can only load one at a time");
                 }
                 else if (pinMapFiles.Length == 1) results.PinMapFile = pinMapFiles[0];
