@@ -126,10 +126,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
         }
         public static void ConfigureMeasurement(NIDCPower supplyHandle, MeasurementConfiguration measConfig, string channelNames = "")
         {
+            //Driver l
             if (measConfig.MeasureWhenMode == DCPowerMeasurementWhen.OnDemand &&
                 measConfig.MeasurementMode == MeasurementConfiguration.MeasurementModeConfiguration.Record)
             {
-                throw new ArgumentException("On Demand measurements can only be configured for a record measurement mode",
+                throw new ArgumentException("On Demand measurements can only be configured for a single measurement mode",
                     "MeasurementMode, MeasureWhenMode");
             }
 
