@@ -100,5 +100,6 @@ public static TriggerConfiguration GetDefaultTriggerConfiguration()
    
 - The release build directory for a class should be set as a relative path to the *Builds* directory, on the same level as the *Source* directory. This is very important so that the automatic build and release tools can properly find the referenced DLLs in order to prepare them for distribution.
 - Ensure that the [CopyLocal property](https://docs.microsoft.com/en-us/dotnet/api/vslangproj.reference.copylocal?view=visualstudiosdk-2017) is set to **False** for all references in the project to instrument drivers or dependent components of the drivers. This is to ensure that when the project is built, *only* the compiled DLL for the project and any sub-module dependencies will be placed in the build directory. Because use of these libraries requires the proper instrument drivers to be installed on disk, the appropriate DLLs should already be in the GAC and therefore the local copies are unecessary and add to the size of any releases generated.
+- The *AssemblyName* property under **Project Properties » Application » Assembly Name** should match the namespace for the class
 
 </details>
