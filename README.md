@@ -1,4 +1,19 @@
-# RF ADV Reference Design Libraries
+# RF ADV Reference Design Libraries - C#
+
+## Table of Contents
+
+ * [Overview](#overview)
+ * [Contribution Guidelines](#contribution-guidelines)
+   + [General Workflow](#general-workflow)
+   + [Creating New Instrument Classes](#creating-new-instrument-classes)
+     - [Project and File Setup](#project-and-file-setup)
+     - [Versioning](#versioning)
+   + [Module Design](#module-design)
+     - [Structure](#structure)
+     - [Data Types](#data-types)
+     - [Exception Handling](#exception-handling)
+   + [Building and Preparing for Distribution](#building-and-preparing-for-distribution)
+
 
 ## Overview
 
@@ -25,8 +40,6 @@ Automation examples in TestStand are provided to show how the modules can be com
 ### Creating New Instrument Classes
 
 
-<details><summary>C#</summary>
-
 #### Project and File Setup
 - Each instrument should be defined as its own class with a basic name *(i.e. Scope, SG, Supply, etc.)*
 - Each instrument class has its own project which is added to the **Reference Design Libraries** solution file
@@ -43,13 +56,7 @@ To setup your project to properly reference the shared **SolutionInfo** file, pe
 
 Each time that a push is made to the master branch of the trunk, the **AssemblyVersion** should be incremented to reflect the change. This version will be used by the automated build and delivery routines to create versioned releases.
 
-</details>
-  
-<details><summary>LabVIEW</summary>
-</details>
-
 ### Module Design
-<details><summary>C#</summary>
 
 All classes should be implemented [static classes](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/static-classes-and-static-class-members) for simplicity of implementation in automation and parity with the LabVIEW implementation
 
@@ -91,15 +98,10 @@ public static TriggerConfiguration GetDefaultTriggerConfiguration()
 - Class methods **should generate exceptions** when input parameters are known to be incorrect such that it will produce a non-intuitive driver error, or an error at some other point later on after the class method. 
    - For example, the [SG](/dotNET/Source/SG/SG.cs) class has a method to generate a packet at a certain duty cycle. If 0% is specified as the requested duty cycle, the driver will throw an error due to errors in the generation script. This will not, however, provide any indication tothrown to indicate the source of the error.
  the developer of the actual problem, and so an `ArgumentOutOfRangeException` exception should be 
-</details>
-
 
 ### Building and Preparing for Distribution
-
-<details><summary>C#</summary>
    
 - The release build directory for a class should be set as a relative path to the *Builds* directory, on the same level as the *Source* directory. This is very important so that the automatic build and release tools can properly find the referenced DLLs in order to prepare them for distribution.
 - Ensure that the [CopyLocal property](https://docs.microsoft.com/en-us/dotnet/api/vslangproj.reference.copylocal?view=visualstudiosdk-2017) is set to **False** for all references in the project to instrument drivers or dependent components of the drivers. This is to ensure that when the project is built, *only* the compiled DLL for the project and any sub-module dependencies will be placed in the build directory. Because use of these libraries requires the proper instrument drivers to be installed on disk, the appropriate DLLs should already be in the GAC and therefore the local copies are unecessary and add to the size of any releases generated.
 - The *AssemblyName* property under **Project Properties » Application » Assembly Name** should match the namespace for the class
 
-</details>
