@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="NiCalibration.xsl"?>
+<Calibration xsi:noNamespaceSchemaLocation="NiCalibration.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateTime>2018-11-21T14:27:40.4064207-06:00</DateTime>
+  <SignalPaths>
+    <SG_Path Path_Type="TX Path" Source_Port="Cable In" Destination_Port="Cable Out" Path_Gain_dB="0" Error_Tolerance_dB="0.05">
+      <Pathloss0 Frequency="0" Power="-400" Error_dB="-0" QueriedPathLoss_dB="0" Temperature_degC="39.875">0</Pathloss0>
+	  <Pathloss1 Frequency="0" Power="400" Error_dB="-0" QueriedPathLoss_dB="0" Temperature_degC="39.875">0</Pathloss1>
+	  <Pathloss2 Frequency="50000000000" Power="-400" Error_dB="-0" QueriedPathLoss_dB="0" Temperature_degC="39.875">0</Pathloss2>
+	  <Pathloss3 Frequency="50000000000" Power="400" Error_dB="-0" QueriedPathLoss_dB="0" Temperature_degC="39.875">0</Pathloss3>
+	</SG_Path>
+  </SignalPaths>
+</Calibration>

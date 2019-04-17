@@ -1,0 +1,7 @@
+#Ignore all report files
+*.html
+*Report*.xml
+Results*.csv
+
+#Ignore TDMS index files
+*.tdms_index
