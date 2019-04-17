@@ -1,6 +1,19 @@
 # RF ADV Reference Design Libraries
 
+## Overview
+
+The RF ADV Reference Design Libraries are a lightweight, **open-source** wrapper around existing NI instrument drivers providing a higher-level starting point for semiconductor RF ADV engineers to use for getting start with automating common tests for PA/FEM validation. They are designed for simplicity and ease of integration with a test sequencer, such as NI's TestStand. They have been designed to be language agnostic, so that the same functionality can be accomplished in LabVIEW or C# with minimal difference between code modules. 
+
+Automation examples in TestStand are provided to show how the modules can be combined together in functional test applications. 
+
 ## Contribution Guidelines
+
+ + [General Workflow](#general-workflow)
+ + [Creating New Instrument Classes](#creating-new-instrument-classes)
+ + [Module Design](#module-design)
+ + [Building and Preparing for Distribution](#building-and-preparing-for-distribution)
+
+### General Workflow
 *For a more complete workflow, view [this workflow guide](https://decibel.ni.com/content/docs/DOC-37417).*
 
 1. Fork this repository into your account.
@@ -14,7 +27,7 @@
 
 <details><summary>C#</summary>
 
-#### Project/File Setup
+#### Project and File Setup
 - Each instrument should be defined as its own class with a basic name *(i.e. Scope, SG, Supply, etc.)*
 - Each instrument class has its own project which is added to the **Reference Design Libraries** solution file
 - Each class should exist in the `NationalInstruments.ReferenceDesignLibraries` namespace
@@ -50,7 +63,7 @@ All classes should be implemented [static classes](https://docs.microsoft.com/en
 #### Data Types
 - Structs are utilized to pass configuration parameters to the various functions.
    - For each configuration struct, a method returning that struct should be created that returns default values with the name *GetDefault**ConfigurationName***. These default values should be set in such a way that they are reasonable starting configurations for a majority of applications, and should not be set for specific hardware.
-- See the following example from the [Digital](https://github.com/mdwhitten/rf-adv-reference-design-libraries/blob/master/dotNET/Source/Digital/Digital.cs) library:
+- See the following example from the [Digital](dotNET/Source/Digital/Digital.cs) library:
 
 ```c#
 public struct TriggerConfiguration
@@ -75,4 +88,17 @@ public static TriggerConfiguration GetDefaultTriggerConfiguration()
 #### Exception Handling
 - Generally, it is acceptable to allow the underlying driver to throw exceptions that will be clearly understood by the developer
    - For example, it is not necessary to check for a valid session handle at the beginning of class method, as the driver itself will provide the necessary exception at the first function call. It is also not necessary in most cases to check if parameters are in range as the driver will do so automatically.
+- Class methods **should generate exceptions** when input parameters are known to be incorrect such that it will produce a non-intuitive driver error, or an error at some other point later on after the class method. 
+   - For example, the [SG](/dotNET/Source/SG/SG.cs) class has a method to generate a packet at a certain duty cycle. If 0% is specified as the requested duty cycle, the driver will throw an error due to errors in the generation script. This will not, however, provide any indication tothrown to indicate the source of the error.
+ the developer of the actual problem, and so an `ArgumentOutOfRangeException` exception should be 
+</details>
+
+
+### Building and Preparing for Distribution
+
+<details><summary>C#</summary>
+   
+- The release build directory for a class should be set as a relative path to the *Builds* directory, on the same level as the *Source* directory. This is very important so that the automatic build and release tools can properly find the referenced DLLs in order to prepare them for distribution.
+- Ensure that the [CopyLocal property](https://docs.microsoft.com/en-us/dotnet/api/vslangproj.reference.copylocal?view=visualstudiosdk-2017) is set to **False** for all references in the project to instrument drivers or dependent components of the drivers. This is to ensure that when the project is built, *only* the compiled DLL for the project and any sub-module dependencies will be placed in the build directory. Because use of these libraries requires the proper instrument drivers to be installed on disk, the appropriate DLLs should already be in the GAC and therefore the local copies are unecessary and add to the size of any releases generated.
+
 </details>
