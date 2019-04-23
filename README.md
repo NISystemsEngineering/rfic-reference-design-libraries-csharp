@@ -70,7 +70,7 @@ All classes should be implemented as [static classes](https://docs.microsoft.com
 #### Data Types
 - Structs are utilized to pass configuration parameters to the various functions.
    - For each configuration struct, a method returning that struct should be created that returns default values with the name *GetDefault**ConfigurationName***. These default values should be set in such a way that they are reasonable starting configurations for a majority of applications, and should not be set for specific hardware.
-- See the following example from the [Digital](dotNET/Source/Digital/Digital.cs) library:
+- See the following example from the [Digital](Source/Digital/Digital.cs) library:
 
 ```c#
 public struct TriggerConfiguration
