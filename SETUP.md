@@ -46,7 +46,7 @@ Now, we want to add a new *remote* repository. A remote repo is hosted somewhere
 3. Under *Remote Name*, enter a name to indicate that this is the public repository, such as **public_origin**
 4. Enter the URL as before, and SourceTree should automatically identify the repository as belonging to GitHub 
 5. Click **OK** to add the new remote repository, and you should see the default **origin** (the cloned repository you created) and the new remote origin connecting to the public GitHub repo
-   ![Remotes View](/images/SETUP/Remote View.png)
+   ![Remotes View](/images/SETUP/remote_view.png)
 
 #### Merging Changes from the Public Repository
 
@@ -54,13 +54,13 @@ Now that you have configured the public repository as a remote repository, you w
 
 To retrieve the latest changes from the public repository, right-click the repository name under the *Remotes* section and select **Fetch from *public_repo_name***. If there are new changes in the public repository, you will see something like the following in the *History* view:
 
-![History View with Public Changes](/Images/SETUP/Sync to Remote.png)
+![History View with Public Changes](/Images/SETUP/sync_remote.png)
 
 In this example above, the names in the screenshot above refer to the following:
 
-- ![Master](images/Setup/master.png)refers to the latest commit of the master branch on the local machine
-- ![origin/master](images/Setup/origin-master.png)refers to the latest commit of the master branch on *origin*, which is the default name for the private copy of the repository you created which is  hosted on the remote server
-- ![public_origin/master](images/Setup/public-origin-master.png)refers to the public repository that was added as a remote repository in the previous section
+- ![Master](images/SETUP/master.png)refers to the latest commit of the master branch on the local machine
+- ![origin/master](images/SETUP/origin-master.png)refers to the latest commit of the master branch on *origin*, which is the default name for the private copy of the repository you created which is  hosted on the remote server
+- ![public_origin/master](images/SETUP/public-origin-master.png)refers to the public repository that was added as a remote repository in the previous section
 
 As you can see, **public_origin** has new changes that have been implemented in the public repository. If you would like to integrate some or all of those changes in your private repository, follow these steps:
 
@@ -77,7 +77,7 @@ If you have developed new features, improved existing code, or fixed bugs that w
 
 3. In the dialog that appears, select the remote branch that you have just created. **Note - you cannot push to the master branch of the public repository**. You will receive an error if you try to do so.
 
-   ![Push to Public Branch](images/SETUP/Push to Public Branch.png)
+   ![Push to Public Branch](images/SETUP/push_to_public.png)
 
 4. Ensure that your local branch is selected under *Push?*, and press **Push** to commit your changes to the public branch that you created.
 
