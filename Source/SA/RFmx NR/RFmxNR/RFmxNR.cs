@@ -56,56 +56,64 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int puschDmrsTypeAPosition;
             public RFmxNRMXPuschDmrsDuration puschDmrsDuration;
             public int puschDmrsAdditionalPositions;
-
-            public void SetDefaults()
-            {
-                frequencyRange = RFmxNRMXFrequencyRange.Range1;
-                band = 78;
-                cellID = 0;
-                carrierBandwidth = 100e6;
-                subcarrierSpacing = 30e3;
-                autoResourceBlockDetectionEnabled = RFmxNRMXAutoResourceBlockDetectionEnabled.False;
-
-                puschTransformPrecodingEnabled = RFmxNRMXPuschTransformPrecodingEnabled.False;
-                puschModulationType = RFmxNRMXPuschModulationType.Qpsk;
-                NumberOfResourceBlockClusters = 1;
-                puschResourceBlockOffset = new int[] { 0 };
-                puschNumberOfResourceBlocks = new int[] { -1 };
-                puschSlotAllocation = "0-Last";
-                puschSymbolAllocation = "0-Last";
-
-                puschDmrsPowerMode = RFmxNRMXPuschDmrsPowerMode.CdmGroups;
-                puschDmrsPower = 0;
-                puschDmrsConfigurationType = RFmxNRMXPuschDmrsConfigurationType.Type1;
-                puschDmrsTypeAPosition = 2;
-                puschDmrsDuration = RFmxNRMXPuschDmrsDuration.SingleSymbol;
-                puschDmrsAdditionalPositions = 0;
-            }
         }
+        public static SignalConfiguration GetDfaultSignalConfiguration()
+        {
+            return new SignalConfiguration
+            {
+                frequencyRange = RFmxNRMXFrequencyRange.Range1,
+                band = 78,
+                cellID = 0,
+                carrierBandwidth = 100e6,
+                subcarrierSpacing = 30e3,
+                autoResourceBlockDetectionEnabled = RFmxNRMXAutoResourceBlockDetectionEnabled.False,
+
+                puschTransformPrecodingEnabled = RFmxNRMXPuschTransformPrecodingEnabled.False,
+                puschModulationType = RFmxNRMXPuschModulationType.Qpsk,
+                NumberOfResourceBlockClusters = 1,
+                puschResourceBlockOffset = new int[] { 0 },
+                puschNumberOfResourceBlocks = new int[] { -1 },
+                puschSlotAllocation = "0-Last",
+                puschSymbolAllocation = "0-Last",
+
+                puschDmrsPowerMode = RFmxNRMXPuschDmrsPowerMode.CdmGroups,
+                puschDmrsPower = 0,
+                puschDmrsConfigurationType = RFmxNRMXPuschDmrsConfigurationType.Type1,
+                puschMappingType = RFmxNRMXPuschMappingType.TypeA,
+                puschDmrsTypeAPosition = 2,
+                puschDmrsDuration = RFmxNRMXPuschDmrsDuration.SingleSymbol,
+                puschDmrsAdditionalPositions = 0
+            };
+        }
+
 
         #region Measurement Definitions
         public struct ModAccConfiguration
         {
-            RFmxNRMXModAccSynchronizationMode synchronizationMode;
+            public RFmxNRMXModAccSynchronizationMode synchronizationMode;
+            public RFmxNRMXModAccMeasurementLengthUnit measurementLengthUnit;
 
-            RFmxNRMXModAccMeasurementLengthUnit measurementLengthUnit;
-            double measurementOffset;
-            double measurementLength;
+            public double measurementOffset;
+            public double measurementLength;
 
-            RFmxNRMXModAccAveragingEnabled averagingEnabled;
-            int averagingCount;
-
-            public void SetDefaults()
-            {
-                synchronizationMode = RFmxNRMXModAccSynchronizationMode.Slot;
-                measurementLengthUnit = RFmxNRMXModAccMeasurementLengthUnit.Slot;
-                measurementOffset = 0;
-                measurementLength = 1;
-
-                averagingEnabled = RFmxNRMXModAccAveragingEnabled.False;
-                averagingCount = 10;
-            }
+            public RFmxNRMXModAccAveragingEnabled averagingEnabled;
+            public int averagingCount;
         }
+        public static ModAccConfiguration GetDefaultModaccConfiguration()
+        {
+            return new ModAccConfiguration
+            {
+                synchronizationMode = RFmxNRMXModAccSynchronizationMode.Slot,
+                measurementLengthUnit = RFmxNRMXModAccMeasurementLengthUnit.Slot,
+
+                measurementOffset = 0,
+                measurementLength = 1,
+
+                averagingEnabled = RFmxNRMXModAccAveragingEnabled.False,
+                averagingCount = 10
+            };
+        }
+
         public struct ModAccResults
         {
             public double compositeRmsEvmMean;
@@ -142,18 +150,29 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int averagingCount;
             public RFmxNRMXAcpAveragingType averagingType;
 
-            public void SetDefaults()
+            public int numberOfNROffsets;
+            public int numberOfEutraOffsets;
+            public int numberOfUtraOffsets;
+        }
+
+        public static AcpConfiguration GetDefaultAcpConfiguration()
+        {
+            return new AcpConfiguration
             {
-                measurementMethod = RFmxNRMXAcpMeasurementMethod.Normal;
-                noiseCompensationEnabled = RFmxNRMXAcpNoiseCompensationEnabled.False;
+                measurementMethod = RFmxNRMXAcpMeasurementMethod.Normal,
+                noiseCompensationEnabled = RFmxNRMXAcpNoiseCompensationEnabled.False,
 
-                sweepTimeAuto = RFmxNRMXAcpSweepTimeAuto.True;
-                sweepTimeInterval = 1.0e-3;
+                sweepTimeAuto = RFmxNRMXAcpSweepTimeAuto.True,
+                sweepTimeInterval = 1.0e-3,
 
-                averagingEnabled = RFmxNRMXAcpAveragingEnabled.False;
-                averagingCount = 10;
-                averagingType = RFmxNRMXAcpAveragingType.Rms;
-            }
+                averagingEnabled = RFmxNRMXAcpAveragingEnabled.False,
+                averagingCount = 10,
+                averagingType = RFmxNRMXAcpAveragingType.Rms,
+
+                numberOfNROffsets = 1,
+                numberOfEutraOffsets = 0,
+                numberOfUtraOffsets = 0
+            };
         }
         public struct AcpResults
         {
@@ -175,7 +194,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         #region Instrument Configuration
 
-        public static void ConfigureCommon( ref RFmxInstrMX sessionHandle, ref RFmxNRMX nrSignal, CommonConfiguration commonConfig, string selectorString = "" )
+        public static void ConfigureCommon(ref RFmxInstrMX sessionHandle, ref RFmxNRMX nrSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
             //sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
             nrSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
@@ -188,7 +207,30 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Configuration
+        public static void ConfigureAcp(ref RFmxNRMX nrSignal, AcpConfiguration acpConfig, string selectorString = "")
+        {
+            nrSignal.Acp.Configuration.ConfigureMeasurementMethod("", acpConfig.measurementMethod);
+            nrSignal.Acp.Configuration.ConfigureNoiseCompensationEnabled("", acpConfig.noiseCompensationEnabled);
+            nrSignal.Acp.Configuration.ConfigureSweepTime("", acpConfig.sweepTimeAuto, acpConfig.sweepTimeInterval);
+            nrSignal.Acp.Configuration.ConfigureAveraging("", acpConfig.averagingEnabled, acpConfig.averagingCount, acpConfig.averagingType);
 
+            nrSignal.Acp.Configuration.ConfigureNumberOfNROffsets(selectorString, acpConfig.numberOfNROffsets);
+            nrSignal.Acp.Configuration.ConfigureNumberOfEutraOffsets(selectorString, acpConfig.numberOfEutraOffsets);
+            nrSignal.Acp.Configuration.ConfigureNumberOfUtraOffsets(selectorString, acpConfig.numberOfUtraOffsets);
+
+        }
+
+        public static void ConfigureModacc(ref RFmxNRMX nrSignal, ModAccConfiguration modaccConfig, string selectorString = "")
+        {
+            nrSignal.ModAcc.Configuration.SetSynchronizationMode("", modaccConfig.synchronizationMode);
+            nrSignal.ModAcc.Configuration.SetAveragingEnabled("", modaccConfig.averagingEnabled);
+            nrSignal.ModAcc.Configuration.SetAveragingCount("", modaccConfig.averagingCount);
+
+            nrSignal.ModAcc.Configuration.SetMeasurementLengthUnit("", modaccConfig.measurementLengthUnit);
+            nrSignal.ModAcc.Configuration.SetMeasurementOffset("", modaccConfig.measurementOffset);
+            nrSignal.ModAcc.Configuration.SetMeasurementLength("", modaccConfig.measurementLength);
+
+        }
 
 
         #endregion
@@ -243,7 +285,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
     }
-    
+
 }
 
 
