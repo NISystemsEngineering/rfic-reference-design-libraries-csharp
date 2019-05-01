@@ -16,22 +16,27 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double CenterFrequency_Hz;
             public double ReferenceLevel_dBm;
             public double ExternalAttenuation_dB;
+            public string frequencyReferenceSource;
             public string DigitalEdgeSource;
             public RFmxNRMXDigitalEdgeTriggerEdge DigitalEdgeType;
             public double TriggerDelay_s;
             public bool EnableTrigger;
-
-            public void SetDefaults()
-            {
-                CenterFrequency_Hz = 1e9;
-                ReferenceLevel_dBm = 0;
-                ExternalAttenuation_dB = 0;
-                DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0;
-                DigitalEdgeType = RFmxNRMXDigitalEdgeTriggerEdge.Rising;
-                TriggerDelay_s = 0;
-                EnableTrigger = true;
-            }
         }
+        public static CommonConfiguration GetDefaultCommonConfiguration()
+        {
+            return new CommonConfiguration
+            {
+                CenterFrequency_Hz = 1e9,
+                ReferenceLevel_dBm = 0,
+                ExternalAttenuation_dB = 0,
+                frequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
+                DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
+                DigitalEdgeType = RFmxNRMXDigitalEdgeTriggerEdge.Rising,
+                TriggerDelay_s = 0,
+                EnableTrigger = true
+            };
+        }
+
         public struct SignalConfiguration
         {
             public RFmxNRMXFrequencyRange frequencyRange;
@@ -196,17 +201,60 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureCommon(ref RFmxInstrMX sessionHandle, ref RFmxNRMX nrSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
-            //sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
+            nrSignal.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
+            sessionHandle.ConfigureFrequencyReference("", commonConfig.frequencyReferenceSource, 10e6);
             nrSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
-            nrSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
-            nrSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
         }
 
-        //public static void ConfigureRF(ref )
-
+      
         #endregion
 
         #region Measurement Configuration
+        public static void ConfigureSignal( ref RFmxNRMX nrSignal, SignalConfiguration signalConfig, string selectorString = "")
+        {
+            string subblockString;
+            string carrierString;
+            string bandwidthPartString;
+            string userString;
+            string puschString;
+            string puschClusterString;
+
+            nrSignal.SetFrequencyRange("", signalConfig.frequencyRange);
+            nrSignal.ComponentCarrier.SetBandwidth("", signalConfig.carrierBandwidth);
+            nrSignal.ComponentCarrier.SetCellID("", signalConfig.cellID);
+            nrSignal.SetBand("", signalConfig.band);
+            nrSignal.ComponentCarrier.SetBandwidthPartSubcarrierSpacing("", signalConfig.subcarrierSpacing);
+            nrSignal.SetAutoResourceBlockDetectionEnabled("", signalConfig.autoResourceBlockDetectionEnabled);
+
+            nrSignal.ComponentCarrier.SetPuschTransformPrecodingEnabled("", signalConfig.puschTransformPrecodingEnabled);
+            nrSignal.ComponentCarrier.SetPuschSlotAllocation("", signalConfig.puschSlotAllocation);
+            nrSignal.ComponentCarrier.SetPuschSymbolAllocation("", signalConfig.puschSymbolAllocation);
+            nrSignal.ComponentCarrier.SetPuschModulationType("", signalConfig.puschModulationType);
+
+            nrSignal.ComponentCarrier.SetPuschNumberOfResourceBlockClusters("", signalConfig.NumberOfResourceBlockClusters);
+
+            subblockString = RFmxNRMX.BuildSubblockString("", 0);
+            carrierString = RFmxNRMX.BuildCarrierString(subblockString, 0);
+            bandwidthPartString = RFmxNRMX.BuildBandwidthPartString(carrierString, 0);
+            userString = RFmxNRMX.BuildUserString(bandwidthPartString, 0);
+            puschString = RFmxNRMX.BuildPuschString(userString, 0);
+
+            for (int i = 0; i < signalConfig.NumberOfResourceBlockClusters; i++)
+            {
+                puschClusterString = RFmxNRMX.BuildPuschClusterString(puschString, i);
+                nrSignal.ComponentCarrier.SetPuschResourceBlockOffset(puschClusterString, signalConfig.puschResourceBlockOffset[i]);
+                nrSignal.ComponentCarrier.SetPuschNumberOfResourceBlocks(puschClusterString, signalConfig.puschNumberOfResourceBlocks[i]);
+            }
+
+            nrSignal.ComponentCarrier.SetPuschDmrsPowerMode("", signalConfig.puschDmrsPowerMode);
+            nrSignal.ComponentCarrier.SetPuschDmrsPower("", signalConfig.puschDmrsPower);
+            nrSignal.ComponentCarrier.SetPuschDmrsConfigurationType("", signalConfig.puschDmrsConfigurationType);
+            nrSignal.ComponentCarrier.SetPuschMappingType("", signalConfig.puschMappingType);
+            nrSignal.ComponentCarrier.SetPuschDmrsTypeAPosition("", signalConfig.puschDmrsTypeAPosition);
+            nrSignal.ComponentCarrier.SetPuschDmrsDuration("", signalConfig.puschDmrsDuration);
+            nrSignal.ComponentCarrier.SetPuschDmrsAdditionalPositions("", signalConfig.puschDmrsAdditionalPositions);
+        }
+
         public static void ConfigureAcp(ref RFmxNRMX nrSignal, AcpConfiguration acpConfig, string selectorString = "")
         {
             nrSignal.Acp.Configuration.ConfigureMeasurementMethod("", acpConfig.measurementMethod);
