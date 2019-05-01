@@ -21,19 +21,25 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxNRMXDigitalEdgeTriggerEdge DigitalEdgeType;
             public double TriggerDelay_s;
             public bool EnableTrigger;
+
+            public bool autoevelEnabled;
+            public double autolevelMeasurementInterval;
         }
         public static CommonConfiguration GetDefaultCommonConfiguration()
         {
             return new CommonConfiguration
             {
-                CenterFrequency_Hz = 1e9,
+                CenterFrequency_Hz = 3.5e9,
                 ReferenceLevel_dBm = 0,
                 ExternalAttenuation_dB = 0,
                 frequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
                 DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
                 DigitalEdgeType = RFmxNRMXDigitalEdgeTriggerEdge.Rising,
                 TriggerDelay_s = 0,
-                EnableTrigger = true
+                EnableTrigger = true,
+
+                autoevelEnabled = false,
+                autolevelMeasurementInterval = 10e-3
             };
         }
 
@@ -90,6 +96,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 puschDmrsAdditionalPositions = 0
             };
         }
+       
 
 
         #region Measurement Definitions
@@ -201,9 +208,19 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureCommon(ref RFmxInstrMX sessionHandle, ref RFmxNRMX nrSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
-            nrSignal.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
+            nrSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
+            nrSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
             sessionHandle.ConfigureFrequencyReference("", commonConfig.frequencyReferenceSource, 10e6);
             nrSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+
+            if (commonConfig.autoevelEnabled)
+            {
+                nrSignal.AutoLevel(selectorString, commonConfig.autolevelMeasurementInterval, out commonConfig.ReferenceLevel_dBm);
+            }
+            else
+            {
+                nrSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
+            }
         }
 
       
@@ -257,6 +274,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureAcp(ref RFmxNRMX nrSignal, AcpConfiguration acpConfig, string selectorString = "")
         {
+            nrSignal.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
+
             nrSignal.Acp.Configuration.ConfigureMeasurementMethod("", acpConfig.measurementMethod);
             nrSignal.Acp.Configuration.ConfigureNoiseCompensationEnabled("", acpConfig.noiseCompensationEnabled);
             nrSignal.Acp.Configuration.ConfigureSweepTime("", acpConfig.sweepTimeAuto, acpConfig.sweepTimeInterval);
@@ -270,6 +289,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureModacc(ref RFmxNRMX nrSignal, ModAccConfiguration modaccConfig, string selectorString = "")
         {
+            nrSignal.ModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
+
             nrSignal.ModAcc.Configuration.SetSynchronizationMode("", modaccConfig.synchronizationMode);
             nrSignal.ModAcc.Configuration.SetAveragingEnabled("", modaccConfig.averagingEnabled);
             nrSignal.ModAcc.Configuration.SetAveragingCount("", modaccConfig.averagingCount);
@@ -277,7 +298,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nrSignal.ModAcc.Configuration.SetMeasurementLengthUnit("", modaccConfig.measurementLengthUnit);
             nrSignal.ModAcc.Configuration.SetMeasurementOffset("", modaccConfig.measurementOffset);
             nrSignal.ModAcc.Configuration.SetMeasurementLength("", modaccConfig.measurementLength);
-
         }
 
 
