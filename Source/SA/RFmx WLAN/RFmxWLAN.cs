@@ -106,33 +106,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 AveragingCount = 10;
             }
         }
-        public struct SEMConfiguration
-        {
-            public struct CustomMaskConfiguration
-            {
-                public double NumberOfOffsets;
-                public double[] OffsetStartFrequency;
-                public double[] OffsetStopFrequency;
-                public RFmxWlanMXSemOffsetSideband[] OffsetSideband;
-                public double[] RelativeLimitStart;
-                public double[] RelativeLimitStop;
-            }
 
-            public double SweepTime_s;
-            public RFmxWlanMXSemAveragingEnabled AveragingEnabled;
-            public int AveragingCount;
-            public RFmxWlanMXSemMaskType MaskType;
-            public CustomMaskConfiguration customMaskConfigurations;
-
-
-            public void SetDefaults()
-            {
-                SweepTime_s = 1e-3;
-                AveragingEnabled = RFmxWlanMXSemAveragingEnabled.False;
-                AveragingCount = 5;
-                MaskType = RFmxWlanMXSemMaskType.Standard;
-            }
-        }
         public struct OFDMModAccResults
         {
             public AnalogWaveform<float> EVMperSymbolTrace;
@@ -141,6 +115,51 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double CompositeDataRMSEVMMean_dB;
             public double CompositePilotRMSEVMMean_dB;
             public int NumberOfSymbolsUsed;
+        }
+
+        public struct SEMConfiguration
+        {
+            public RFmxWlanMXSemSweepTimeAuto sweepTimeAuto;
+            public double SweepTime_s;
+            public RFmxWlanMXSemSpanAuto spanAuto;
+            public double span;
+            public RFmxWlanMXSemAveragingEnabled AveragingEnabled;
+            public int AveragingCount;
+            public RFmxWlanMXSemAveragingType AveragingType;
+            public RFmxWlanMXSemMaskType MaskType;
+            
+
+            public void SetDefaults()
+            {
+                sweepTimeAuto = RFmxWlanMXSemSweepTimeAuto.True;
+                SweepTime_s = 1e-3;
+                spanAuto = RFmxWlanMXSemSpanAuto.True;
+                span = 100e6;
+                AveragingEnabled = RFmxWlanMXSemAveragingEnabled.False;
+                AveragingCount = 5;
+                AveragingType = RFmxWlanMXSemAveragingType.Rms;
+                MaskType = RFmxWlanMXSemMaskType.Standard;
+            }
+        }
+
+        public struct SEMResults
+        {
+            public RFmxWlanMXSemMeasurementStatus measurementStatus;
+            public double  absolutePower;                                                   /*(dBm) */
+            public double  relativePower;                                                   /*(dBm) */
+
+            public  RFmxWlanMXSemUpperOffsetMeasurementStatus[] upperOffsetMeasurementStatus;
+            public double [] upperOffsetMargin;                                             /*(dB) */
+            public double [] upperOffsetMarginFrequency;                                    /*(Hz) */
+            public double [] upperOffsetMarginAbsolutePower;                                /*(dBm) */
+            public double [] upperOffsetMarginRelativePower;                                /*(dBm) */
+
+            public RFmxWlanMXSemLowerOffsetMeasurementStatus[] lowerOffsetMeasurementStatus;
+            public double [] lowerOffsetMargin;                                             /*(dB) */
+            public double [] lowerOffsetMarginFrequency;                                    /*(Hz) */
+            public double [] lowerOffsetMarginAbsolutePower;                                /*(dBm) */
+            public double [] lowerOffsetMarginRelativePower;                                /*(dBm) */
+
         }
         public struct TxPServoConfiguration
         {
@@ -166,10 +185,21 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public static void ConfigureCommon(ref RFmxInstrMX sessionHandle, ref RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, 
             AutoLevelConfiguration autoLevelConfig, string selectorString = "")
         {
+            string instrModel;
+            
             sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
-            sessionHandle.SetLOSource("", commonConfig.LOSource);
-            sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
-            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            sessionHandle.GetInstrumentModel("", out instrModel);
+            if (instrModel.Contains("5840"))
+            {
+                sessionHandle.SetLOSource("", commonConfig.LOSource);
+                sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
+            }
+            else if((instrModel.Contains("5830"))||(instrModel.Contains("5831")))
+            {
+                sessionHandle.SetLOSource("LO2", RFmxInstrMXConstants.LOSourceSGSAShared);
+                sessionHandle.SetDownconverterFrequencyOffset("", 257.5e6);
+            }
+                wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
 
@@ -321,6 +351,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
             return servoResults;
         }
+
+        public static void ConfigureSEM(ref RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
+        {
+            wlanSignal.Sem.Configuration.SetMeasurementEnabled(selectorString, true);
+            wlanSignal.Sem.Configuration.SetAllTracesEnabled(selectorString, true);
+            wlanSignal.Sem.Configuration.ConfigureAveraging(selectorString, semConfig.AveragingEnabled, semConfig.AveragingCount, semConfig.AveragingType);
+            wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, semConfig.MaskType);
+            wlanSignal.Sem.Configuration.ConfigureSweepTime(selectorString, semConfig.sweepTimeAuto, semConfig.SweepTime_s);
+            wlanSignal.Sem.Configuration.ConfigureSpan(selectorString, semConfig.spanAuto, semConfig.span);
+        }
         #endregion
         #region Measurement Results
         public static TxPResults FetchTxP(ref RFmxWlanMX wlanSignal, string selectorString = "")
@@ -343,6 +383,20 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.OfdmModAcc.Results.FetchNumberOfSymbolsUsed(selectorString, 10, out modAccResults.NumberOfSymbolsUsed);
 
             return modAccResults;
+        }
+
+        public static  SEMResults FetchSEM(ref RFmxWlanMX wlanSignal,string selectorString = "")
+        {
+            SEMResults semResults = new SEMResults();
+            wlanSignal.Sem.Results.FetchMeasurementStatus(selectorString, 10, out semResults.measurementStatus);
+            wlanSignal.Sem.Results.FetchCarrierMeasurement(selectorString, 10, out semResults.absolutePower, out semResults.relativePower);
+            wlanSignal.Sem.Results.FetchLowerOffsetMarginArray(selectorString, 10, ref semResults.lowerOffsetMeasurementStatus,
+          ref semResults.lowerOffsetMargin, ref semResults.lowerOffsetMarginFrequency, ref semResults.lowerOffsetMarginAbsolutePower,
+          ref semResults.lowerOffsetMarginRelativePower);
+            wlanSignal.Sem.Results.FetchUpperOffsetMarginArray(selectorString, 10, ref semResults.upperOffsetMeasurementStatus,
+               ref semResults.upperOffsetMargin, ref semResults.upperOffsetMarginFrequency, ref semResults.upperOffsetMarginAbsolutePower,
+               ref semResults.upperOffsetMarginRelativePower);
+            return semResults;
         }
         #endregion
     }
