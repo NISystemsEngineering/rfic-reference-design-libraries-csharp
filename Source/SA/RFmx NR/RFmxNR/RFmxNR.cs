@@ -125,6 +125,21 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 averagingCount = 10
             };
         }
+        public struct ChpServoConfiguration
+        {
+            public double TargetChpPower_dBm;
+            public double Tolerance_dBm;
+            public int MaxNumberOfIterations;
+        }
+        public static ChpServoConfiguration GetDefaultServoConfiguration()
+        {
+            return new ChpServoConfiguration
+            {
+                TargetChpPower_dBm = 0,
+                Tolerance_dBm = 0.05,
+                MaxNumberOfIterations = 10
+            };
+        }
 
         public struct ModAccResults
         {
@@ -300,7 +315,57 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nrSignal.ModAcc.Configuration.SetMeasurementLength("", modaccConfig.measurementLength);
         }
 
+       
+      
+        public static ChpServoResults ChpServoPowerFDD(ref RFmxNRMX nrSignal, ref NIRfsg rfsgSession, ChpServoConfiguration servoConfig,
+            CommonConfiguration commonConfig, string selectorString = "")
+        {
+            //Duplicate the existing configuration so that we can select only TxP for the power servo to save time, 
+            //but not disrupt all of the other user enabled measurements. 
+            nrSignal.CloneSignalConfiguration("servo_chp", out RFmxNRMX servoChpSession);
+            servoChpSession.SelectMeasurements(selectorString, RFmxNRMXMeasurementTypes.Chp, false);
+            double[] servoTrace = new double[servoConfig.MaxNumberOfIterations];
+            double powerLevel = 0, outputPower = 0, margin = 0;
+            bool servoSucess = false;
+            for (int i = 0; i < servoConfig.MaxNumberOfIterations; i++)
+            {
+                if (commonConfig.autoevelEnabled) servoChpSession.AutoLevel(selectorString, commonConfig.autolevelMeasurementInterval, out commonConfig.ReferenceLevel_dBm);
+                servoChpSession.Initiate(selectorString, "");
 
+                powerLevel = rfsgSession.RF.PowerLevel;
+                servoChpSession.Chp.Results.FetchTotalAggregatedPower(selectorString, 10, out outputPower);
+
+                margin = servoConfig.TargetChpPower_dBm - outputPower;
+                servoTrace[i] = outputPower;
+
+                if (Math.Abs(margin) <= servoConfig.Tolerance_dBm) //Servo complete; exit the loop
+                {
+                    servoSucess = true;
+                    break;
+                }
+                else //Still more room to go
+                {
+                    rfsgSession.RF.PowerLevel = powerLevel + margin;
+                    rfsgSession.Utility.WaitUntilSettled(1000);
+                }
+            }
+            //If we auto-leveled we need to set the original configuration to the newly calculated ref level
+            servoChpSession.GetReferenceLevel(selectorString, out double newRefLevel);
+            nrSignal.ConfigureReferenceLevel(selectorString, newRefLevel);
+
+            servoChpSession.Dispose();
+
+            ChpServoResults servoResults = new ChpServoResults();
+            servoResults.FinalInputPower_dBm = powerLevel;
+            servoResults.FinalOutputPower_dBm = outputPower;
+            servoResults.ServoTrace = servoTrace;
+
+            if (!servoSucess)
+            {
+                throw new System.TimeoutException("NR CHP FDD Power Servo exceeded max iterations without success.");
+            }
+            return servoResults;
+        }
         #endregion
 
         #region Measurement Results
@@ -331,7 +396,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             return modaccResults;
         }
-
         public static AcpResults FetchAcp(ref RFmxNRMX nrSignal, string selectorString = "")
         {
             AcpResults acpResults = new AcpResults();
@@ -349,6 +413,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nrSignal.Acp.Results.FetchSpectrum("", 10, ref acpResults.spectrum);
 
             return acpResults;
+        }
+        public struct ChpServoResults
+        {
+            public double[] ServoTrace;
+            public double FinalInputPower_dBm;
+            public double FinalOutputPower_dBm;
         }
         #endregion
 
