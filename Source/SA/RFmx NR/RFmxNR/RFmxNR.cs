@@ -2,7 +2,6 @@
 using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.DataInfrastructure;
 using NationalInstruments.RFmx.NRMX;
-using NationalInstruments.ModularInstruments.NIRfsg;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
