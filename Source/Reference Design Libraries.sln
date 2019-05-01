@@ -36,7 +36,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIPI RFFE", "Digital Protoc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIPI RFFETests", "Digital Protocols\MIPI RFFETests\MIPI RFFETests.csproj", "{5F7A543C-9C08-445B-A2CC-91C42ADB62D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxNR", "SA\RFmx NR\RFmxNR\RFmxNR.csproj", "{B12280C1-69D7-4E52-8A41-95B1D568DD6B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxNR", "SA\RFmx NR\RFmxNR.csproj", "{B12280C1-69D7-4E52-8A41-95B1D568DD6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
