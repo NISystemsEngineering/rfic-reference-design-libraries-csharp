@@ -13,16 +13,7 @@
 {FileGlobals},Static_Station_Configs.Device_Names {Container}
 {FileGlobals},Static_Station_Configs.Device_Names.SG_Name {String},VST2
 {FileGlobals},Static_Station_Configs.Device_Names.SA_Name {String},VST2
-{FileGlobals},Static_Station_Configs.Device_Names.Supply_Name {String},4139
-{FileGlobals},Static_Station_Configs.Device_Names.Scope_Name {String},SIM
-{FileGlobals},Static_Station_Configs.Servo_Config {Container}
-{FileGlobals},Static_Station_Configs.Servo_Config.Tolerance__dB_ {Number},0.05
-{FileGlobals},Static_Station_Configs.Servo_Config.Max_Number_of_Iterations {Number},20
-{FileGlobals},Static_Station_Configs.Waveform_Configs {RFmxWLAN_Waveform_Configuration [0] .. [1]}
-{FileGlobals},Static_Station_Configs.Waveform_Configs[0].Relative_Disk_Path {String},\Data Files\Waveforms\80211a_20M_48Mbps.tdms
-{FileGlobals},Static_Station_Configs.Waveform_Configs[0].Waveform_Bandwidth {Number},20000000
-{FileGlobals},Static_Station_Configs.Waveform_Configs[0].WLAN_Standard {RFmxWlanMXStandard},"""Standard802_11ag"""
-{FileGlobals},Static_Station_Configs.Waveform_Configs[1].Relative_Disk_Path {String},\Data Files\Waveforms\MMC_MCS7HT20_v3.tdms
-{FileGlobals},Static_Station_Configs.Waveform_Configs[1].Waveform_Bandwidth {Number},20000000
-{FileGlobals},Static_Station_Configs.Waveform_Configs[1].WLAN_Standard {RFmxWlanMXStandard},"""Standard802_11n"""
+{FileGlobals},Static_Station_Configs.Device_Names.Supply_Name {String},4145
+{FileGlobals},Static_Station_Configs.Waveform_Paths {String [0] .. [0]}
+{FileGlobals},Static_Station_Configs.Waveform_Paths[0],\Data Files\Waveforms\NR_DL_FDD_SISO_BW-100MHz_CC-1_SCS-30kHz_Mod-256QAM-OFDM-NoSSB.tdms
 <PropertyGroup>
