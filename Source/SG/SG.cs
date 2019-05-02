@@ -118,6 +118,20 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             NIRfsgPlayback.ReadBurstStartLocationsFromFile(filePath, 0, ref waveform.BurstStartLocations);
             NIRfsgPlayback.ReadBurstStopLocationsFromFile(filePath, 0, ref waveform.BurstStopLocations);
+            
+            // If the waveform does not have burst start or stop locations stored, then we will set the burst start to 
+            // the first sample (0) and the stop to the last sample (number of samples minus one
+            if (waveform.BurstStartLocations == null)
+                waveform.BurstStartLocations = new int[1] { 0 };
+            //Separate checks because null array throws exception when checking length
+            else if (waveform.BurstStopLocations.Length <= 0)
+                waveform.BurstStartLocations = new int[1] { 0 };
+
+            if (waveform.BurstStopLocations == null)
+                waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 };
+            //Separate checks because null array throws exception when checking length
+            else if (waveform.BurstStopLocations.Length <= 0)
+                waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 };
 
             waveform.SampleRate = 1 / waveform.WaveformData.PrecisionTiming.SampleInterval.FractionalSeconds; //Seconds per sample
             waveform.BurstLength_s = (waveform.BurstStopLocations[0] - waveform.BurstStartLocations[0]) / waveform.SampleRate; //  no. samples / (samples/s) = len_s
