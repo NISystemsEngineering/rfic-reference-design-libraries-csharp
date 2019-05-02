@@ -42,7 +42,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 AutoLevelMeasurementInterval = 10e-3
             };
         }
-
         public struct SignalConfiguration
         {
             public RFmxNRMXFrequencyRange frequencyRange;
@@ -96,9 +95,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 puschDmrsAdditionalPositions = 0
             };
         }
-       
-
-
         #region Measurement Definitions
         public struct ModAccConfiguration
         {
@@ -125,46 +121,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 averagingCount = 10
             };
         }
-        public struct ChpServoConfiguration
-        {
-            public double TargetChpPower_dBm;
-            public double Tolerance_dBm;
-            public int MaxNumberOfIterations;
-        }
-        public static ChpServoConfiguration GetDefaultServoConfiguration()
-        {
-            return new ChpServoConfiguration
-            {
-                TargetChpPower_dBm = 0,
-                Tolerance_dBm = 0.05,
-                MaxNumberOfIterations = 10
-            };
-        }
-
-        public struct ModAccResults
-        {
-            public double compositeRmsEvmMean;
-            public double compositePeakEvmMaximum;
-            public int compositePeakEvmSlotIndex;
-            public int compositePeakEvmSymbolIndex;
-            public int compositePeakEvmSubcarrierIndex;
-
-            public double componentCarrierFrequencyErrorMean;
-            public double componentCarrierIQOriginOffsetMean;
-            public double componentCarrierIQGainImbalanceMean;
-            public double componentCarrierQuadratureErrorMean;
-            public double inBandEmissionMargin;
-
-            public ComplexSingle[] puschDataConstellation;
-            public ComplexSingle[] puschDmrsConstellation;
-
-            public AnalogWaveform<float> rmsEvmPerSubcarrierMean;
-            public AnalogWaveform<float> rmsEvmPerSymbolMean;
-
-            public Spectrum<float> spectralFlatness;
-            public Spectrum<float> spectralFlatnessLowerMask;
-            public Spectrum<float> spectralFlatnessUpperMask;
-        }
         public struct AcpConfiguration
         {
             public RFmxNRMXAcpMeasurementMethod measurementMethod;
@@ -181,7 +137,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int numberOfEutraOffsets;
             public int numberOfUtraOffsets;
         }
-
         public static AcpConfiguration GetDefaultAcpConfiguration()
         {
             return new AcpConfiguration
@@ -201,31 +156,49 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 numberOfUtraOffsets = 0
             };
         }
-        public struct AcpResults
+        public struct ChpConfiguration
         {
-            public double absolutePower;
-            public double relativePower;
+            public RFmxNRMXChpSweepTimeAuto sweepTimeAuto;
+            public double sweepTimeInterval;
 
-            public double[] lowerRelativePower;
-            public double[] upperRelativePower;
-            public double[] lowerAbsolutePower;
-            public double[] upperAbsolutePower;
-
-            public Spectrum<float> spectrum;
-            public Spectrum<float> relativePowersTrace;
-
+            public RFmxNRMXChpAveragingEnabled averagingEnabled;
+            public int averagingCount;
+            public RFmxNRMXChpAveragingType averagingType;
         }
-
+        public static ChpConfiguration GetDefaultChpConfiguration()
+        {
+            return new ChpConfiguration
+            {
+                sweepTimeAuto = RFmxNRMXChpSweepTimeAuto.True,
+                sweepTimeInterval = 1.0e-3,
+                averagingEnabled = RFmxNRMXChpAveragingEnabled.False,
+                averagingCount = 10,
+                averagingType = RFmxNRMXChpAveragingType.Rms
+            };
+        }
+        public struct ChpServoConfiguration
+        {
+            public double TargetChpPower_dBm;
+            public double Tolerance_dBm;
+            public int MaxNumberOfIterations;
+        }
+        public static ChpServoConfiguration GetDefaultServoConfiguration()
+        {
+            return new ChpServoConfiguration
+            {
+                TargetChpPower_dBm = 0,
+                Tolerance_dBm = 0.05,
+                MaxNumberOfIterations = 10
+            };
+        }
         #endregion
         #endregion
-
         #region Instrument Configuration
-
         public static void ConfigureCommon(ref RFmxInstrMX sessionHandle, ref RFmxNRMX nrSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
             nrSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             nrSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
-            sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
+            sessionHandle.ConfigureFrequencyReference(selectorString, commonConfig.FrequencyReferenceSource, 10e6);
             nrSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
 
             if (commonConfig.AutoLevelEnabled)
@@ -237,12 +210,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 nrSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
             }
         }
-
-      
         #endregion
 
         #region Measurement Configuration
-        public static void ConfigureSignal( ref RFmxNRMX nrSignal, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureSignal(ref RFmxNRMX nrSignal, SignalConfiguration signalConfig, string selectorString = "")
         {
             string subblockString;
             string carrierString;
@@ -251,21 +222,21 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             string puschString;
             string puschClusterString;
 
-            nrSignal.SetFrequencyRange("", signalConfig.frequencyRange);
-            nrSignal.ComponentCarrier.SetBandwidth("", signalConfig.carrierBandwidth);
-            nrSignal.ComponentCarrier.SetCellID("", signalConfig.cellID);
-            nrSignal.SetBand("", signalConfig.band);
-            nrSignal.ComponentCarrier.SetBandwidthPartSubcarrierSpacing("", signalConfig.subcarrierSpacing);
-            nrSignal.SetAutoResourceBlockDetectionEnabled("", signalConfig.autoResourceBlockDetectionEnabled);
+            nrSignal.SetFrequencyRange(selectorString, signalConfig.frequencyRange);
+            nrSignal.ComponentCarrier.SetBandwidth(selectorString, signalConfig.carrierBandwidth);
+            nrSignal.ComponentCarrier.SetCellID(selectorString, signalConfig.cellID);
+            nrSignal.SetBand(selectorString, signalConfig.band);
+            nrSignal.ComponentCarrier.SetBandwidthPartSubcarrierSpacing(selectorString, signalConfig.subcarrierSpacing);
+            nrSignal.SetAutoResourceBlockDetectionEnabled(selectorString, signalConfig.autoResourceBlockDetectionEnabled);
 
-            nrSignal.ComponentCarrier.SetPuschTransformPrecodingEnabled("", signalConfig.puschTransformPrecodingEnabled);
-            nrSignal.ComponentCarrier.SetPuschSlotAllocation("", signalConfig.puschSlotAllocation);
-            nrSignal.ComponentCarrier.SetPuschSymbolAllocation("", signalConfig.puschSymbolAllocation);
-            nrSignal.ComponentCarrier.SetPuschModulationType("", signalConfig.puschModulationType);
+            nrSignal.ComponentCarrier.SetPuschTransformPrecodingEnabled(selectorString, signalConfig.puschTransformPrecodingEnabled);
+            nrSignal.ComponentCarrier.SetPuschSlotAllocation(selectorString, signalConfig.puschSlotAllocation);
+            nrSignal.ComponentCarrier.SetPuschSymbolAllocation(selectorString, signalConfig.puschSymbolAllocation);
+            nrSignal.ComponentCarrier.SetPuschModulationType(selectorString, signalConfig.puschModulationType);
 
-            nrSignal.ComponentCarrier.SetPuschNumberOfResourceBlockClusters("", signalConfig.NumberOfResourceBlockClusters);
+            nrSignal.ComponentCarrier.SetPuschNumberOfResourceBlockClusters(selectorString, signalConfig.NumberOfResourceBlockClusters);
 
-            subblockString = RFmxNRMX.BuildSubblockString("", 0);
+            subblockString = RFmxNRMX.BuildSubblockString(selectorString, 0);
             carrierString = RFmxNRMX.BuildCarrierString(subblockString, 0);
             bandwidthPartString = RFmxNRMX.BuildBandwidthPartString(carrierString, 0);
             userString = RFmxNRMX.BuildUserString(bandwidthPartString, 0);
@@ -278,47 +249,50 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 nrSignal.ComponentCarrier.SetPuschNumberOfResourceBlocks(puschClusterString, signalConfig.puschNumberOfResourceBlocks[i]);
             }
 
-            nrSignal.ComponentCarrier.SetPuschDmrsPowerMode("", signalConfig.puschDmrsPowerMode);
-            nrSignal.ComponentCarrier.SetPuschDmrsPower("", signalConfig.puschDmrsPower);
-            nrSignal.ComponentCarrier.SetPuschDmrsConfigurationType("", signalConfig.puschDmrsConfigurationType);
-            nrSignal.ComponentCarrier.SetPuschMappingType("", signalConfig.puschMappingType);
-            nrSignal.ComponentCarrier.SetPuschDmrsTypeAPosition("", signalConfig.puschDmrsTypeAPosition);
-            nrSignal.ComponentCarrier.SetPuschDmrsDuration("", signalConfig.puschDmrsDuration);
-            nrSignal.ComponentCarrier.SetPuschDmrsAdditionalPositions("", signalConfig.puschDmrsAdditionalPositions);
+            nrSignal.ComponentCarrier.SetPuschDmrsPowerMode(selectorString, signalConfig.puschDmrsPowerMode);
+            nrSignal.ComponentCarrier.SetPuschDmrsPower(selectorString, signalConfig.puschDmrsPower);
+            nrSignal.ComponentCarrier.SetPuschDmrsConfigurationType(selectorString, signalConfig.puschDmrsConfigurationType);
+            nrSignal.ComponentCarrier.SetPuschMappingType(selectorString, signalConfig.puschMappingType);
+            nrSignal.ComponentCarrier.SetPuschDmrsTypeAPosition(selectorString, signalConfig.puschDmrsTypeAPosition);
+            nrSignal.ComponentCarrier.SetPuschDmrsDuration(selectorString, signalConfig.puschDmrsDuration);
+            nrSignal.ComponentCarrier.SetPuschDmrsAdditionalPositions(selectorString, signalConfig.puschDmrsAdditionalPositions);
         }
+        public static void ConfigureModacc(ref RFmxNRMX nrSignal, ModAccConfiguration modaccConfig, string selectorString = "")
+        {
+            nrSignal.ModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
+            nrSignal.ModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
 
+            nrSignal.ModAcc.Configuration.SetSynchronizationMode(selectorString, modaccConfig.synchronizationMode);
+            nrSignal.ModAcc.Configuration.SetAveragingEnabled(selectorString, modaccConfig.averagingEnabled);
+            nrSignal.ModAcc.Configuration.SetAveragingCount(selectorString, modaccConfig.averagingCount);
+
+            nrSignal.ModAcc.Configuration.SetMeasurementLengthUnit(selectorString, modaccConfig.measurementLengthUnit);
+            nrSignal.ModAcc.Configuration.SetMeasurementOffset(selectorString, modaccConfig.measurementOffset);
+            nrSignal.ModAcc.Configuration.SetMeasurementLength(selectorString, modaccConfig.measurementLength);
+        }
         public static void ConfigureAcp(ref RFmxNRMX nrSignal, AcpConfiguration acpConfig, string selectorString = "")
         {
             nrSignal.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
             nrSignal.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
 
-            nrSignal.Acp.Configuration.ConfigureMeasurementMethod("", acpConfig.measurementMethod);
-            nrSignal.Acp.Configuration.ConfigureNoiseCompensationEnabled("", acpConfig.noiseCompensationEnabled);
-            nrSignal.Acp.Configuration.ConfigureSweepTime("", acpConfig.sweepTimeAuto, acpConfig.sweepTimeInterval);
-            nrSignal.Acp.Configuration.ConfigureAveraging("", acpConfig.averagingEnabled, acpConfig.averagingCount, acpConfig.averagingType);
+            nrSignal.Acp.Configuration.ConfigureMeasurementMethod(selectorString, acpConfig.measurementMethod);
+            nrSignal.Acp.Configuration.ConfigureNoiseCompensationEnabled(selectorString, acpConfig.noiseCompensationEnabled);
+            nrSignal.Acp.Configuration.ConfigureSweepTime(selectorString, acpConfig.sweepTimeAuto, acpConfig.sweepTimeInterval);
+            nrSignal.Acp.Configuration.ConfigureAveraging(selectorString, acpConfig.averagingEnabled, acpConfig.averagingCount, acpConfig.averagingType);
 
             nrSignal.Acp.Configuration.ConfigureNumberOfNROffsets(selectorString, acpConfig.numberOfNROffsets);
             nrSignal.Acp.Configuration.ConfigureNumberOfEutraOffsets(selectorString, acpConfig.numberOfEutraOffsets);
             nrSignal.Acp.Configuration.ConfigureNumberOfUtraOffsets(selectorString, acpConfig.numberOfUtraOffsets);
 
         }
-
-        public static void ConfigureModacc(ref RFmxNRMX nrSignal, ModAccConfiguration modaccConfig, string selectorString = "")
+        public static void ConfigureChp(ref RFmxNRMX nrSignal, ChpConfiguration chpConfig, string selectorString = "")
         {
-            nrSignal.ModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
-            nrSignal.ModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
+            nrSignal.Chp.Configuration.SetMeasurementEnabled(selectorString, true);
+            nrSignal.Chp.Configuration.SetAllTracesEnabled(selectorString, true);
 
-            nrSignal.ModAcc.Configuration.SetSynchronizationMode("", modaccConfig.synchronizationMode);
-            nrSignal.ModAcc.Configuration.SetAveragingEnabled("", modaccConfig.averagingEnabled);
-            nrSignal.ModAcc.Configuration.SetAveragingCount("", modaccConfig.averagingCount);
-
-            nrSignal.ModAcc.Configuration.SetMeasurementLengthUnit("", modaccConfig.measurementLengthUnit);
-            nrSignal.ModAcc.Configuration.SetMeasurementOffset("", modaccConfig.measurementOffset);
-            nrSignal.ModAcc.Configuration.SetMeasurementLength("", modaccConfig.measurementLength);
+            nrSignal.Chp.Configuration.ConfigureSweepTime(selectorString, chpConfig.sweepTimeAuto, chpConfig.sweepTimeInterval);
+            nrSignal.Chp.Configuration.ConfigureAveraging(selectorString, chpConfig.averagingEnabled, chpConfig.averagingCount, chpConfig.averagingType);
         }
-
-       
-      
         public static ChpServoResults ChpServoPowerFDD(ref RFmxNRMX nrSignal, ref NIRfsg rfsgSession, ChpServoConfiguration servoConfig,
             CommonConfiguration commonConfig, string selectorString = "")
         {
@@ -371,22 +345,74 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Results
+        public struct ModAccResults
+        {
+            public double compositeRmsEvmMean;
+            public double compositePeakEvmMaximum;
+            public int compositePeakEvmSlotIndex;
+            public int compositePeakEvmSymbolIndex;
+            public int compositePeakEvmSubcarrierIndex;
+
+            public double componentCarrierFrequencyErrorMean;
+            public double componentCarrierIQOriginOffsetMean;
+            public double componentCarrierIQGainImbalanceMean;
+            public double componentCarrierQuadratureErrorMean;
+            public double inBandEmissionMargin;
+
+            public ComplexSingle[] puschDataConstellation;
+            public ComplexSingle[] puschDmrsConstellation;
+
+            public AnalogWaveform<float> rmsEvmPerSubcarrierMean;
+            public AnalogWaveform<float> rmsEvmPerSymbolMean;
+
+            public Spectrum<float> spectralFlatness;
+            public Spectrum<float> spectralFlatnessLowerMask;
+            public Spectrum<float> spectralFlatnessUpperMask;
+        }
+        public struct AcpResults
+        {
+            public double absolutePower;
+            public double relativePower;
+
+            public double[] lowerRelativePower;
+            public double[] upperRelativePower;
+            public double[] lowerAbsolutePower;
+            public double[] upperAbsolutePower;
+
+            public Spectrum<float> spectrum;
+            public Spectrum<float> relativePowersTrace;
+
+        }
+        public struct ChpResults
+        {
+            public double absolutePower;
+            public double relativePower;
+
+            public Spectrum<float> spectrum;
+        }
+        public struct ChpServoResults
+        {
+            public double[] ServoTrace;
+            public double FinalInputPower_dBm;
+            public double FinalOutputPower_dBm;
+        }
+
         public static ModAccResults FetchModAcc(ref RFmxNRMX nrSignal, string selectorString = "")
         {
             ModAccResults modaccResults = new ModAccResults();
 
 
-            nrSignal.ModAcc.Results.GetCompositeRmsEvmMean("", out modaccResults.compositeRmsEvmMean);
-            nrSignal.ModAcc.Results.GetCompositePeakEvmMaximum("", out modaccResults.compositePeakEvmMaximum);
-            nrSignal.ModAcc.Results.GetCompositePeakEvmSlotIndex("", out modaccResults.compositePeakEvmSlotIndex);
-            nrSignal.ModAcc.Results.GetCompositePeakEvmSymbolIndex("", out modaccResults.compositePeakEvmSymbolIndex);
-            nrSignal.ModAcc.Results.GetCompositePeakEvmSubcarrierIndex("", out modaccResults.compositePeakEvmSubcarrierIndex);
+            nrSignal.ModAcc.Results.GetCompositeRmsEvmMean(selectorString, out modaccResults.compositeRmsEvmMean);
+            nrSignal.ModAcc.Results.GetCompositePeakEvmMaximum(selectorString, out modaccResults.compositePeakEvmMaximum);
+            nrSignal.ModAcc.Results.GetCompositePeakEvmSlotIndex(selectorString, out modaccResults.compositePeakEvmSlotIndex);
+            nrSignal.ModAcc.Results.GetCompositePeakEvmSymbolIndex(selectorString, out modaccResults.compositePeakEvmSymbolIndex);
+            nrSignal.ModAcc.Results.GetCompositePeakEvmSubcarrierIndex(selectorString, out modaccResults.compositePeakEvmSubcarrierIndex);
 
-            nrSignal.ModAcc.Results.GetComponentCarrierFrequencyErrorMean("", out modaccResults.componentCarrierFrequencyErrorMean);
-            nrSignal.ModAcc.Results.GetComponentCarrierIQOriginOffsetMean("", out modaccResults.componentCarrierIQOriginOffsetMean);
-            nrSignal.ModAcc.Results.GetComponentCarrierIQGainImbalanceMean("", out modaccResults.componentCarrierIQGainImbalanceMean);
-            nrSignal.ModAcc.Results.GetComponentCarrierQuadratureErrorMean("", out modaccResults.componentCarrierQuadratureErrorMean);
-            nrSignal.ModAcc.Results.GetInBandEmissionMargin("", out modaccResults.inBandEmissionMargin);
+            nrSignal.ModAcc.Results.GetComponentCarrierFrequencyErrorMean(selectorString, out modaccResults.componentCarrierFrequencyErrorMean);
+            nrSignal.ModAcc.Results.GetComponentCarrierIQOriginOffsetMean(selectorString, out modaccResults.componentCarrierIQOriginOffsetMean);
+            nrSignal.ModAcc.Results.GetComponentCarrierIQGainImbalanceMean(selectorString, out modaccResults.componentCarrierIQGainImbalanceMean);
+            nrSignal.ModAcc.Results.GetComponentCarrierQuadratureErrorMean(selectorString, out modaccResults.componentCarrierQuadratureErrorMean);
+            nrSignal.ModAcc.Results.GetInBandEmissionMargin(selectorString, out modaccResults.inBandEmissionMargin);
 
             nrSignal.ModAcc.Results.FetchPuschDataConstellationTrace(selectorString, 10, ref modaccResults.puschDataConstellation);
             nrSignal.ModAcc.Results.FetchPuschDmrsConstellationTrace(selectorString, 10, ref modaccResults.puschDmrsConstellation);
@@ -402,26 +428,31 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             AcpResults acpResults = new AcpResults();
 
-            nrSignal.Acp.Results.FetchOffsetMeasurementArray("", 10, ref acpResults.lowerRelativePower,
+            nrSignal.Acp.Results.FetchOffsetMeasurementArray(selectorString, 10, ref acpResults.lowerRelativePower,
             ref acpResults.upperRelativePower, ref acpResults.lowerAbsolutePower, ref acpResults.upperAbsolutePower);
 
-            nrSignal.Acp.Results.ComponentCarrier.FetchMeasurement("", 10, out acpResults.absolutePower, out acpResults.relativePower);
+            nrSignal.Acp.Results.ComponentCarrier.FetchMeasurement(selectorString, 10, out acpResults.absolutePower, out acpResults.relativePower);
 
             for (int i = 0; i < acpResults.lowerRelativePower.Length; i++)
             {
-                nrSignal.Acp.Results.FetchRelativePowersTrace("", 10, i, ref acpResults.relativePowersTrace);
+                nrSignal.Acp.Results.FetchRelativePowersTrace(selectorString, 10, i, ref acpResults.relativePowersTrace);
             }
 
-            nrSignal.Acp.Results.FetchSpectrum("", 10, ref acpResults.spectrum);
+            nrSignal.Acp.Results.FetchSpectrum(selectorString, 10, ref acpResults.spectrum);
 
             return acpResults;
         }
-        public struct ChpServoResults
+        public static ChpResults FetchChp(ref RFmxNRMX nrSignal, string selectorString = "")
         {
-            public double[] ServoTrace;
-            public double FinalInputPower_dBm;
-            public double FinalOutputPower_dBm;
+            ChpResults chpResults = new ChpResults();
+
+            nrSignal.Chp.Results.ComponentCarrier.FetchMeasurement(selectorString, 10, out chpResults.absolutePower, out chpResults.relativePower);
+            nrSignal.Chp.Results.FetchSpectrum(selectorString, 10, ref chpResults.spectrum);
+
+            return chpResults;
         }
+
+  
         #endregion
 
     }
