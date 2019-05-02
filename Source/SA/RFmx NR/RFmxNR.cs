@@ -16,14 +16,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double CenterFrequency_Hz;
             public double ReferenceLevel_dBm;
             public double ExternalAttenuation_dB;
-            public string frequencyReferenceSource;
+            public string FrequencyReferenceSource;
             public string DigitalEdgeSource;
             public RFmxNRMXDigitalEdgeTriggerEdge DigitalEdgeType;
             public double TriggerDelay_s;
             public bool EnableTrigger;
 
-            public bool autoevelEnabled;
-            public double autolevelMeasurementInterval;
+            public bool AutoLevelEnabled;
+            public double AutoLevelMeasurementInterval;
         }
         public static CommonConfiguration GetDefaultCommonConfiguration()
         {
@@ -32,14 +32,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 CenterFrequency_Hz = 3.5e9,
                 ReferenceLevel_dBm = 0,
                 ExternalAttenuation_dB = 0,
-                frequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
+                FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
                 DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
                 DigitalEdgeType = RFmxNRMXDigitalEdgeTriggerEdge.Rising,
                 TriggerDelay_s = 0,
                 EnableTrigger = true,
 
-                autoevelEnabled = false,
-                autolevelMeasurementInterval = 10e-3
+                AutoLevelEnabled = false,
+                AutoLevelMeasurementInterval = 10e-3
             };
         }
 
@@ -225,12 +225,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             nrSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             nrSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
-            sessionHandle.ConfigureFrequencyReference("", commonConfig.frequencyReferenceSource, 10e6);
+            sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
             nrSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
 
-            if (commonConfig.autoevelEnabled)
+            if (commonConfig.AutoLevelEnabled)
             {
-                nrSignal.AutoLevel(selectorString, commonConfig.autolevelMeasurementInterval, out commonConfig.ReferenceLevel_dBm);
+                nrSignal.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval, out commonConfig.ReferenceLevel_dBm);
             }
             else
             {
@@ -329,7 +329,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             bool servoSucess = false;
             for (int i = 0; i < servoConfig.MaxNumberOfIterations; i++)
             {
-                if (commonConfig.autoevelEnabled) servoChpSession.AutoLevel(selectorString, commonConfig.autolevelMeasurementInterval, out commonConfig.ReferenceLevel_dBm);
+                if (commonConfig.AutoLevelEnabled) servoChpSession.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval, out commonConfig.ReferenceLevel_dBm);
                 servoChpSession.Initiate(selectorString, "");
 
                 powerLevel = rfsgSession.RF.PowerLevel;
