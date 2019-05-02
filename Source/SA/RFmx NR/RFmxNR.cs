@@ -290,6 +290,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public static void ConfigureAcp(ref RFmxNRMX nrSignal, AcpConfiguration acpConfig, string selectorString = "")
         {
             nrSignal.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
+            nrSignal.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
 
             nrSignal.Acp.Configuration.ConfigureMeasurementMethod("", acpConfig.measurementMethod);
             nrSignal.Acp.Configuration.ConfigureNoiseCompensationEnabled("", acpConfig.noiseCompensationEnabled);
@@ -305,6 +306,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public static void ConfigureModacc(ref RFmxNRMX nrSignal, ModAccConfiguration modaccConfig, string selectorString = "")
         {
             nrSignal.ModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
+            nrSignal.ModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
 
             nrSignal.ModAcc.Configuration.SetSynchronizationMode("", modaccConfig.synchronizationMode);
             nrSignal.ModAcc.Configuration.SetAveragingEnabled("", modaccConfig.averagingEnabled);
