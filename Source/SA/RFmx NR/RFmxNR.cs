@@ -151,7 +151,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 averagingCount = 10,
                 averagingType = RFmxNRMXAcpAveragingType.Rms,
 
-                numberOfNROffsets = 1,
+                numberOfNROffsets = 2,
                 numberOfEutraOffsets = 0,
                 numberOfUtraOffsets = 0
             };
