@@ -279,23 +279,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.OfdmModAcc.Configuration.SetCommonClockSourceEnabled(selectorString, RFmxWlanMXOfdmModAccCommonClockSourceEnabled.True);
 
         }
-        /*public static void ConfigureSEM(ref RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
-        {
-            wlanSignal.Sem.Configuration.SetMeasurementEnabled(selectorString, true);
-            wlanSignal.Sem.Configuration.SetAllTracesEnabled(selectorString, true);
-
-            wlanSignal.Sem.Configuration.ConfigureSweepTime(selectorString, RFmxWlanMXSemSweepTimeAuto.False, semConfig.SweepTime_s);
-            wlanSignal.Sem.Configuration.SetAveragingEnabled(selectorString, semConfig.AveragingEnabled);
-            wlanSignal.Sem.Configuration.SetAveragingCount(selectorString, semConfig.AveragingCount);
-
-            wlanSignal.Sem.Configuration.SetSpanAuto(selectorString, RFmxWlanMXSemSpanAuto.True);
-
-            wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, semConfig.MaskType);
-            if (semConfig.MaskType == RFmxWlanMXSemMaskType.Custom)
-            {
-                wlanSignal.Sem.Configuration.con
-            }
-        }*/
         public static TxPServoResults TxPServoPower(ref RFmxWlanMX wlanSignal, ref NIRfsg rfsgSession, TxPServoConfiguration servoConfig,
             AutoLevelConfiguration autoLevelConfig, string selectorString = "")
         {
