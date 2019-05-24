@@ -54,7 +54,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             AutoLevelConfiguration autoLevel = new AutoLevelConfiguration
             {
-                //AutoLevelMeasureTime_s = period,
+                AutoLevelMeasureTime_s = period,
                 AutoLevelReferenceLevel = true
             };
 
@@ -102,24 +102,24 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             Console.WriteLine("TXP Avg Power: {0:N}", txpRes.AveragePowerMean_dBm);
             Console.WriteLine("Composite RMS EVM (dB): {0:N}", modAccResults.CompositeRMSEVMMean_dB);
             Console.WriteLine("\n----------Lower Offset Measurements----------\n");
-            for (int i = 0; i < semResults.lowerOffsetMargin.Length; i++)
+            for (int i = 0; i < semResults.LowerOffsetMargin_dB.Length; i++)
             {
                 Console.WriteLine("Offset {0}", i);
                 Console.WriteLine("Measurement Status              :{0}",
                      semResults.lowerOffsetMeasurementStatus[i]);
-                Console.WriteLine("Margin (dB)                     :{0}", semResults.lowerOffsetMargin[i]);
-                Console.WriteLine("Margin Frequency (Hz)           :{0}", semResults.lowerOffsetMarginFrequency[i]);
-                Console.WriteLine("Margin Absolute Power (dBm)     :{0}\n", semResults.lowerOffsetMarginAbsolutePower[i]);
+                Console.WriteLine("Margin (dB)                     :{0}", semResults.LowerOffsetMargin_dB[i]);
+                Console.WriteLine("Margin Frequency (Hz)           :{0}", semResults.LowerOffsetMarginFrequency_Hz[i]);
+                Console.WriteLine("Margin Absolute Power (dBm)     :{0}\n", semResults.LowerOffsetMarginAbsolutePower_dBm[i]);
             }
 
             Console.WriteLine("\n----------Upper Offset Measurements----------\n");
-            for (int i = 0; i < semResults.upperOffsetMargin.Length; i++)
+            for (int i = 0; i < semResults.UpperOffsetMargin_dB.Length; i++)
             {
                 Console.WriteLine("Offset {0}", i);
                 Console.WriteLine("Measurement Status              :{0}", semResults.upperOffsetMeasurementStatus[i]);
-                Console.WriteLine("Margin (dB)                     :{0}", semResults.upperOffsetMargin[i]);
-                Console.WriteLine("Margin Frequency (Hz)           :{0}", semResults.upperOffsetMarginFrequency[i]);
-                Console.WriteLine("Margin Absolute Power (dBm)     :{0}\n", semResults.upperOffsetMarginAbsolutePower[i]);
+                Console.WriteLine("Margin (dB)                     :{0}", semResults.UpperOffsetMargin_dB[i]);
+                Console.WriteLine("Margin Frequency (Hz)           :{0}", semResults.UpperOffsetMarginFrequency_Hz[i]);
+                Console.WriteLine("Margin Absolute Power (dBm)     :{0}\n", semResults.UpperOffsetMarginAbsolutePower_dBm[i]);
             }
             Console.ReadKey();
 

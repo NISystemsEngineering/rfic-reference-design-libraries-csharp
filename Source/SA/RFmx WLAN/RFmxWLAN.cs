@@ -119,10 +119,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public struct SEMConfiguration
         {
-            public RFmxWlanMXSemSweepTimeAuto sweepTimeAuto;
+            public RFmxWlanMXSemSweepTimeAuto SweepTimeAuto;
             public double SweepTime_s;
-            public RFmxWlanMXSemSpanAuto spanAuto;
-            public double span;
+            public RFmxWlanMXSemSpanAuto SpanAuto;
+            public double Span_Hz;
             public RFmxWlanMXSemAveragingEnabled AveragingEnabled;
             public int AveragingCount;
             public RFmxWlanMXSemAveragingType AveragingType;
@@ -131,10 +131,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             public void SetDefaults()
             {
-                sweepTimeAuto = RFmxWlanMXSemSweepTimeAuto.True;
+                SweepTimeAuto = RFmxWlanMXSemSweepTimeAuto.True;
                 SweepTime_s = 1e-3;
-                spanAuto = RFmxWlanMXSemSpanAuto.True;
-                span = 100e6;
+                SpanAuto = RFmxWlanMXSemSpanAuto.True;
+                Span_Hz = 100e6;
                 AveragingEnabled = RFmxWlanMXSemAveragingEnabled.False;
                 AveragingCount = 5;
                 AveragingType = RFmxWlanMXSemAveragingType.Rms;
@@ -145,20 +145,20 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public struct SEMResults
         {
             public RFmxWlanMXSemMeasurementStatus measurementStatus;
-            public double  absolutePower;                                                   /*(dBm) */
-            public double  relativePower;                                                   /*(dBm) */
+            public double  AbsolutePower_dBm;
+            public double  RelativePower_dB;
 
             public  RFmxWlanMXSemUpperOffsetMeasurementStatus[] upperOffsetMeasurementStatus;
-            public double [] upperOffsetMargin;                                             /*(dB) */
-            public double [] upperOffsetMarginFrequency;                                    /*(Hz) */
-            public double [] upperOffsetMarginAbsolutePower;                                /*(dBm) */
-            public double [] upperOffsetMarginRelativePower;                                /*(dBm) */
+            public double [] UpperOffsetMargin_dB;
+            public double [] UpperOffsetMarginFrequency_Hz;
+            public double [] UpperOffsetMarginAbsolutePower_dBm;
+            public double [] UpperOffsetMarginRelativePower_dBm;
 
             public RFmxWlanMXSemLowerOffsetMeasurementStatus[] lowerOffsetMeasurementStatus;
-            public double [] lowerOffsetMargin;                                             /*(dB) */
-            public double [] lowerOffsetMarginFrequency;                                    /*(Hz) */
-            public double [] lowerOffsetMarginAbsolutePower;                                /*(dBm) */
-            public double [] lowerOffsetMarginRelativePower;                                /*(dBm) */
+            public double [] LowerOffsetMargin_dB;
+            public double [] LowerOffsetMarginFrequency_Hz; 
+            public double [] LowerOffsetMarginAbsolutePower_dBm;
+            public double [] LowerOffsetMarginRelativePower_dBm;
 
         }
         public struct TxPServoConfiguration
@@ -331,12 +331,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureSEM(ref RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
         {
+            //Ensure that the measurement and traces are enabled
             wlanSignal.Sem.Configuration.SetMeasurementEnabled(selectorString, true);
             wlanSignal.Sem.Configuration.SetAllTracesEnabled(selectorString, true);
+
+            wlanSignal.Sem.Configuration.ConfigureSweepTime(selectorString, semConfig.SweepTimeAuto, semConfig.SweepTime_s);
             wlanSignal.Sem.Configuration.ConfigureAveraging(selectorString, semConfig.AveragingEnabled, semConfig.AveragingCount, semConfig.AveragingType);
-            wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, semConfig.MaskType);
-            wlanSignal.Sem.Configuration.ConfigureSweepTime(selectorString, semConfig.sweepTimeAuto, semConfig.SweepTime_s);
-            wlanSignal.Sem.Configuration.ConfigureSpan(selectorString, semConfig.spanAuto, semConfig.span);
+            wlanSignal.Sem.Configuration.ConfigureSpan(selectorString, semConfig.SpanAuto, semConfig.Span_Hz);
+
+            switch (semConfig.MaskType)
+            {
+                case RFmxWlanMXSemMaskType.Standard:
+                    wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, semConfig.MaskType);
+                    break;
+                default:
+                    throw new System.NotImplementedException("Custom SEM Mask configurations have not been implemented in this Reference Design module.");
+            }            
         }
         #endregion
         #region Measurement Results
@@ -366,13 +376,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             SEMResults semResults = new SEMResults();
             wlanSignal.Sem.Results.FetchMeasurementStatus(selectorString, 10, out semResults.measurementStatus);
-            wlanSignal.Sem.Results.FetchCarrierMeasurement(selectorString, 10, out semResults.absolutePower, out semResults.relativePower);
+            wlanSignal.Sem.Results.FetchCarrierMeasurement(selectorString, 10, out semResults.AbsolutePower_dBm, out semResults.RelativePower_dB);
             wlanSignal.Sem.Results.FetchLowerOffsetMarginArray(selectorString, 10, ref semResults.lowerOffsetMeasurementStatus,
-          ref semResults.lowerOffsetMargin, ref semResults.lowerOffsetMarginFrequency, ref semResults.lowerOffsetMarginAbsolutePower,
-          ref semResults.lowerOffsetMarginRelativePower);
+                ref semResults.LowerOffsetMargin_dB, ref semResults.LowerOffsetMarginFrequency_Hz, ref semResults.LowerOffsetMarginAbsolutePower_dBm,
+                ref semResults.LowerOffsetMarginRelativePower_dBm);
             wlanSignal.Sem.Results.FetchUpperOffsetMarginArray(selectorString, 10, ref semResults.upperOffsetMeasurementStatus,
-               ref semResults.upperOffsetMargin, ref semResults.upperOffsetMarginFrequency, ref semResults.upperOffsetMarginAbsolutePower,
-               ref semResults.upperOffsetMarginRelativePower);
+               ref semResults.UpperOffsetMargin_dB, ref semResults.UpperOffsetMarginFrequency_Hz, ref semResults.UpperOffsetMarginAbsolutePower_dBm,
+               ref semResults.UpperOffsetMarginRelativePower_dBm);
+
             return semResults;
         }
         #endregion
