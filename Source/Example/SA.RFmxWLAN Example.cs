@@ -54,7 +54,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             AutoLevelConfiguration autoLevel = new AutoLevelConfiguration
             {
-                //AutoLevelMeasureTime_s = period,
+                AutoLevelMeasureTime_s = period,
                 AutoLevelReferenceLevel = true
             };
 
@@ -63,8 +63,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             SignalConfiguration signal = new SignalConfiguration();
             signal.SetDefaults();
             signal.AutoDetectSignal = false;
-            signal.ChannelBandwidth_Hz = 80e6;
-            signal.Standard = RFmxWlanMXStandard.Standard802_11ac;
+            signal.ChannelBandwidth_Hz = 20e6;
+            signal.Standard = RFmxWlanMXStandard.Standard802_11ag;
 
             SA.RFmxWLAN.ConfigureSignal(ref wlan, signal);
 
@@ -79,22 +79,48 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             OFDMModAccConfiguration modAccConfig = new OFDMModAccConfiguration();
             modAccConfig.SetDefaults();
+            modAccConfig.OptimizeDynamicRangeForEvmEnabled = RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled.False;
             modAccConfig.AveragingEnabled = RFmxWlanMXOfdmModAccAveragingEnabled.True;
 
             SA.RFmxWLAN.ConfigureOFDMModAcc(ref wlan, modAccConfig);
 
             TxPServoConfiguration servoConfig = new TxPServoConfiguration();
             servoConfig.SetDefaults();
-            servoConfig.TargetTxPPower_dBm = 20.5;
+            servoConfig.TargetTxPPower_dBm = 0.5;
 
             SA.RFmxWLAN.TxPServoPower(ref wlan, ref nIRfsg, servoConfig, autoLevel);
+
+            SEMConfiguration semConfig = new SEMConfiguration();
+            semConfig.SetDefaults();
+            SA.RFmxWLAN.ConfigureSEM(ref wlan, semConfig);
 
             wlan.Initiate("", "");
 
             TxPResults txpRes = SA.RFmxWLAN.FetchTxP(ref wlan);
             OFDMModAccResults modAccResults = SA.RFmxWLAN.FetchOFDMModAcc(ref wlan);
+            SEMResults semResults = SA.RFmxWLAN.FetchSEM(ref wlan);
             Console.WriteLine("TXP Avg Power: {0:N}", txpRes.AveragePowerMean_dBm);
             Console.WriteLine("Composite RMS EVM (dB): {0:N}", modAccResults.CompositeRMSEVMMean_dB);
+            Console.WriteLine("\n----------Lower Offset Measurements----------\n");
+            for (int i = 0; i < semResults.LowerOffsetMargin_dB.Length; i++)
+            {
+                Console.WriteLine("Offset {0}", i);
+                Console.WriteLine("Measurement Status              :{0}",
+                     semResults.lowerOffsetMeasurementStatus[i]);
+                Console.WriteLine("Margin (dB)                     :{0}", semResults.LowerOffsetMargin_dB[i]);
+                Console.WriteLine("Margin Frequency (Hz)           :{0}", semResults.LowerOffsetMarginFrequency_Hz[i]);
+                Console.WriteLine("Margin Absolute Power (dBm)     :{0}\n", semResults.LowerOffsetMarginAbsolutePower_dBm[i]);
+            }
+
+            Console.WriteLine("\n----------Upper Offset Measurements----------\n");
+            for (int i = 0; i < semResults.UpperOffsetMargin_dB.Length; i++)
+            {
+                Console.WriteLine("Offset {0}", i);
+                Console.WriteLine("Measurement Status              :{0}", semResults.upperOffsetMeasurementStatus[i]);
+                Console.WriteLine("Margin (dB)                     :{0}", semResults.UpperOffsetMargin_dB[i]);
+                Console.WriteLine("Margin Frequency (Hz)           :{0}", semResults.UpperOffsetMarginFrequency_Hz[i]);
+                Console.WriteLine("Margin Absolute Power (dBm)     :{0}\n", semResults.UpperOffsetMarginAbsolutePower_dBm[i]);
+            }
             Console.ReadKey();
 
             wlan.Dispose();
