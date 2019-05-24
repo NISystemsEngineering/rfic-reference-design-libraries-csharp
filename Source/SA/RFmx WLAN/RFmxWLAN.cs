@@ -189,16 +189,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             
             sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
             sessionHandle.GetInstrumentModel("", out instrModel);
-            if (instrModel.Contains("5840"))
-            {
-                sessionHandle.SetLOSource("", commonConfig.LOSource);
-                sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
-            }
-            else if((instrModel.Contains("5830"))||(instrModel.Contains("5831")))
-            {
-                sessionHandle.SetLOSource("LO2", RFmxInstrMXConstants.LOSourceSGSAShared);
-                sessionHandle.SetDownconverterFrequencyOffset("", 257.5e6);
-            }
+
+            sessionHandle.SetLOSource("", commonConfig.LOSource);
+            sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
+
                 wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
