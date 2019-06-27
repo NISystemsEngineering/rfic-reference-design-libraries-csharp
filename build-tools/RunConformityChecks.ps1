@@ -1,9 +1,16 @@
 ﻿#Runs various tests on the source code to ensure that it completes the requirements for conformity
 #as outlined in CONTRIBUTING.md
 
-Write-Host "Check for inclusion of DLLs in builds directory"
+Write-Host "Check for exclusion of referencd DLLs in builds directory"
 
 $command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -SearchTextOrPattern '<Private>(.+)</Private>' -FilePattern ""*.csproj""" +
+    "  -Verbose -ValidMatchValues ""False"" -RecurseDirectory -ExcludeFilePattern '*Tests*','*Example*'"
+
+Invoke-Expression $command
+
+Write-Host "Check for disabling of specific versions for references"
+
+$command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -SearchTextOrPattern '<SpecificVersion>(.+)</SpecificVersion>' -FilePattern ""*.csproj""" +
     "  -Verbose -ValidMatchValues ""False"" -RecurseDirectory -ExcludeFilePattern '*Tests*','*Example*'"
 
 Invoke-Expression $command
@@ -21,7 +28,7 @@ $command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -SearchTextOrPa
 
 Invoke-Expression $command
 
-Write-Host "`nEnsure the assembly name is properly set"
+Write-Host "`nEnsure the assembly name is properly set to ""NationalInstruments.ReferenceDesignLibraries.<name>"
 $command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -RecurseDirectory -SearchTextOrPattern '<AssemblyName>NationalInstruments.ReferenceDesignLibraries(.*)</AssemblyName>'" +
     " -FilePattern ""*.csproj"" -Verbose -ExcludeFilePattern '*Tests*','*Example*'"
 
