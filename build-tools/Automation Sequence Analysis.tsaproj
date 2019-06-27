@@ -294,7 +294,7 @@
 													<value>NI_UnusedSequence</value>
 												</RuleId>
 												<Enabled classname='Bool'>
-													<value>false</value>
+													<value>true</value>
 												</Enabled>
 												<ConfigurationData classname='Obj'/>
 												<RuleSettings classname='Objs'>
@@ -360,7 +360,7 @@
 													<value>NI_StepCount</value>
 												</RuleId>
 												<Enabled classname='Bool'>
-													<value>false</value>
+													<value>true</value>
 												</Enabled>
 												<ConfigurationData classname='Obj'/>
 												<RuleSettings classname='Objs'>
@@ -437,7 +437,7 @@
 													<value>NI_SequenceCount</value>
 												</RuleId>
 												<Enabled classname='Bool'>
-													<value>false</value>
+													<value>true</value>
 												</Enabled>
 												<ConfigurationData classname='Obj'/>
 												<RuleSettings classname='Objs'>
@@ -496,7 +496,7 @@
 													<value>NI_SequenceFileCount</value>
 												</RuleId>
 												<Enabled classname='Bool'>
-													<value>false</value>
+													<value>true</value>
 												</Enabled>
 												<ConfigurationData classname='Obj'/>
 												<RuleSettings classname='Objs'>
@@ -518,7 +518,7 @@
 													<value>NI_FileByExpression</value>
 												</RuleId>
 												<Enabled classname='Bool'>
-													<value>false</value>
+													<value>true</value>
 												</Enabled>
 												<ConfigurationData classname='Obj'/>
 												<RuleSettings classname='Objs'>
@@ -694,7 +694,7 @@
 													<value>NI_DynamicPropertyDoesNotExist</value>
 												</RuleId>
 												<Enabled classname='Bool'>
-													<value>false</value>
+													<value>true</value>
 												</Enabled>
 												<ConfigurationData classname='Obj'/>
 												<RuleSettings classname='Objs'>
@@ -782,7 +782,7 @@
 													<value>NI_SuppressedEvaluationErrors</value>
 												</RuleId>
 												<Enabled classname='Bool'>
-													<value>false</value>
+													<value>true</value>
 												</Enabled>
 												<ConfigurationData classname='Obj'/>
 												<RuleSettings classname='Objs'>
@@ -871,7 +871,7 @@
 						</subprops>
 					</RuleSet>
 					<PathAtLastWrite classname='Str'>
-						<value>C:\github\rf-adv-reference-design-libraries-labview\build-tools\Automation Sequence Analysis.tsaproj</value>
+						<value>C:\github\rf-adv-reference-design-libraries\build-tools\Automation Sequence Analysis.tsaproj</value>
 					</PathAtLastWrite>
 					<RulesUsedForAnalysis classname='Objs'>
 						<value lbound='[0]' ubound='[24]'>
@@ -2312,7 +2312,7 @@ to remove unused watch expressions.</value>
 					</AnalyzedFiles>
 					<AnalyzedFilesRelativePaths classname='Strs'>
 						<value lbound='[0]' ubound='[0]'>
-							<value arrayindex='[0]'>	&lt;Project&gt;\..\Automation\WLAN PA Characterization\WLAN PA Characterization.seq</value>
+							<value arrayindex='[0]'>	&lt;Project&gt;\..\..\rf-adv-reference-design-libraries-labview\Automation\WLAN PA Characterization\WLAN PA Characterization.seq</value>
 						</value>
 					</AnalyzedFilesRelativePaths>
 					<AnalysisStatus classname='Obj'>
