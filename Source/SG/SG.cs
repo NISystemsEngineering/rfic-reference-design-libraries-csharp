@@ -79,10 +79,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
         #endregion
         public static void ConfigureInstrument(ref NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
-
-            rfsgHandle.Arb.GenerationMode = RfsgWaveformGenerationMode.Script;
-            rfsgHandle.RF.PowerLevelType = RfsgRFPowerLevelType.PeakPower;
-
             rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
             rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.AverageInputPower_dBm);
 
@@ -143,8 +139,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public static void DownloadWaveform(ref NIRfsg rfsgHandle, ref Waveform waveform)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
-
             rfsgHandle.Abort();
+
+            rfsgHandle.RF.PowerLevelType = RfsgRFPowerLevelType.PeakPower;
 
             try
             {
@@ -172,6 +169,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+
+            rfsgHandle.Arb.GenerationMode = RfsgWaveformGenerationMode.Script;
+
             string scriptName = String.Format("{0}{1}", waveform.WaveformName, waveTiming.DutyCycle_Percent);
 
             if (waveTiming.DutyCycle_Percent <= 0)
