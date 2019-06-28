@@ -11,9 +11,9 @@
 {FileGlobals},Static_Station_Configs.Starting_Sweep_Number {Number},1
 {FileGlobals},Static_Station_Configs.Base_Sweep_Name {String},Group
 {FileGlobals},Static_Station_Configs.Device_Names {Container}
-{FileGlobals},Static_Station_Configs.Device_Names.SG_Name {String},5840
-{FileGlobals},Static_Station_Configs.Device_Names.SA_Name {String},5840
-{FileGlobals},Static_Station_Configs.Device_Names.Supply_Name {String},SIM
+{FileGlobals},Static_Station_Configs.Device_Names.SG_Name {String},VST2
+{FileGlobals},Static_Station_Configs.Device_Names.SA_Name {String},VST2
+{FileGlobals},Static_Station_Configs.Device_Names.Supply_Name {String},4139
 {FileGlobals},Static_Station_Configs.Waveform_Paths {String [0] .. [0]}
 {FileGlobals},Static_Station_Configs.Waveform_Paths[0],\Data Files\Waveforms\NR_DL_FDD_SISO_BW-100MHz_CC-1_SCS-30kHz_Mod-256QAM-OFDM-NoSSB.tdms
 <PropertyGroup>
