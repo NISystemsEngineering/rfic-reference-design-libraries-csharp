@@ -20,7 +20,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double CarrierFrequency_Hz;
             public double AverageInputPower_dBm;
             public double ExternalAttenuation_dBm;
-            public string BurstStartTriggerExportTerminal;
             public bool ShareLOSGToSA;
             public void SetDefaults()
             {
@@ -28,7 +27,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 CarrierFrequency_Hz = 1e9;
                 AverageInputPower_dBm = 0;
                 ExternalAttenuation_dBm = 0;
-                BurstStartTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.PxiTriggerLine0.ToString();
                 ShareLOSGToSA = true;
             }
         }
@@ -48,12 +46,14 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double DutyCycle_Percent;
             public double PreBurstTime_s;
             public double PostBurstTime_s;
+            public string BurstStartTriggerExport;
 
             public void SetDefaults()
             {
                 DutyCycle_Percent = 50;
                 PreBurstTime_s = 1e-6;
                 PostBurstTime_s = 1e-6;
+                BurstStartTriggerExport = "PXI_Trig0";
             }
         }
         public enum PAENMode { Disabled, Static, Dynamic };
@@ -83,8 +83,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.AverageInputPower_dBm);
 
             rfsgHandle.FrequencyReference.Source = RfsgFrequencyReferenceSource.FromString(instrConfig.ReferenceClockSource);
-            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal =
-                RfsgMarkerEventExportedOutputTerminal.FromString(instrConfig.BurstStartTriggerExportTerminal);
 
             if (instrConfig.ShareLOSGToSA)
             {
@@ -165,7 +163,25 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, -1.5);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
-        public static void ConfigureWaveformTimingAndPAControl(ref NIRfsg rfsgHandle, ref Waveform waveform, WaveformTimingConfiguration waveTiming,
+		public static void ConfigureContinuousGeneration(ref NIRfsg rfsgHandle, ref Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
+		{
+            //Configure the trigger to be generated on the first sample of each waveform generation,
+            //denoted in the script below as "marker0"
+			rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(waveformStartTriggerExport);
+
+            string script = $@"script REPEAT{waveform.WaveformName}
+                                    repeat forever
+                                        generate {waveform.WaveformName} marker0(0)
+                                    end repeat
+                                end script";
+
+            //Get the instrument handle to utilize with the RFSGPlayback library
+            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+
+            //Download the newly created script for generation when "Initiate" is called
+            NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, script);
+        }
+        public static void ConfigureBurstedGeneration(ref NIRfsg rfsgHandle, ref Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
@@ -277,6 +293,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 //the loop and trigger the appropriate off command if PAEN mode is Static
                 rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
             }
+
+            //Configure the trigger to be generated on the first sample of each waveform generation,
+            //denoted in the script below as "marker0"
+            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = 
+                RfsgMarkerEventExportedOutputTerminal.FromString(waveTiming.BurstStartTriggerExport);
         }
         public static void ConfigureRF(ref NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
@@ -327,7 +348,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Arb.Scripting.SelectedScriptName = cachedScriptName;
             rfsgHandle.Utility.Commit();
         }
-        public static void AbortDynamicGeneration(ref NIRfsg rfsgHandle, int timeOut_ms = 1000)
+        public static void AbortBurstedGeneration(ref NIRfsg rfsgHandle, int timeOut_ms = 1000)
         {
             //This should trigger the generator to stop infinite generation and trigger any post
             //generation commands. For the static PA enable case, this should trigger the requisite
