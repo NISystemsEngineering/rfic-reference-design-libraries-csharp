@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AliasItems xmlns:ts="www.ni.com/TestStand">
+  <AliasItem AliasName="Frequency Range" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.frequencyRange" />
+  <AliasItem AliasName="NR Signal Config" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config" />
+  <AliasItem AliasName="Band" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.band" />
+  <AliasItem AliasName="Cell ID" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.cellID" />
+  <AliasItem AliasName="Carrier Bandwidth" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.carrierBandwidth" />
+  <AliasItem AliasName="Subcarrier Spacing" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.subcarrierSpacing" />
+  <AliasItem AliasName="Auto Resource Block Detection" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.autoResourceBlockDetectionEnabled" />
+  <AliasItem AliasName="PUSCH Transform Precoding" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschTransformPrecodingEnabled" />
+  <AliasItem AliasName="PUSCH Modulation Type" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschModulationType" />
+  <AliasItem AliasName="Number of Resource Block Clusters" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.NumberOfResourceBlockClusters" />
+  <AliasItem AliasName="PUSCH Resource Block Offset" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschResourceBlockOffset" />
+  <AliasItem AliasName="PUSCH Number of Resource Blocks" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschNumberOfResourceBlocks" />
+  <AliasItem AliasName="PUSCH Slot Allocation" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschSlotAllocation" />
+  <AliasItem AliasName="PUSCH Symbol Allocation" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschSymbolAllocation" />
+  <AliasItem AliasName="PUSCH DRMS Power Mode" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschDmrsPowerMode" />
+  <AliasItem AliasName="PUSCH DRMS Power" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschDmrsPower" />
+  <AliasItem AliasName="PUSCH DRMS Configuration Type" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschDmrsConfigurationType" />
+  <AliasItem AliasName="PUSCH Mapping Type" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschMappingType" />
+  <AliasItem AliasName="PUSCH DRMS Type A Position" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschDmrsTypeAPosition" />
+  <AliasItem AliasName="PUSCH DRMS Duration" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschDmrsDuration" />
+  <AliasItem AliasName="PUSCH Additional Positions" PropertyLookup="Sequence[Load Waveform Configs].Parameters.NR_Signal_Config.puschDmrsAdditionalPositions" />
+</AliasItems>

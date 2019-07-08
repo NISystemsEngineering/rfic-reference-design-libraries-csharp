@@ -1,0 +1,19 @@
+<PropertyGroup name='Group 1' id='ef0521c0-62fc-4152-8f7f-60840784616d' description='Description for Group 1'>
+<Category>,<PropertyLookup>,<Value>
+{FileGlobals},Static_Station_Configs {Container}
+{FileGlobals},Static_Station_Configs.Calibration_Data_Paths {Container}
+{FileGlobals},Static_Station_Configs.Calibration_Data_Paths.SG_to_DUT {Container}
+{FileGlobals},Static_Station_Configs.Calibration_Data_Paths.SG_to_DUT.Path {String},\Data Files\Calibration Data\SG_Cal_Zero.xml
+{FileGlobals},Static_Station_Configs.Calibration_Data_Paths.SG_to_DUT.Path_Name {String},SG_Path
+{FileGlobals},Static_Station_Configs.Calibration_Data_Paths.DUT_to_SA {Container}
+{FileGlobals},Static_Station_Configs.Calibration_Data_Paths.DUT_to_SA.Path {String},\Data Files\Calibration Data\SA_Cal_Zero.xml
+{FileGlobals},Static_Station_Configs.Calibration_Data_Paths.DUT_to_SA.Path_Name {String},SA_Path
+{FileGlobals},Static_Station_Configs.Starting_Sweep_Number {Number},1
+{FileGlobals},Static_Station_Configs.Base_Sweep_Name {String},Group
+{FileGlobals},Static_Station_Configs.Device_Names {Container}
+{FileGlobals},Static_Station_Configs.Device_Names.SG_Name {String},VST2
+{FileGlobals},Static_Station_Configs.Device_Names.SA_Name {String},VST2
+{FileGlobals},Static_Station_Configs.Device_Names.Supply_Name {String},4139
+{FileGlobals},Static_Station_Configs.Waveform_Paths {String [0] .. [0]}
+{FileGlobals},Static_Station_Configs.Waveform_Paths[0],\Data Files\Waveforms\NR_DL_FDD_SISO_BW-100MHz_CC-1_SCS-30kHz_Mod-256QAM-OFDM-NoSSB.tdms
+<PropertyGroup>
