@@ -7,44 +7,70 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
     class SGExample
     {
+        public enum GenerationType { Bursted, Continuous };
         static void Main()
         {
             string resourceName = "VST2";
             string filePath = Path.GetFullPath(@"Support Files\80211a_20M_48Mbps.tdms");
+            GenerationType genType = GenerationType.Continuous;
 
             NIRfsg nIRfsg = new NIRfsg(resourceName, false, false);
-            InstrumentConfiguration instrConfig = new InstrumentConfiguration();
-            instrConfig.SetDefaults();
+
+            InstrumentConfiguration instrConfig = GetDefaultInstrumentConfiguration();
             instrConfig.CarrierFrequency_Hz = 2e9;
 
-            ConfigureInstrument(ref nIRfsg, instrConfig);
-            Waveform waveform = LoadWaveformFromTDMS(ref nIRfsg, filePath);
+            ConfigureInstrument(nIRfsg, instrConfig);
+            Waveform waveform = LoadWaveformFromTDMS(nIRfsg, filePath);
 
-            DownloadWaveform(ref nIRfsg, ref waveform);
+            DownloadWaveform(nIRfsg, ref waveform);
 
-            WaveformTimingConfiguration dynamicConfig = new WaveformTimingConfiguration
+            switch (genType)
             {
-                DutyCycle_Percent = 20,
-                PreBurstTime_s = 500e-9,
-                PostBurstTime_s = 500e-9,
-            };
-            PAENConfiguration paenConfig = new PAENConfiguration
-            {
-                PAEnableMode = PAENMode.Dynamic,
-                PAEnableTriggerExportTerminal = "PFI0",
-                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle,
-                CommandEnableTime_s = 0,
-                CommandDisableTime_s = 0,
-            };
+                // For continous generation, we can simply call this function to begin the generation
+                case GenerationType.Continuous:
+                    ConfigureContinuousGeneration(nIRfsg, ref waveform);
+                    break;
+                // For bursted generation, we need to configure the duty cycle and PA control
+                case GenerationType.Bursted:
+                    WaveformTimingConfiguration dynamicConfig = new WaveformTimingConfiguration
+                    {
+                        DutyCycle_Percent = 20,
+                        PreBurstTime_s = 500e-9,
+                        PostBurstTime_s = 500e-9,
+                        BurstStartTriggerExport = "PXI_Trig0"
+                    };
+                    PAENConfiguration paenConfig = new PAENConfiguration
+                    {
+                        PAEnableMode = PAENMode.Dynamic,
+                        PAEnableTriggerExportTerminal = "PFI0",
+                        PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle,
+                        CommandEnableTime_s = 0,
+                        CommandDisableTime_s = 0,
+                    };
 
-            ConfigureWaveformTimingAndPAControl(ref nIRfsg, ref waveform, dynamicConfig, paenConfig, out _, out _);
+                    ConfigureBurstedGeneration(nIRfsg, ref waveform, dynamicConfig, paenConfig, out _, out _);
+                    break;
+            }
 
             nIRfsg.Initiate();
 
+            Console.WriteLine("Generation has now begun. Press any key to abort generation and close the example.");
             Console.ReadKey();
 
-            AbortDynamicGeneration(ref nIRfsg);
-            CloseInstrument(ref nIRfsg);
+           switch (genType)
+            {
+                // When using bursted generation mode, a special function is called in order to ensure that the
+                // PA if being used is turned off after the final packet is generated
+                case GenerationType.Bursted:
+                    AbortBurstedGeneration(nIRfsg);
+                    break;
+                // In any other case, the normal abort function is sufficient
+                default:
+                    nIRfsg.Abort();
+                    break;
+            }
+
+            CloseInstrument(nIRfsg);
         }
     }
 }
