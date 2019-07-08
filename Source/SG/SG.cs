@@ -77,7 +77,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
         #endregion
-        public static void ConfigureInstrument(ref NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
+        public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
             rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
             rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.AverageInputPower_dBm);
@@ -90,7 +90,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
             }
         }
-        public static Waveform LoadWaveformFromTDMS(ref NIRfsg rfsgHandle, string filePath, string waveformName = "", bool normalizeWaveform = true)
+        public static Waveform LoadWaveformFromTDMS(NIRfsg rfsgHandle, string filePath, string waveformName = "", bool normalizeWaveform = true)
         {
             Waveform waveform = new Waveform
             {
@@ -134,7 +134,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             return waveform;
         }
-        public static void DownloadWaveform(ref NIRfsg rfsgHandle, ref Waveform waveform)
+        public static void DownloadWaveform(NIRfsg rfsgHandle, ref Waveform waveform)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
             rfsgHandle.Abort();
@@ -163,7 +163,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, -1.5);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
-		public static void ConfigureContinuousGeneration(ref NIRfsg rfsgHandle, ref Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
+		public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, ref Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
 		{
             //Configure the trigger to be generated on the first sample of each waveform generation,
             //denoted in the script below as "marker0"
@@ -181,7 +181,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //Download the newly created script for generation when "Initiate" is called
             NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, script);
         }
-        public static void ConfigureBurstedGeneration(ref NIRfsg rfsgHandle, ref Waveform waveform, WaveformTimingConfiguration waveTiming,
+        public static void ConfigureBurstedGeneration(NIRfsg rfsgHandle, ref Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
@@ -299,7 +299,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = 
                 RfsgMarkerEventExportedOutputTerminal.FromString(waveTiming.BurstStartTriggerExport);
         }
-        public static Waveform GetWaveformParametersByName(ref NIRfsg rfsgHandle, string waveformName)
+        public static Waveform GetWaveformParametersByName(NIRfsg rfsgHandle, string waveformName)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
 
@@ -317,7 +317,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             return waveform;
         }
-        public static void TogglePFILine(ref NIRfsg rfsgHandle, RfsgMarkerEventToggleInitialState toggleDirection = RfsgMarkerEventToggleInitialState.DigitalLow)
+        public static void TogglePFILine(NIRfsg rfsgHandle, RfsgMarkerEventToggleInitialState toggleDirection = RfsgMarkerEventToggleInitialState.DigitalLow)
         {
             rfsgHandle.Abort();
 
@@ -343,7 +343,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Arb.Scripting.SelectedScriptName = cachedScriptName;
             rfsgHandle.Utility.Commit();
         }
-        public static void AbortBurstedGeneration(ref NIRfsg rfsgHandle, int timeOut_ms = 1000)
+        public static void AbortBurstedGeneration(NIRfsg rfsgHandle, int timeOut_ms = 1000)
         {
             //This should trigger the generator to stop infinite generation and trigger any post
             //generation commands. For the static PA enable case, this should trigger the requisite
@@ -376,7 +376,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 }
             }
         }
-        public static void CloseInstrument(ref NIRfsg rfsgHandle)
+        public static void CloseInstrument(NIRfsg rfsgHandle)
         {
             rfsgHandle.Abort();
             rfsgHandle.RF.OutputEnabled = false;
