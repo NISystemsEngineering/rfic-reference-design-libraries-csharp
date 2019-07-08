@@ -11,7 +11,7 @@ using NationalInstruments.ModularInstruments.NIRfsgPlayback;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
-    public class SG
+    public static class SG
     {
         #region Type Definitions
         public struct InstrumentConfiguration
@@ -21,14 +21,17 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double AverageInputPower_dBm;
             public double ExternalAttenuation_dBm;
             public bool ShareLOSGToSA;
-            public void SetDefaults()
+        }
+        public static InstrumentConfiguration GetDefaultInstrumentConfiguration()
+        {
+            return new InstrumentConfiguration
             {
-                ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString();
-                CarrierFrequency_Hz = 1e9;
-                AverageInputPower_dBm = 0;
-                ExternalAttenuation_dBm = 0;
-                ShareLOSGToSA = true;
-            }
+                ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
+                CarrierFrequency_Hz = 1e9,
+                AverageInputPower_dBm = 0,
+                ExternalAttenuation_dBm = 0,
+                ShareLOSGToSA = true,
+            };
         }
         public struct Waveform
         {
@@ -47,14 +50,16 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double PreBurstTime_s;
             public double PostBurstTime_s;
             public string BurstStartTriggerExport;
-
-            public void SetDefaults()
+        }
+        public static WaveformTimingConfiguration GetDefaultWaveformTimingConfiguration()
+        {
+            return new WaveformTimingConfiguration
             {
-                DutyCycle_Percent = 50;
-                PreBurstTime_s = 1e-6;
-                PostBurstTime_s = 1e-6;
-                BurstStartTriggerExport = "PXI_Trig0";
-            }
+                DutyCycle_Percent = 50,
+                PreBurstTime_s = 1e-6,
+                PostBurstTime_s = 1e-6,
+                BurstStartTriggerExport = "PXI_Trig0"
+        };
         }
         public enum PAENMode { Disabled, Static, Dynamic };
         public struct PAENConfiguration
@@ -64,17 +69,19 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double CommandEnableTime_s;
             public double CommandDisableTime_s;
             public string PAEnableTriggerExportTerminal;
-            
-            public void SetDefaults()
+        }
+        public static PAENConfiguration GetDefaultPAENConfiguration()
+        {
+            return new PAENConfiguration
             {
                 //Default configuration is set for a DUT with a simple digital toggle high/low
                 //for PA Enable
-                PAEnableMode = PAENMode.Dynamic;
-                PAEnableTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.Pfi0.ToString();
-                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle;
-                CommandEnableTime_s = 0;
-                CommandDisableTime_s = 0;
-            }
+                PAEnableMode = PAENMode.Dynamic,
+                PAEnableTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.Pfi0.ToString(),
+                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle,
+                CommandEnableTime_s = 0,
+                CommandDisableTime_s = 0
+            };
         }
         #endregion
         public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
