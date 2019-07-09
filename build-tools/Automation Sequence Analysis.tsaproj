@@ -301,7 +301,7 @@
 													<value lbound='[0]' ubound='[]'/>
 												</RuleSettings>
 												<Severity classname='Num'>
-													<value>3</value>
+													<value>2</value>
 												</Severity>
 												<Description classname='Str'>
 													<value/>
@@ -323,7 +323,7 @@
 													<value lbound='[0]' ubound='[]'/>
 												</RuleSettings>
 												<Severity classname='Num'>
-													<value>0</value>
+													<value>1</value>
 												</Severity>
 												<Description classname='Str'>
 													<value/>
