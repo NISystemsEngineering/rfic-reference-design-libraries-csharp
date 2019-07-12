@@ -32,10 +32,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ivi.Driver, Version=1.4.0.0, Culture=neutral, PublicKeyToken=a128c98f1d7717c1, processorArchitecture=MSIL" />
-    <Reference Include="NationalInstruments.ModularInstruments.Common, Version=16.0.45.49152, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL" />
-    <Reference Include="NationalInstruments.ModularInstruments.NIDigital.Fx45, Version=18.0.0.49152, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL" />
-    <Reference Include="NationalInstruments.ModularInstruments.NIRfsg.Fx45, Version=18.1.0.49152, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL" />
+    <Reference Include="Ivi.Driver, Version=1.4.0.0, Culture=neutral, PublicKeyToken=a128c98f1d7717c1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="NationalInstruments.ModularInstruments.Common, Version=16.0.45.49152, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="NationalInstruments.ModularInstruments.NIDigital.Fx45, Version=18.0.0.49152, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="NationalInstruments.ModularInstruments.NIRfsg.Fx45, Version=18.1.0.49152, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -51,43 +59,43 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Dynamic Digital Control Project\Control Patterns\Dynamic Digital Enable.digipat">
+    <None Include="Digital PAEN Control Project\Control Patterns\Dynamic Digital Enable.digipat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\Control Patterns\Dynamic MIPI RFFE Control.digipat">
+    <None Include="Digital PAEN Control Project\Control Patterns\Dynamic MIPI RFFE Control.digipat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\Control Patterns\Dynamic Reg0Write.digipat">
+    <None Include="Digital PAEN Control Project\Control Patterns\Dynamic Reg0Write.digipat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\Control Patterns\Dynamic Template.digipat">
+    <None Include="Digital PAEN Control Project\Control Patterns\Dynamic Template.digipat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\Digital Wait.digipat">
+    <None Include="Digital PAEN Control Project\Digital Wait.digipat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\Dynamic Digital Control.digiproj">
+    <None Include="Digital PAEN Control Project\Dynamic Digital Control.digiproj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\PinLevels.digilevels">
+    <None Include="Digital PAEN Control Project\PinLevels.digilevels">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\PinMap.pinmap">
+    <None Include="Digital PAEN Control Project\PinMap.pinmap">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\RFFE Command Patterns\RFFE_PA_Disable.digipat">
+    <None Include="Digital PAEN Control Project\RFFE Command Patterns\RFFE_PA_Disable.digipat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\RFFE Command Patterns\RFFE_PA_Enable.digipat">
+    <None Include="Digital PAEN Control Project\RFFE Command Patterns\RFFE_PA_Enable.digipat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\RFFE Command Patterns\RFFE_Reg0Write.digipat">
+    <None Include="Digital PAEN Control Project\RFFE Command Patterns\RFFE_Reg0Write.digipat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\Specifications.specs">
+    <None Include="Digital PAEN Control Project\Specifications.specs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Dynamic Digital Control Project\Timing.digitiming">
+    <None Include="Digital PAEN Control Project\Timing.digitiming">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TDMS Files\11AC_MCS8_40M.tdms">

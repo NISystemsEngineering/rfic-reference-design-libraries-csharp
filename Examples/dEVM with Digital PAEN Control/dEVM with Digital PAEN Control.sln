@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digital Dynamic PAEN Example", "Digital Dynamic PAEN Example\Digital Dynamic PAEN Example.csproj", "{9B9C8F08-CAD3-4A96-B834-3E09C1AD46A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dEVM with Digital PAEN Control", "dEVM with Digital PAEN Control\dEVM with Digital PAEN Control.csproj", "{9B9C8F08-CAD3-4A96-B834-3E09C1AD46A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SG", "..\..\Source\SG\SG.csproj", "{89ABCAC5-CEDB-4535-BD58-E205A97834D9}"
 EndProject

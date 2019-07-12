@@ -101,7 +101,8 @@ namespace Digital_Dynamic_PAEN_Example
             #endregion
 
             rfsgSession.Initiate();
-        
+
+            Console.WriteLine("Generation on the signal generator and digital pattern instrument has begun. Press any key to abort generation and exit the program.");
             Console.ReadKey();
 
             AbortDynamicGeneration(ref rfsgSession);
