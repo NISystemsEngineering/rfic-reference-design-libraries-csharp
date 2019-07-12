@@ -99,6 +99,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             TxPResults txpRes = SA.RFmxWLAN.FetchTxP(ref wlan);
             OFDMModAccResults modAccResults = SA.RFmxWLAN.FetchOFDMModAcc(ref wlan);
             SEMResults semResults = SA.RFmxWLAN.FetchSEM(ref wlan);
+
             Console.WriteLine("TXP Avg Power: {0:N}", txpRes.AveragePowerMean_dBm);
             Console.WriteLine("Composite RMS EVM (dB): {0:N}", modAccResults.CompositeRMSEVMMean_dB);
             Console.WriteLine("\n----------Lower Offset Measurements----------\n");
@@ -121,12 +122,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 Console.WriteLine("Margin Frequency (Hz)           :{0}", semResults.UpperOffsetMarginFrequency_Hz[i]);
                 Console.WriteLine("Margin Absolute Power (dBm)     :{0}\n", semResults.UpperOffsetMarginAbsolutePower_dBm[i]);
             }
+
+            Console.WriteLine("\n--------------------\n\nPress any key to exit.");
             Console.ReadKey();
 
             wlan.Dispose();
             instr.Close();
 
-            TogglePFILine(ref nIRfsg, RfsgMarkerEventToggleInitialState.DigitalLow);
+            AbortDynamicGeneration(ref nIRfsg);
             CloseInstrument(ref nIRfsg);
 
         }

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PinMap xmlns="http://www.ni.com/TestStand/SemiconductorModule/PinMap.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.2">
 	<Instruments>
-		<NIDigitalPatternInstrument name="PXI1Slot2" numberOfChannels="32" />
+		<NIDigitalPatternInstrument name="PXIe-6570" numberOfChannels="32" />
 	</Instruments>
 	<Pins>
 		<DUTPin name="DUTPin1" />
@@ -17,8 +17,8 @@
 		<Site siteNumber="1" />
 	</Sites>
 	<Connections>
-		<SystemConnection pin="SystemPin1" instrument="PXI1Slot2" channel="8" />
-		<Connection pin="DUTPin1" siteNumber="0" instrument="PXI1Slot2" channel="0" />
-		<Connection pin="DUTPin1" siteNumber="1" instrument="PXI1Slot2" channel="9" />
+		<SystemConnection pin="SystemPin1" instrument="PXIe-6570" channel="8" />
+		<Connection pin="DUTPin1" siteNumber="0" instrument="PXIe-6570" channel="0" />
+		<Connection pin="DUTPin1" siteNumber="1" instrument="PXIe-6570" channel="9" />
 	</Connections>
 </PinMap>
