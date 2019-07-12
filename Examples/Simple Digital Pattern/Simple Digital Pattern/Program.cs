@@ -10,7 +10,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
     {
         static void Main()
         {
-            NIDigital digital = new NIDigital("PXI1Slot2", false, false, "");
+            NIDigital digital = new NIDigital("PXIe-6570", false, false, "");
 
             string pinMapPath = Path.GetFullPath(@"Support Files\PinMap.pinmap");
             string specPath = Path.GetFullPath(@"Support Files\Specifications.specs");
@@ -27,6 +27,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 DigitalPatternFiles = new string[1] {patternPath}
             };
 
+            // Alternatively, you could use the following command to search for all matching NI-Digital project files
+            // projectFiles = Digital.Utilities.SearchForProjectFiles(Path.GetFullPath(@"Support Files\"), true)
+
             LoadProjectFiles(digital, projectFiles);
 
             SourcePinConfiguration sourcePin = GetDefaultSourcePinConfiguration();
@@ -39,7 +42,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 BurstTriggerType = TriggerType.None
             };
 
+
             InitiatePatternGeneration(digital, "new_pattern", triggerConfig);
+
+            Console.WriteLine("Pattern generation has begun. Press any key to abort, disconnect pins, and close the program.");
+            Console.ReadKey();
 
             digital.PatternControl.Abort();
 
