@@ -17,10 +17,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             instrConfig.SetDefaults();
             instrConfig.CarrierFrequency_Hz = 2e9;
 
-            ConfigureInstrument(ref nIRfsg, instrConfig);
-            Waveform waveform = LoadWaveformFromTDMS(ref nIRfsg, filePath);
+            ConfigureInstrument(nIRfsg, instrConfig);
+            Waveform waveform = LoadWaveformFromTDMS(nIRfsg, filePath);
 
-            DownloadWaveform(ref nIRfsg, ref waveform);
+            DownloadWaveform(nIRfsg, ref waveform);
 
             WaveformTimingConfiguration dynamicConfig = new WaveformTimingConfiguration
             {
@@ -37,14 +37,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 CommandDisableTime_s = 0,
             };
 
-            ConfigureWaveformTimingAndPAControl(ref nIRfsg, ref waveform, dynamicConfig, paenConfig, out _, out _);
+            ConfigureWaveformTimingAndPAControl(nIRfsg, ref waveform, dynamicConfig, paenConfig, out _, out _);
 
             nIRfsg.Initiate();
 
             Console.ReadKey();
 
-            AbortDynamicGeneration(ref nIRfsg);
-            CloseInstrument(ref nIRfsg);
+            AbortDynamicGeneration(nIRfsg);
+            CloseInstrument(nIRfsg);
         }
     }
 }

@@ -3,7 +3,7 @@ using NationalInstruments.ModularInstruments.NIScope;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
-    public class Scope
+    public static class Scope
     {
         public struct ScopeConfiguration
         {
