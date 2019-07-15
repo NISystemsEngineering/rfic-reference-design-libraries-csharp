@@ -48,8 +48,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             instr.GetWlanSignalConfiguration();
 
 
-            CommonConfiguration commonConfiguration = new CommonConfiguration();
-            commonConfiguration.SetDefaults();
+            CommonConfiguration commonConfiguration = GetDefaultCommonConfiguration();
             commonConfiguration.CenterFrequency_Hz = 2.412e9;
 
             AutoLevelConfiguration autoLevel = new AutoLevelConfiguration
@@ -60,8 +59,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             SA.RFmxWLAN.ConfigureCommon(instr, wlan, commonConfiguration, autoLevel);
 
-            SignalConfiguration signal = new SignalConfiguration();
-            signal.SetDefaults();
+            SignalConfiguration signal = GetDefaultSignalConfiguration();
             signal.AutoDetectSignal = false;
             signal.ChannelBandwidth_Hz = 20e6;
             signal.Standard = RFmxWlanMXStandard.Standard802_11ag;
@@ -77,21 +75,18 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             SA.RFmxWLAN.ConfigureTxP(wlan, txpConfig);
 
-            OFDMModAccConfiguration modAccConfig = new OFDMModAccConfiguration();
-            modAccConfig.SetDefaults();
+            OFDMModAccConfiguration modAccConfig = GetDefaultOFDMModAccConfiguration();
             modAccConfig.OptimizeDynamicRangeForEvmEnabled = RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled.False;
             modAccConfig.AveragingEnabled = RFmxWlanMXOfdmModAccAveragingEnabled.True;
 
             SA.RFmxWLAN.ConfigureOFDMModAcc(wlan, modAccConfig);
 
-            TxPServoConfiguration servoConfig = new TxPServoConfiguration();
-            servoConfig.SetDefaults();
+            TxPServoConfiguration servoConfig = GetDefaultTxPServoConfiguration();
             servoConfig.TargetTxPPower_dBm = 0.5;
 
             SA.RFmxWLAN.TxPServoPower(wlan, nIRfsg, servoConfig, autoLevel);
 
-            SEMConfiguration semConfig = new SEMConfiguration();
-            semConfig.SetDefaults();
+            SEMConfiguration semConfig = GetDefaultSEMConfiguration();
             SA.RFmxWLAN.ConfigureSEM(wlan, semConfig);
 
             wlan.Initiate("", "");

@@ -15,8 +15,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             NIDCPower dcPower = new NIDCPower("4139", channelNames, false);
 
             // Configure instrument settings
-            SupplyConfiguration supplyConfig = new SupplyConfiguration();
-            supplyConfig.SetDefaults();
+            SupplyConfiguration supplyConfig = GetDefaultSupplyConfiguration();
 
             supplyConfig.OutputFunction = DCPowerSourceOutputFunction.DCVoltage;
             supplyConfig.VoltageLevel_V = 3;
@@ -32,7 +31,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 // A MeasurementMode of "Record" acquires multiple smaples over the requested measurement 
                 // time at the supply's maximum sampling rate. "Single Point" will take a single measurement
                 // over that duration and average the power and current results.
-                MeasurementMode = MeasurementConfiguration.MeasurementModeConfiguration.Record,
+                MeasurementMode = MeasurementModeConfiguration.Record,
                 MeasurementTime_s = 2e-3,
                 MeasurementTriggerTerminal = "PXI_Trig0"
             };
