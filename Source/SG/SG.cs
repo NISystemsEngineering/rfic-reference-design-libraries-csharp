@@ -278,11 +278,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
             }
         }
-        public static void ConfigureRF(ref NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
-        {
-            rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
-            rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.AverageInputPower_dBm);
-        }
         public static Waveform GetWaveformParametersByName(ref NIRfsg rfsgHandle, string waveformName)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();

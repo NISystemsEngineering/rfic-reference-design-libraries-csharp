@@ -201,22 +201,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             else wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
 
         }
-
-        public static void ConfigureRF(ref RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, AutoLevelConfiguration autoLevelConfig, string selectorString = "")
-        {
-            wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
-            wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
-
-            //Make sure all other parameters are configured before calling autolevel
-            if (autoLevelConfig.AutoLevelReferenceLevel)
-            { 
-                wlanSignal.AutoLevel(selectorString, autoLevelConfig.AutoLevelMeasureTime_s);
-            }
-            else
-            {
-                wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
-            }
-        }
         #endregion
         #region Measurement Configuration
         public static void ConfigureSignal(ref RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
