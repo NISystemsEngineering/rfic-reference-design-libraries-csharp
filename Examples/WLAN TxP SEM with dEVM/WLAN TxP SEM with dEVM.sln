@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29025.244
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WLAN TxP SEM with dEVM", "WLAN TxP SEM with dEVM\WLAN TxP SEM with dEVM.csproj", "{7CC38ED8-D79E-41B9-A3E5-ACA3CF3FBA6A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project Dependencies", "Project Dependencies", "{339E25B3-88E7-4F76-91F9-C52D6F1341B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxWLAN", "..\..\Source\SA\RFmx WLAN\RFmxWLAN.csproj", "{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SG", "..\..\Source\SG\SG.csproj", "{89ABCAC5-CEDB-4535-BD58-E205A97834D9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7CC38ED8-D79E-41B9-A3E5-ACA3CF3FBA6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CC38ED8-D79E-41B9-A3E5-ACA3CF3FBA6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CC38ED8-D79E-41B9-A3E5-ACA3CF3FBA6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CC38ED8-D79E-41B9-A3E5-ACA3CF3FBA6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9E8F4D28-AC1D-4A06-8C62-FC96097890B9} = {339E25B3-88E7-4F76-91F9-C52D6F1341B0}
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9} = {339E25B3-88E7-4F76-91F9-C52D6F1341B0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A099083-51E4-42C9-ABDE-0E94869C7E25}
+	EndGlobalSection
+EndGlobal

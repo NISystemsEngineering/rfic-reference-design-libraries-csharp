@@ -6,25 +6,26 @@ using NationalInstruments.ModularInstruments.NIDCPower;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
-    public class Supply
+    public static class Supply
     {
         #region Type Definitions
+        public struct CustomTransientResponse
+        {
+            public double GainBandwidth;
+            public double CompensationFrequency;
+            public double PoleZeroRatio;
+        }
+        public static CustomTransientResponse GetDefaultCustomTransientResponse()
+        {
+            return new CustomTransientResponse
+            {
+                GainBandwidth = 5000,
+                CompensationFrequency = 50000,
+                PoleZeroRatio = 0.16,
+            };
+        }
         public struct SupplyConfiguration
         {
-            public struct CustomTransientResponse
-            {
-                public double GainBandwidth;
-                public double CompensationFrequency;
-                public double PoleZeroRatio;
-
-                public void SetDefaults()
-                {
-                    GainBandwidth = 5000;
-                    CompensationFrequency = 50000;
-                    PoleZeroRatio = 0.16;
-                }
-            }
-
             public DCPowerSourceOutputFunction OutputFunction;
 
             public double VoltageLevel_V;
@@ -34,35 +35,39 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             public DCPowerSourceTransientResponse TransientResponseMode;
             public CustomTransientResponse CustomTransientConfig;
-            public void SetDefaults()
-            {
-                OutputFunction = DCPowerSourceOutputFunction.DCVoltage;
-                VoltageLevel_V = 3;
-                CurrentLimit_A = 1e-3;
-                CurrentLevel_A = 1;
-                VoltageLimit_V = 3;
-                TransientResponseMode = DCPowerSourceTransientResponse.Fast;
-                CustomTransientConfig.SetDefaults();
-            }
         }
+        public static SupplyConfiguration GetDefaultSupplyConfiguration()
+        {
+            return new SupplyConfiguration
+            {
+                OutputFunction = DCPowerSourceOutputFunction.DCVoltage,
+                VoltageLevel_V = 3,
+                CurrentLimit_A = 1e-3,
+                CurrentLevel_A = 1,
+                VoltageLimit_V = 3,
+                TransientResponseMode = DCPowerSourceTransientResponse.Fast,
+                CustomTransientConfig = GetDefaultCustomTransientResponse()
+            };
+        }
+        public enum MeasurementModeConfiguration { SinglePoint, Record };
         public struct MeasurementConfiguration
         {
-            public enum MeasurementModeConfiguration { SinglePoint, Record };
-
             public DCPowerMeasurementWhen MeasureWhenMode;
             public DCPowerMeasurementSense SenseMode;
             public string MeasurementTriggerTerminal;
             public MeasurementModeConfiguration MeasurementMode;
             public double MeasurementTime_s;
-
-            public void SetDefaults()
+        }
+        public static MeasurementConfiguration GetDefaultMeasurementConfiguration()
+        {
+            return new MeasurementConfiguration
             {
-                MeasureWhenMode = DCPowerMeasurementWhen.OnMeasureTrigger;
-                SenseMode = DCPowerMeasurementSense.Local;
-                MeasurementTriggerTerminal = DCPowerDigitalEdgeMeasureTriggerInputTerminal.PxiTriggerLine0.ToString();
-                MeasurementMode = MeasurementModeConfiguration.SinglePoint;
-                MeasurementTime_s = 1e-3;
-            }
+                MeasureWhenMode = DCPowerMeasurementWhen.OnMeasureTrigger,
+                SenseMode = DCPowerMeasurementSense.Local,
+                MeasurementTriggerTerminal = DCPowerDigitalEdgeMeasureTriggerInputTerminal.PxiTriggerLine0.ToString(),
+                MeasurementMode = MeasurementModeConfiguration.SinglePoint,
+                MeasurementTime_s = 1e-3
+            };
 
         }
         public enum SupplyPowerMode { PowerOn, PowerOff };
@@ -128,7 +133,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             //Driver l
             if (measConfig.MeasureWhenMode == DCPowerMeasurementWhen.OnDemand &&
-                measConfig.MeasurementMode == MeasurementConfiguration.MeasurementModeConfiguration.Record)
+                measConfig.MeasurementMode == MeasurementModeConfiguration.Record)
             {
                 throw new ArgumentException("On Demand measurements can only be configured for a single measurement mode",
                     "MeasurementMode, MeasureWhenMode");
@@ -150,7 +155,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             switch (measConfig.MeasurementMode)
             {
-                case MeasurementConfiguration.MeasurementModeConfiguration.Record:
+                case MeasurementModeConfiguration.Record:
                     //Set the aperture time to the minimum value and read it back. This sets the "sample rate". 
                     //Then, we calculate how many records we need to acquire at that sample rate to get the requested measurement time.
 
@@ -158,7 +163,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     double minApertureTime = supplyHandle.Outputs[channelNames].Measurement.ApertureTime; //dt (Seconds per Sample)
                     recordLength = (int)Math.Ceiling(measConfig.MeasurementTime_s / minApertureTime) + 1; // (Time_s)/(dt S/s) = #of samples
                     break;
-                case MeasurementConfiguration.MeasurementModeConfiguration.SinglePoint:
+                case MeasurementModeConfiguration.SinglePoint:
                 default:
                     supplyHandle.Outputs[channelNames].Measurement.ApertureTime = measConfig.MeasurementTime_s;
                     recordLength = 1;
@@ -239,7 +244,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             supplyHandle.Utility.Disable();
             supplyHandle.Close();
         }
-        public class Utilities
+        public static class Utilities
         {
             public static MeasurementResults CalculateAverageIV(MeasurementResults measuredResults, int offsetMeasurement = 0)
             {

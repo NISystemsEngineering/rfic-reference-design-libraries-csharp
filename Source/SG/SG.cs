@@ -13,6 +13,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
 {
     public static class SG
     {
+        //Suppress warning for obselete code as LoadWaveformFromTDMS intentionally uses 
+        //an outdated method in order to support older waveform files
+        #pragma warning disable CS0612
+
         #region Type Definitions
         public struct InstrumentConfiguration
         {
@@ -152,7 +156,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 rfsgHandle.Arb.ClearWaveform(waveform.WaveformName); //Clear existing waveform to avoid erros
             }
-            catch (Ivi.Driver.OutOfRangeException e)
+            catch (Ivi.Driver.OutOfRangeException)
             { //Intentionally ignore this exception; clearing the waveform failed because it doesn't exist
             }
 
@@ -426,7 +430,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             return (long)Math.Round(time * sampleRate);
         }
 
-        public class Utilities
+        public static class Utilities
         {
             public static void FormatWaveformName(ref string waveformName)
             {

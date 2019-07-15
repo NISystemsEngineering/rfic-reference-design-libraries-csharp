@@ -7,7 +7,7 @@ using NationalInstruments.RFmx.SpecAnMX;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
-    public class RFmxSpecAn
+    public static class RFmxSpecAn
     {
         #region Type Definitions
         public struct CommonConfiguration
@@ -56,7 +56,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Instrument Configurations
-        public static void ConfigureCommon(ref RFmxInstrMX sessionHandle, ref RFmxSpecAnMX specAnSignal, CommonConfiguration commonConfig, 
+        public static void ConfigureCommon( RFmxInstrMX sessionHandle, RFmxSpecAnMX specAnSignal, CommonConfiguration commonConfig, 
             AutoLevelConfiguration autoLevelConfig, string selectorString = "")
         {
             sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
