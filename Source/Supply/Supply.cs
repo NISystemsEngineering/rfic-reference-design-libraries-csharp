@@ -6,7 +6,7 @@ using NationalInstruments.ModularInstruments.NIDCPower;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
-    public class Supply
+    public static class Supply
     {
         #region Type Definitions
         public struct CustomTransientResponse
@@ -133,7 +133,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             //Driver l
             if (measConfig.MeasureWhenMode == DCPowerMeasurementWhen.OnDemand &&
-                measConfig.MeasurementMode == MeasurementConfiguration.MeasurementModeConfiguration.Record)
+                measConfig.MeasurementMode == MeasurementModeConfiguration.Record)
             {
                 throw new ArgumentException("On Demand measurements can only be configured for a single measurement mode",
                     "MeasurementMode, MeasureWhenMode");
@@ -155,7 +155,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             switch (measConfig.MeasurementMode)
             {
-                case MeasurementConfiguration.MeasurementModeConfiguration.Record:
+                case MeasurementModeConfiguration.Record:
                     //Set the aperture time to the minimum value and read it back. This sets the "sample rate". 
                     //Then, we calculate how many records we need to acquire at that sample rate to get the requested measurement time.
 
@@ -163,7 +163,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     double minApertureTime = supplyHandle.Outputs[channelNames].Measurement.ApertureTime; //dt (Seconds per Sample)
                     recordLength = (int)Math.Ceiling(measConfig.MeasurementTime_s / minApertureTime) + 1; // (Time_s)/(dt S/s) = #of samples
                     break;
-                case MeasurementConfiguration.MeasurementModeConfiguration.SinglePoint:
+                case MeasurementModeConfiguration.SinglePoint:
                 default:
                     supplyHandle.Outputs[channelNames].Measurement.ApertureTime = measConfig.MeasurementTime_s;
                     recordLength = 1;
@@ -244,7 +244,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             supplyHandle.Utility.Disable();
             supplyHandle.Close();
         }
-        public class Utilities
+        public static class Utilities
         {
             public static MeasurementResults CalculateAverageIV(MeasurementResults measuredResults, int offsetMeasurement = 0)
             {

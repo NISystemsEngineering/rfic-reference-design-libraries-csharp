@@ -11,7 +11,7 @@ using NationalInstruments.ModularInstruments.NIRfsgPlayback;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
-    public class SG
+    public static class SG
     {
         #region Type Definitions
         public struct InstrumentConfiguration
@@ -398,7 +398,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             return (long)Math.Round(time * sampleRate);
         }
 
-        public class Utilities
+        public static class Utilities
         {
             public static void FormatWaveformName(ref string waveformName)
             {

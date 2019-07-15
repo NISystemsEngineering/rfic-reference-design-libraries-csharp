@@ -7,7 +7,7 @@ using NationalInstruments.RFmx.SpecAnMX;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
-    public class RFmxSpecAn
+    public static class RFmxSpecAn
     {
         #region Type Definitions
         public struct CommonConfiguration

@@ -6,7 +6,7 @@ using NationalInstruments.ModularInstruments.NIRfsg;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
-    public class RFmxNR
+    public static class RFmxNR
     {
         //Structs were chosen over a basic class due to the ease of viewing function inputs inside of TestStand(avoiding encapsulation)
         //This has the downside of requiring two steps to initialize the struct to the default values

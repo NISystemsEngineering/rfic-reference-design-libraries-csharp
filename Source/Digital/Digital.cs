@@ -7,7 +7,7 @@ using NationalInstruments.ModularInstruments.NIDigital;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
-    public class Digital
+    public static class Digital
     {
         #region Type Definitions
         public struct ProjectFiles
@@ -134,7 +134,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         #endregion
         #region Results
         #endregion
-        public class Utilities
+        public static class Utilities
         {
             public static ProjectFiles SearchForProjectFiles(string searchDirectory, bool recursiveSearch)
             {
