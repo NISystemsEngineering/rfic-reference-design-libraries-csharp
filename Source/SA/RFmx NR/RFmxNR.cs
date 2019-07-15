@@ -194,7 +194,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
         #endregion
         #region Instrument Configuration
-        public static void ConfigureCommon(ref RFmxInstrMX sessionHandle, ref RFmxNRMX nrSignal, CommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxNRMX nrSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
             nrSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             nrSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
@@ -213,7 +213,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Configuration
-        public static void ConfigureSignal(ref RFmxNRMX nrSignal, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureSignal(RFmxNRMX nrSignal, SignalConfiguration signalConfig, string selectorString = "")
         {
             string subblockString;
             string carrierString;
@@ -257,7 +257,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nrSignal.ComponentCarrier.SetPuschDmrsDuration(selectorString, signalConfig.puschDmrsDuration);
             nrSignal.ComponentCarrier.SetPuschDmrsAdditionalPositions(selectorString, signalConfig.puschDmrsAdditionalPositions);
         }
-        public static void ConfigureModacc(ref RFmxNRMX nrSignal, ModAccConfiguration modaccConfig, string selectorString = "")
+        public static void ConfigureModacc(RFmxNRMX nrSignal, ModAccConfiguration modaccConfig, string selectorString = "")
         {
             nrSignal.ModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
             nrSignal.ModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
@@ -270,7 +270,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nrSignal.ModAcc.Configuration.SetMeasurementOffset(selectorString, modaccConfig.measurementOffset);
             nrSignal.ModAcc.Configuration.SetMeasurementLength(selectorString, modaccConfig.measurementLength);
         }
-        public static void ConfigureAcp(ref RFmxNRMX nrSignal, AcpConfiguration acpConfig, string selectorString = "")
+        public static void ConfigureAcp(RFmxNRMX nrSignal, AcpConfiguration acpConfig, string selectorString = "")
         {
             nrSignal.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
             nrSignal.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
@@ -285,7 +285,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nrSignal.Acp.Configuration.ConfigureNumberOfUtraOffsets(selectorString, acpConfig.numberOfUtraOffsets);
 
         }
-        public static void ConfigureChp(ref RFmxNRMX nrSignal, ChpConfiguration chpConfig, string selectorString = "")
+        public static void ConfigureChp(RFmxNRMX nrSignal, ChpConfiguration chpConfig, string selectorString = "")
         {
             nrSignal.Chp.Configuration.SetMeasurementEnabled(selectorString, true);
             nrSignal.Chp.Configuration.SetAllTracesEnabled(selectorString, true);
@@ -293,7 +293,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nrSignal.Chp.Configuration.ConfigureSweepTime(selectorString, chpConfig.sweepTimeAuto, chpConfig.sweepTimeInterval);
             nrSignal.Chp.Configuration.ConfigureAveraging(selectorString, chpConfig.averagingEnabled, chpConfig.averagingCount, chpConfig.averagingType);
         }
-        public static ChpServoResults ChpServoPowerFDD(ref RFmxNRMX nrSignal, ref NIRfsg rfsgSession, ChpServoConfiguration servoConfig,
+        public static ChpServoResults ChpServoPowerFDD(RFmxNRMX nrSignal, NIRfsg rfsgSession, ChpServoConfiguration servoConfig,
             CommonConfiguration commonConfig, string selectorString = "")
         {
             //Duplicate the existing configuration so that we can select only TxP for the power servo to save time, 
@@ -397,7 +397,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double FinalOutputPower_dBm;
         }
 
-        public static ModAccResults FetchModAcc(ref RFmxNRMX nrSignal, string selectorString = "")
+        public static ModAccResults FetchModAcc(RFmxNRMX nrSignal, string selectorString = "")
         {
             ModAccResults modaccResults = new ModAccResults();
 
@@ -424,7 +424,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             return modaccResults;
         }
-        public static AcpResults FetchAcp(ref RFmxNRMX nrSignal, string selectorString = "")
+        public static AcpResults FetchAcp(RFmxNRMX nrSignal, string selectorString = "")
         {
             AcpResults acpResults = new AcpResults();
 
@@ -442,7 +442,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             return acpResults;
         }
-        public static ChpResults FetchChp(ref RFmxNRMX nrSignal, string selectorString = "")
+        public static ChpResults FetchChp(RFmxNRMX nrSignal, string selectorString = "")
         {
             ChpResults chpResults = new ChpResults();
 

@@ -34,12 +34,12 @@ namespace Digital_Dynamic_PAEN_Example
                 BurstStartTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.PxiTriggerLine0.ToString()
             };
 
-            ConfigureInstrument(ref rfsgSession, instrConfig);
+            ConfigureInstrument(rfsgSession, instrConfig);
 
             string waveformPath = Path.GetFullPath(@"TDMS Files\11AC_MCS8_40M.tdms");
 
-            Waveform wave = LoadWaveformFromTDMS(ref rfsgSession, waveformPath, "wave");
-            DownloadWaveform(ref rfsgSession, ref wave);
+            Waveform wave = LoadWaveformFromTDMS(rfsgSession, waveformPath, "wave");
+            DownloadWaveform(rfsgSession, ref wave);
 
             WaveformTimingConfiguration waveTiming = new WaveformTimingConfiguration
             {
@@ -76,7 +76,7 @@ namespace Digital_Dynamic_PAEN_Example
             paenConfig.CommandEnableTime_s += 830e-9;
             paenConfig.CommandDisableTime_s += 830e-9;
 
-            ConfigureWaveformTimingAndPAControl(ref rfsgSession, ref wave, waveTiming, paenConfig, out _, out _);
+            ConfigureWaveformTimingAndPAControl(rfsgSession, ref wave, waveTiming, paenConfig, out _, out _);
             #endregion
 
             #region NI Digital Config
@@ -105,7 +105,7 @@ namespace Digital_Dynamic_PAEN_Example
             Console.WriteLine("Generation on the signal generator and digital pattern instrument has begun. Press any key to abort generation and exit the program.");
             Console.ReadKey();
 
-            AbortDynamicGeneration(ref rfsgSession);
+            AbortDynamicGeneration(rfsgSession);
 
             digital.PatternControl.Abort();
 

@@ -20,10 +20,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             instrConfig.SetDefaults();
             instrConfig.CarrierFrequency_Hz = 2.412e9;
 
-            ConfigureInstrument(ref nIRfsg, instrConfig);
-            Waveform waveform = LoadWaveformFromTDMS(ref nIRfsg, filePath);
+            ConfigureInstrument(nIRfsg, instrConfig);
+            Waveform waveform = LoadWaveformFromTDMS(nIRfsg, filePath);
 
-            DownloadWaveform(ref nIRfsg, ref waveform);
+            DownloadWaveform(nIRfsg, ref waveform);
 
             WaveformTimingConfiguration timing = new WaveformTimingConfiguration
             {
@@ -39,7 +39,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle
             };
 
-            ConfigureWaveformTimingAndPAControl(ref nIRfsg, ref waveform, timing, paenConfig, out double period, out _);
+            ConfigureWaveformTimingAndPAControl(nIRfsg, ref waveform, timing, paenConfig, out double period, out _);
             nIRfsg.Initiate();
             #endregion
 
@@ -58,7 +58,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 AutoLevelReferenceLevel = true
             };
 
-            SA.RFmxWLAN.ConfigureCommon(ref instr, ref wlan, commonConfiguration, autoLevel);
+            SA.RFmxWLAN.ConfigureCommon(instr, wlan, commonConfiguration, autoLevel);
 
             SignalConfiguration signal = new SignalConfiguration();
             signal.SetDefaults();
@@ -66,7 +66,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             signal.ChannelBandwidth_Hz = 20e6;
             signal.Standard = RFmxWlanMXStandard.Standard802_11ag;
 
-            SA.RFmxWLAN.ConfigureSignal(ref wlan, signal);
+            SA.RFmxWLAN.ConfigureSignal(wlan, signal);
 
             TxPConfiguration txpConfig = new TxPConfiguration
             {
@@ -75,30 +75,30 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 AveragingEnabled = RFmxWlanMXTxpAveragingEnabled.True
             };
 
-            SA.RFmxWLAN.ConfigureTxP(ref wlan, txpConfig);
+            SA.RFmxWLAN.ConfigureTxP(wlan, txpConfig);
 
             OFDMModAccConfiguration modAccConfig = new OFDMModAccConfiguration();
             modAccConfig.SetDefaults();
             modAccConfig.OptimizeDynamicRangeForEvmEnabled = RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled.False;
             modAccConfig.AveragingEnabled = RFmxWlanMXOfdmModAccAveragingEnabled.True;
 
-            SA.RFmxWLAN.ConfigureOFDMModAcc(ref wlan, modAccConfig);
+            SA.RFmxWLAN.ConfigureOFDMModAcc(wlan, modAccConfig);
 
             TxPServoConfiguration servoConfig = new TxPServoConfiguration();
             servoConfig.SetDefaults();
             servoConfig.TargetTxPPower_dBm = 0.5;
 
-            SA.RFmxWLAN.TxPServoPower(ref wlan, ref nIRfsg, servoConfig, autoLevel);
+            SA.RFmxWLAN.TxPServoPower(wlan, nIRfsg, servoConfig, autoLevel);
 
             SEMConfiguration semConfig = new SEMConfiguration();
             semConfig.SetDefaults();
-            SA.RFmxWLAN.ConfigureSEM(ref wlan, semConfig);
+            SA.RFmxWLAN.ConfigureSEM(wlan, semConfig);
 
             wlan.Initiate("", "");
 
-            TxPResults txpRes = SA.RFmxWLAN.FetchTxP(ref wlan);
-            OFDMModAccResults modAccResults = SA.RFmxWLAN.FetchOFDMModAcc(ref wlan);
-            SEMResults semResults = SA.RFmxWLAN.FetchSEM(ref wlan);
+            TxPResults txpRes = SA.RFmxWLAN.FetchTxP(wlan);
+            OFDMModAccResults modAccResults = SA.RFmxWLAN.FetchOFDMModAcc(wlan);
+            SEMResults semResults = SA.RFmxWLAN.FetchSEM(wlan);
 
             Console.WriteLine("TXP Avg Power: {0:N}", txpRes.AveragePowerMean_dBm);
             Console.WriteLine("Composite RMS EVM (dB): {0:N}", modAccResults.CompositeRMSEVMMean_dB);
@@ -129,8 +129,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             wlan.Dispose();
             instr.Close();
 
-            AbortDynamicGeneration(ref nIRfsg);
-            CloseInstrument(ref nIRfsg);
+            AbortDynamicGeneration(nIRfsg);
+            CloseInstrument(nIRfsg);
 
         }
     }

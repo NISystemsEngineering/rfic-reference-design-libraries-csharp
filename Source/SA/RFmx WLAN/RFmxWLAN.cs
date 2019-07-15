@@ -182,7 +182,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Instrument Configuration
-        public static void ConfigureCommon(ref RFmxInstrMX sessionHandle, ref RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, 
+        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, 
             AutoLevelConfiguration autoLevelConfig, string selectorString = "")
         {
             string instrModel;
@@ -203,7 +203,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Measurement Configuration
-        public static void ConfigureSignal(ref RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureSignal(RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
         {
 
             if (signalConfig.AutoDetectSignal)
@@ -218,7 +218,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         }
 
-        public static void ConfigureTxP(ref RFmxWlanMX wlanSignal, TxPConfiguration txPConfig, string selectorString = "")
+        public static void ConfigureTxP(RFmxWlanMX wlanSignal, TxPConfiguration txPConfig, string selectorString = "")
         {
 
             wlanSignal.Txp.Configuration.SetMeasurementEnabled(selectorString, true);
@@ -229,7 +229,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.Txp.Configuration.ConfigureAveraging(selectorString, txPConfig.AveragingEnabled, txPConfig.AveragingCount);
             wlanSignal.Txp.Configuration.ConfigureMaximumMeasurementInterval(selectorString, txPConfig.MaximumMeasurementInterval_s);
         }
-        public static void ConfigureOFDMModAcc(ref RFmxWlanMX wlanSignal, OFDMModAccConfiguration modAccConfig, string selectorString = "")
+        public static void ConfigureOFDMModAcc(RFmxWlanMX wlanSignal, OFDMModAccConfiguration modAccConfig, string selectorString = "")
         {
             RFmxWlanMXOfdmModAccAcquisitionLengthMode acMode;
 
@@ -263,7 +263,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.OfdmModAcc.Configuration.SetCommonClockSourceEnabled(selectorString, RFmxWlanMXOfdmModAccCommonClockSourceEnabled.True);
 
         }
-        public static TxPServoResults TxPServoPower(ref RFmxWlanMX wlanSignal, ref NIRfsg rfsgSession, TxPServoConfiguration servoConfig,
+        public static TxPServoResults TxPServoPower(RFmxWlanMX wlanSignal, NIRfsg rfsgSession, TxPServoConfiguration servoConfig,
             AutoLevelConfiguration autoLevelConfig, string selectorString = "")
         {
             //Duplicate the existing configuration so that we can select only TxP for the power servo to save time, 
@@ -313,7 +313,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return servoResults;
         }
 
-        public static void ConfigureSEM(ref RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
+        public static void ConfigureSEM(RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
         {
             //Ensure that the measurement and traces are enabled
             wlanSignal.Sem.Configuration.SetMeasurementEnabled(selectorString, true);
@@ -334,7 +334,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Measurement Results
-        public static TxPResults FetchTxP(ref RFmxWlanMX wlanSignal, string selectorString = "")
+        public static TxPResults FetchTxP(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             TxPResults txpResults = new TxPResults();
      
@@ -344,7 +344,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return txpResults;
         }
 
-        public static OFDMModAccResults FetchOFDMModAcc(ref RFmxWlanMX wlanSignal, string selectorString = "")
+        public static OFDMModAccResults FetchOFDMModAcc(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             OFDMModAccResults modAccResults = new OFDMModAccResults();
             wlanSignal.OfdmModAcc.Results.FetchChainRmsEvmPerSymbolMeanTrace(selectorString, 10, ref modAccResults.EVMperSymbolTrace);
@@ -356,7 +356,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return modAccResults;
         }
 
-        public static  SEMResults FetchSEM(ref RFmxWlanMX wlanSignal,string selectorString = "")
+        public static  SEMResults FetchSEM(RFmxWlanMX wlanSignal,string selectorString = "")
         {
             SEMResults semResults = new SEMResults();
             wlanSignal.Sem.Results.FetchMeasurementStatus(selectorString, 10, out semResults.measurementStatus);
