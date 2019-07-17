@@ -29,7 +29,7 @@ namespace Digital_Dynamic_PAEN_Example
             {
                 ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock,
                 CarrierFrequency_Hz = 2.402e9,
-                AverageInputPower_dBm = 0,
+                DutAverageInputPower_dBm = 0,
                 ShareLOSGToSA = false,
             };
 
