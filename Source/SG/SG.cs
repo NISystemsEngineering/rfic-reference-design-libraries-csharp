@@ -22,9 +22,20 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             public string ReferenceClockSource;
             public double CarrierFrequency_Hz;
-            public double AverageInputPower_dBm;
+            public double DutAverageInputPower_dBm;
             public double ExternalAttenuation_dBm;
             public bool ShareLOSGToSA;
+            public static InstrumentConfiguration GetDefault()
+            {
+                return new InstrumentConfiguration()
+                {
+                    ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
+                    CarrierFrequency_Hz = 1e9,
+                    DutAverageInputPower_dBm = 0,
+                    ExternalAttenuation_dBm = 0,
+                    ShareLOSGToSA = true,
+                };
+            }
         }
         public static InstrumentConfiguration GetDefaultInstrumentConfiguration()
         {
@@ -32,7 +43,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
                 CarrierFrequency_Hz = 1e9,
-                AverageInputPower_dBm = 0,
+                DutAverageInputPower_dBm = 0,
                 ExternalAttenuation_dBm = 0,
                 ShareLOSGToSA = true,
             };
@@ -91,7 +102,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
             rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
-            rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.AverageInputPower_dBm);
+            rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.DutAverageInputPower_dBm);
 
             rfsgHandle.FrequencyReference.Source = RfsgFrequencyReferenceSource.FromString(instrConfig.ReferenceClockSource);
 
