@@ -121,10 +121,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         }
         public static Waveform LoadWaveformFromTDMS(NIRfsg rfsgHandle, string filePath, string waveformName = "", bool normalizeWaveform = true)
         {
-            Waveform waveform = new Waveform
-            {
-                WaveformData = new ComplexWaveform<ComplexSingle>(0)
-            };
+            Waveform waveform = new Waveform();
 
             if (string.IsNullOrEmpty(waveformName))
             {
@@ -141,29 +138,28 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             NIRfsgPlayback.ReadBurstStartLocationsFromFile(filePath, 0, ref waveform.BurstStartLocations);
             NIRfsgPlayback.ReadBurstStopLocationsFromFile(filePath, 0, ref waveform.BurstStopLocations);
-            
-            // If the waveform does not have burst start or stop locations stored, then we will set the burst start to 
-            // the first sample (0) and the stop to the last sample (number of samples minus one
-            if (waveform.BurstStartLocations == null)
+
+            //Statement reads: if NOT BurstStartLocations > 0 AND expression is not null (? operand)
+            //In other words, manually set BurstStartLocations when the length is 0 or less or array is null
+            if (!(waveform.BurstStartLocations?.Length > 0))
+            {
+                //Set burst start to the first sample(0)
                 waveform.BurstStartLocations = new int[1] { 0 };
-            //Separate checks because null array throws exception when checking length
-            else if (waveform.BurstStopLocations.Length <= 0)
-                waveform.BurstStartLocations = new int[1] { 0 };
-
-            if (waveform.BurstStopLocations == null)
+            }
+            if (!(waveform.BurstStopLocations?.Length > 0))
+            {
+                //Set burst stop to the last sample (number of samples minus one)
                 waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 };
-            //Separate checks because null array throws exception when checking length
-            else if (waveform.BurstStopLocations.Length <= 0)
-                waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 };
+            }
 
-            waveform.SampleRate = 1 / waveform.WaveformData.PrecisionTiming.SampleInterval.FractionalSeconds; //Seconds per sample
-            waveform.BurstLength_s = (waveform.BurstStopLocations[0] - waveform.BurstStartLocations[0]) / waveform.SampleRate; //  no. samples / (samples/s) = len_s
+            NIRfsgPlayback.ReadSampleRateFromFile(filePath, 0, out waveform.SampleRate);
+            waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
-            if (normalizeWaveform) NormalizeWaveform(ref waveform);
+            if (normalizeWaveform) NormalizeWaveform(waveform);
 
             return waveform;
         }
-        public static void DownloadWaveform(NIRfsg rfsgHandle, ref Waveform waveform)
+        public static void DownloadWaveform(NIRfsg rfsgHandle, Waveform waveform)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
             rfsgHandle.Abort();
@@ -192,7 +188,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, -1.5);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
-		public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, ref Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
+		public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
 		{
             //Configure the trigger to be generated on the first sample of each waveform generation,
             //denoted in the script below as "marker0"
@@ -210,7 +206,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //Download the newly created script for generation when "Initiate" is called
             NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, script);
         }
-        public static void ConfigureBurstedGeneration(NIRfsg rfsgHandle, ref Waveform waveform, WaveformTimingConfiguration waveTiming,
+        public static void ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
@@ -342,7 +338,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.RetrieveWaveformBurstStartLocations(rfsgPtr, waveformName, ref waveform.BurstStartLocations);
             NIRfsgPlayback.RetrieveWaveformBurstStopLocations(rfsgPtr, waveformName, ref waveform.BurstStopLocations);
 
-            waveform.BurstLength_s = (waveform.BurstStopLocations[0] - waveform.BurstStartLocations[0]) / waveform.SampleRate;
+            waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
             return waveform;
         }
@@ -411,7 +407,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.RF.OutputEnabled = false;
             rfsgHandle.Close();
         }
-        private static void NormalizeWaveform(ref Waveform waveform)
+        private static void NormalizeWaveform(Waveform waveform)
         {
             //Normalize the waveform data
 
@@ -446,6 +442,14 @@ namespace NationalInstruments.ReferenceDesignLibraries
         private static long TimeToSamples(double time, double sampleRate)
         {
             return (long)Math.Round(time * sampleRate);
+        }
+        private static double CalculateWaveformDuration(int[] BurstStartLocations, int[] BurstStopLocations, double SampleRate)
+        {
+            int finalStopIndex = BurstStopLocations.Length - 1;
+            //Calculate the number of samples from the first burst to end of final burst
+            //Add one to arrive at the total number of samples
+            //Divide by the sample rate to get the time in seconds
+            return (BurstStopLocations[finalStopIndex] - BurstStartLocations[0] + 1) / SampleRate;
         }
 
         public static class Utilities

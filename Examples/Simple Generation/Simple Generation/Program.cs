@@ -22,13 +22,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             ConfigureInstrument(nIRfsg, instrConfig);
             Waveform waveform = LoadWaveformFromTDMS(nIRfsg, filePath);
 
-            DownloadWaveform(nIRfsg, ref waveform);
+            DownloadWaveform(nIRfsg, waveform);
 
             switch (genType)
             {
                 // For continous generation, we can simply call this function to begin the generation
                 case GenerationType.Continuous:
-                    ConfigureContinuousGeneration(nIRfsg, ref waveform);
+                    ConfigureContinuousGeneration(nIRfsg, waveform);
                     break;
                 // For bursted generation, we need to configure the duty cycle and PA control
                 case GenerationType.Bursted:
@@ -48,7 +48,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                         CommandDisableTime_s = 0,
                     };
 
-                    ConfigureBurstedGeneration(nIRfsg, ref waveform, dynamicConfig, paenConfig, out _, out _);
+                    ConfigureBurstedGeneration(nIRfsg, waveform, dynamicConfig, paenConfig, out _, out _);
                     break;
             }
 

@@ -22,7 +22,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             ConfigureInstrument(nIRfsg, instrConfig);
             Waveform waveform = LoadWaveformFromTDMS(nIRfsg, filePath);
 
-            DownloadWaveform(nIRfsg, ref waveform);
+            DownloadWaveform(nIRfsg, waveform);
 
             WaveformTimingConfiguration timing = new WaveformTimingConfiguration
             {
@@ -39,7 +39,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle
             };
 
-            ConfigureBurstedGeneration(nIRfsg, ref waveform, timing, paenConfig, out double period, out _);
+            ConfigureBurstedGeneration(nIRfsg, waveform, timing, paenConfig, out double period, out _);
             nIRfsg.Initiate();
             #endregion
 

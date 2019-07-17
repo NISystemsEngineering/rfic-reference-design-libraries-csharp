@@ -38,7 +38,7 @@ namespace Digital_Dynamic_PAEN_Example
             string waveformPath = Path.GetFullPath(@"TDMS Files\11AC_MCS8_40M.tdms");
 
             Waveform wave = LoadWaveformFromTDMS(rfsgSession, waveformPath, "wave");
-            DownloadWaveform(rfsgSession, ref wave);
+            DownloadWaveform(rfsgSession, wave);
 
             WaveformTimingConfiguration waveTiming = new WaveformTimingConfiguration
             {
@@ -76,7 +76,7 @@ namespace Digital_Dynamic_PAEN_Example
             paenConfig.CommandEnableTime_s += 830e-9;
             paenConfig.CommandDisableTime_s += 830e-9;
 
-            ConfigureBurstedGeneration(rfsgSession, ref wave, waveTiming, paenConfig, out _, out _);
+            ConfigureBurstedGeneration(rfsgSession, wave, waveTiming, paenConfig, out _, out _);
             #endregion
 
             #region NI Digital Config
