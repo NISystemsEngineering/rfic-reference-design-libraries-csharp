@@ -16,20 +16,20 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             string filePath = Path.GetFullPath(@"Support Files\80211a_20M_48Mbps.tdms");
 
             NIRfsg nIRfsg = new NIRfsg(resourceName, false, false);
-            InstrumentConfiguration instrConfig = new InstrumentConfiguration();
-            instrConfig.SetDefaults();
+            InstrumentConfiguration instrConfig = GetDefaultInstrumentConfiguration();
             instrConfig.CarrierFrequency_Hz = 2.412e9;
 
             ConfigureInstrument(nIRfsg, instrConfig);
             Waveform waveform = LoadWaveformFromTDMS(nIRfsg, filePath);
 
-            DownloadWaveform(nIRfsg, ref waveform);
+            DownloadWaveform(nIRfsg, waveform);
 
             WaveformTimingConfiguration timing = new WaveformTimingConfiguration
             {
                 DutyCycle_Percent = 60,
                 PreBurstTime_s = 1e-9,
                 PostBurstTime_s = 1e-9,
+                BurstStartTriggerExport = "PXI_Trig0"
             };
 
             PAENConfiguration paenConfig = new PAENConfiguration
@@ -39,7 +39,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle
             };
 
-            ConfigureWaveformTimingAndPAControl(nIRfsg, ref waveform, timing, paenConfig, out double period, out _);
+            ConfigureBurstedGeneration(nIRfsg, waveform, timing, paenConfig, out double period, out _);
             nIRfsg.Initiate();
             #endregion
 
@@ -124,7 +124,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             wlan.Dispose();
             instr.Close();
 
-            AbortDynamicGeneration(nIRfsg);
+            AbortGeneration(nIRfsg);
             CloseInstrument(nIRfsg);
 
         }

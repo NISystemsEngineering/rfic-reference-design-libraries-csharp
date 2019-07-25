@@ -29,9 +29,8 @@ namespace Digital_Dynamic_PAEN_Example
             {
                 ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock,
                 CarrierFrequency_Hz = 2.402e9,
-                AverageInputPower_dBm = 0,
+                DutAverageInputPower_dBm = 0,
                 ShareLOSGToSA = false,
-                BurstStartTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.PxiTriggerLine0.ToString()
             };
 
             ConfigureInstrument(rfsgSession, instrConfig);
@@ -39,13 +38,14 @@ namespace Digital_Dynamic_PAEN_Example
             string waveformPath = Path.GetFullPath(@"TDMS Files\11AC_MCS8_40M.tdms");
 
             Waveform wave = LoadWaveformFromTDMS(rfsgSession, waveformPath, "wave");
-            DownloadWaveform(rfsgSession, ref wave);
+            DownloadWaveform(rfsgSession, wave);
 
             WaveformTimingConfiguration waveTiming = new WaveformTimingConfiguration
             {
                 DutyCycle_Percent = 20,
                 PreBurstTime_s = 2000e-9,
                 PostBurstTime_s = 500e-9,
+                BurstStartTriggerExport = "PXI_Trig0"
             };
             PAENConfiguration paenConfig = new PAENConfiguration
             {
@@ -76,7 +76,7 @@ namespace Digital_Dynamic_PAEN_Example
             paenConfig.CommandEnableTime_s += 830e-9;
             paenConfig.CommandDisableTime_s += 830e-9;
 
-            ConfigureWaveformTimingAndPAControl(rfsgSession, ref wave, waveTiming, paenConfig, out _, out _);
+            ConfigureBurstedGeneration(rfsgSession, wave, waveTiming, paenConfig, out _, out _);
             #endregion
 
             #region NI Digital Config
@@ -105,7 +105,7 @@ namespace Digital_Dynamic_PAEN_Example
             Console.WriteLine("Generation on the signal generator and digital pattern instrument has begun. Press any key to abort generation and exit the program.");
             Console.ReadKey();
 
-            AbortDynamicGeneration(rfsgSession);
+            AbortGeneration(rfsgSession);
 
             digital.PatternControl.Abort();
 

@@ -22,19 +22,31 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             public string ReferenceClockSource;
             public double CarrierFrequency_Hz;
-            public double AverageInputPower_dBm;
+            public double DutAverageInputPower_dBm;
             public double ExternalAttenuation_dBm;
-            public string BurstStartTriggerExportTerminal;
             public bool ShareLOSGToSA;
-            public void SetDefaults()
+            public static InstrumentConfiguration GetDefault()
             {
-                ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString();
-                CarrierFrequency_Hz = 1e9;
-                AverageInputPower_dBm = 0;
-                ExternalAttenuation_dBm = 0;
-                BurstStartTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.PxiTriggerLine0.ToString();
-                ShareLOSGToSA = true;
+                return new InstrumentConfiguration()
+                {
+                    ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
+                    CarrierFrequency_Hz = 1e9,
+                    DutAverageInputPower_dBm = 0,
+                    ExternalAttenuation_dBm = 0,
+                    ShareLOSGToSA = true,
+                };
             }
+        }
+        public static InstrumentConfiguration GetDefaultInstrumentConfiguration()
+        {
+            return new InstrumentConfiguration
+            {
+                ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
+                CarrierFrequency_Hz = 1e9,
+                DutAverageInputPower_dBm = 0,
+                ExternalAttenuation_dBm = 0,
+                ShareLOSGToSA = true,
+            };
         }
         public struct Waveform
         {
@@ -52,13 +64,17 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double DutyCycle_Percent;
             public double PreBurstTime_s;
             public double PostBurstTime_s;
-
-            public void SetDefaults()
+            public string BurstStartTriggerExport;
+        }
+        public static WaveformTimingConfiguration GetDefaultWaveformTimingConfiguration()
+        {
+            return new WaveformTimingConfiguration
             {
-                DutyCycle_Percent = 50;
-                PreBurstTime_s = 1e-6;
-                PostBurstTime_s = 1e-6;
-            }
+                DutyCycle_Percent = 50,
+                PreBurstTime_s = 1e-6,
+                PostBurstTime_s = 1e-6,
+                BurstStartTriggerExport = "PXI_Trig0"
+        };
         }
         public enum PAENMode { Disabled, Static, Dynamic };
         public struct PAENConfiguration
@@ -68,44 +84,44 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double CommandEnableTime_s;
             public double CommandDisableTime_s;
             public string PAEnableTriggerExportTerminal;
-            
-            public void SetDefaults()
+        }
+        public static PAENConfiguration GetDefaultPAENConfiguration()
+        {
+            return new PAENConfiguration
             {
                 //Default configuration is set for a DUT with a simple digital toggle high/low
                 //for PA Enable
-                PAEnableMode = PAENMode.Dynamic;
-                PAEnableTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.Pfi0.ToString();
-                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle;
-                CommandEnableTime_s = 0;
-                CommandDisableTime_s = 0;
-            }
+                PAEnableMode = PAENMode.Dynamic,
+                PAEnableTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.Pfi0.ToString(),
+                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle,
+                CommandEnableTime_s = 0,
+                CommandDisableTime_s = 0
+            };
         }
         #endregion
         public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
-
-            rfsgHandle.Arb.GenerationMode = RfsgWaveformGenerationMode.Script;
-            rfsgHandle.RF.PowerLevelType = RfsgRFPowerLevelType.PeakPower;
-
             rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
-            rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.AverageInputPower_dBm);
+            rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.DutAverageInputPower_dBm);
 
             rfsgHandle.FrequencyReference.Source = RfsgFrequencyReferenceSource.FromString(instrConfig.ReferenceClockSource);
-            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal =
-                RfsgMarkerEventExportedOutputTerminal.FromString(instrConfig.BurstStartTriggerExportTerminal);
 
             if (instrConfig.ShareLOSGToSA)
             {
                 rfsgHandle.RF.LocalOscillator.LOOutEnabled = true;
                 rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
             }
+            else
+            {
+                rfsgHandle.RF.LocalOscillator.LOOutEnabled = false;
+                // Return to the default value, in case in future modifications the above case changes
+                // this to something other than the default
+                rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
+            }
         }
         public static Waveform LoadWaveformFromTDMS(NIRfsg rfsgHandle, string filePath, string waveformName = "", bool normalizeWaveform = true)
         {
-            Waveform waveform = new Waveform
-            {
-                WaveformData = new ComplexWaveform<ComplexSingle>(0)
-            };
+            Waveform waveform = new Waveform();
 
             if (string.IsNullOrEmpty(waveformName))
             {
@@ -122,33 +138,33 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             NIRfsgPlayback.ReadBurstStartLocationsFromFile(filePath, 0, ref waveform.BurstStartLocations);
             NIRfsgPlayback.ReadBurstStopLocationsFromFile(filePath, 0, ref waveform.BurstStopLocations);
-            
-            // If the waveform does not have burst start or stop locations stored, then we will set the burst start to 
-            // the first sample (0) and the stop to the last sample (number of samples minus one
-            if (waveform.BurstStartLocations == null)
+
+            //Statement reads: if NOT BurstStartLocations > 0 AND expression is not null (? operand)
+            //In other words, manually set BurstStartLocations when the length is 0 or less or array is null
+            if (!(waveform.BurstStartLocations?.Length > 0))
+            {
+                //Set burst start to the first sample(0)
                 waveform.BurstStartLocations = new int[1] { 0 };
-            //Separate checks because null array throws exception when checking length
-            else if (waveform.BurstStopLocations.Length <= 0)
-                waveform.BurstStartLocations = new int[1] { 0 };
-
-            if (waveform.BurstStopLocations == null)
+            }
+            if (!(waveform.BurstStopLocations?.Length > 0))
+            {
+                //Set burst stop to the last sample (number of samples minus one)
                 waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 };
-            //Separate checks because null array throws exception when checking length
-            else if (waveform.BurstStopLocations.Length <= 0)
-                waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 };
+            }
 
-            waveform.SampleRate = 1 / waveform.WaveformData.PrecisionTiming.SampleInterval.FractionalSeconds; //Seconds per sample
-            waveform.BurstLength_s = (waveform.BurstStopLocations[0] - waveform.BurstStartLocations[0]) / waveform.SampleRate; //  no. samples / (samples/s) = len_s
+            NIRfsgPlayback.ReadSampleRateFromFile(filePath, 0, out waveform.SampleRate);
+            waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
-            if (normalizeWaveform) NormalizeWaveform(ref waveform);
+            if (normalizeWaveform) NormalizeWaveform(waveform);
 
             return waveform;
         }
-        public static void DownloadWaveform(NIRfsg rfsgHandle, ref Waveform waveform)
+        public static void DownloadWaveform(NIRfsg rfsgHandle, Waveform waveform)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
-
             rfsgHandle.Abort();
+
+            rfsgHandle.RF.PowerLevelType = RfsgRFPowerLevelType.PeakPower;
 
             try
             {
@@ -172,10 +188,36 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, -1.5);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
-        public static void ConfigureWaveformTimingAndPAControl(NIRfsg rfsgHandle, ref Waveform waveform, WaveformTimingConfiguration waveTiming,
+		public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
+		{
+            //Configure the trigger to be generated on the first sample of each waveform generation,
+            //denoted in the script below as "marker0"
+			rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(waveformStartTriggerExport);
+
+            //A software trigger is configured that is used in the script below to control generation of
+            //the script. This ensures that a complete packet is always generated before aborting, and
+            //allows all generation functions to share a single abort function.
+            rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
+
+            string script = $@"script REPEAT{waveform.WaveformName}
+                                    repeat until ScriptTrigger0
+                                        generate {waveform.WaveformName} marker0(0)
+                                    end repeat
+                                end script";
+
+            //Get the instrument handle to utilize with the RFSGPlayback library
+            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+
+            //Download the newly created script for generation when "Initiate" is called
+            NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, script);
+        }
+        public static void ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+
+            rfsgHandle.Arb.GenerationMode = RfsgWaveformGenerationMode.Script;
+
             string scriptName = String.Format("{0}{1}", waveform.WaveformName, waveTiming.DutyCycle_Percent);
 
             if (waveTiming.DutyCycle_Percent <= 0)
@@ -281,6 +323,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 //the loop and trigger the appropriate off command if PAEN mode is Static
                 rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
             }
+
+            //Configure the trigger to be generated on the first sample of each waveform generation,
+            //denoted in the script below as "marker0"
+            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = 
+                RfsgMarkerEventExportedOutputTerminal.FromString(waveTiming.BurstStartTriggerExport);
         }
         public static Waveform GetWaveformParametersByName(NIRfsg rfsgHandle, string waveformName)
         {
@@ -296,7 +343,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.RetrieveWaveformBurstStartLocations(rfsgPtr, waveformName, ref waveform.BurstStartLocations);
             NIRfsgPlayback.RetrieveWaveformBurstStopLocations(rfsgPtr, waveformName, ref waveform.BurstStopLocations);
 
-            waveform.BurstLength_s = (waveform.BurstStopLocations[0] - waveform.BurstStartLocations[0]) / waveform.SampleRate;
+            waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
             return waveform;
         }
@@ -326,7 +373,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Arb.Scripting.SelectedScriptName = cachedScriptName;
             rfsgHandle.Utility.Commit();
         }
-        public static void AbortDynamicGeneration(NIRfsg rfsgHandle, int timeOut_ms = 1000)
+        public static void AbortGeneration(NIRfsg rfsgHandle, int timeOut_ms = 1000)
         {
             //This should trigger the generator to stop infinite generation and trigger any post
             //generation commands. For the static PA enable case, this should trigger the requisite
@@ -354,8 +401,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 {
                     //If we timeed out then we need to call an explicit abort
                     rfsgHandle.Abort();
-                    throw new System.TimeoutException("Dynamic generation did not complete in the specified timeout period. Increase the timeout period" +
-                        "or ensure that scripTrigger0 is properly configured to stop generation");
+                    throw new System.ComponentModel.WarningException("Generation did not complete in the specified timeout period, so post-script actions did not complete." +
+                        " If using bursted generation, you may need to manually disable the PA control line." +
+                        " Increase the timeout period or ensure that scripTrigger0 is properly configured to stop generation");
                 }
             }
         }
@@ -365,7 +413,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.RF.OutputEnabled = false;
             rfsgHandle.Close();
         }
-        private static void NormalizeWaveform(ref Waveform waveform)
+        private static void NormalizeWaveform(Waveform waveform)
         {
             //Normalize the waveform data
 
@@ -400,6 +448,14 @@ namespace NationalInstruments.ReferenceDesignLibraries
         private static long TimeToSamples(double time, double sampleRate)
         {
             return (long)Math.Round(time * sampleRate);
+        }
+        private static double CalculateWaveformDuration(int[] BurstStartLocations, int[] BurstStopLocations, double SampleRate)
+        {
+            int finalStopIndex = BurstStopLocations.Length - 1;
+            //Calculate the number of samples from the first burst to end of final burst
+            //Add one to arrive at the total number of samples
+            //Divide by the sample rate to get the time in seconds
+            return (BurstStopLocations[finalStopIndex] - BurstStartLocations[0] + 1) / SampleRate;
         }
 
         public static class Utilities
