@@ -57,18 +57,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             Console.WriteLine("Generation has now begun. Press any key to abort generation and close the example.");
             Console.ReadKey();
 
-           switch (genType)
-            {
-                // When using bursted generation mode, a special function is called in order to ensure that the
-                // PA if being used is turned off after the final packet is generated
-                case GenerationType.Bursted:
-                    AbortBurstedGeneration(nIRfsg);
-                    break;
-                // In any other case, the normal abort function is sufficient
-                default:
-                    nIRfsg.Abort();
-                    break;
-            }
+            AbortGeneration(nIRfsg);
 
             CloseInstrument(nIRfsg);
         }

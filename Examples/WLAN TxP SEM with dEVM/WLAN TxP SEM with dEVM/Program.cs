@@ -124,7 +124,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             wlan.Dispose();
             instr.Close();
 
-            AbortBurstedGeneration(nIRfsg);
+            AbortGeneration(nIRfsg);
             CloseInstrument(nIRfsg);
 
         }

@@ -194,8 +194,13 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //denoted in the script below as "marker0"
 			rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(waveformStartTriggerExport);
 
+            //A software trigger is configured that is used in the script below to control generation of
+            //the script. This ensures that a complete packet is always generated before aborting, and
+            //allows all generation functions to share a single abort function.
+            rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
+
             string script = $@"script REPEAT{waveform.WaveformName}
-                                    repeat forever
+                                    repeat until ScriptTrigger0
                                         generate {waveform.WaveformName} marker0(0)
                                     end repeat
                                 end script";
@@ -368,7 +373,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Arb.Scripting.SelectedScriptName = cachedScriptName;
             rfsgHandle.Utility.Commit();
         }
-        public static void AbortBurstedGeneration(NIRfsg rfsgHandle, int timeOut_ms = 1000)
+        public static void AbortGeneration(NIRfsg rfsgHandle, int timeOut_ms = 1000)
         {
             //This should trigger the generator to stop infinite generation and trigger any post
             //generation commands. For the static PA enable case, this should trigger the requisite
@@ -396,8 +401,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 {
                     //If we timeed out then we need to call an explicit abort
                     rfsgHandle.Abort();
-                    throw new System.TimeoutException("Dynamic generation did not complete in the specified timeout period. Increase the timeout period" +
-                        "or ensure that scripTrigger0 is properly configured to stop generation");
+                    throw new System.ComponentModel.WarningException("Generation did not complete in the specified timeout period, so post-script actions did not complete." +
+                        " If using bursted generation, you may need to manually disable the PA control line." +
+                        " Increase the timeout period or ensure that scripTrigger0 is properly configured to stop generation");
                 }
             }
         }
