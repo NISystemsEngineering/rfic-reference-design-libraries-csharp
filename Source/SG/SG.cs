@@ -37,17 +37,13 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 };
             }
         }
+
+        [Obsolete("This method is obsolete, please use InstrumentConfiguration.GetDefault()")]
         public static InstrumentConfiguration GetDefaultInstrumentConfiguration()
         {
-            return new InstrumentConfiguration
-            {
-                ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
-                CarrierFrequency_Hz = 1e9,
-                DutAverageInputPower_dBm = 0,
-                ExternalAttenuation_dBm = 0,
-                ShareLOSGToSA = true,
-            };
+            return InstrumentConfiguration.GetDefault();
         }
+
         public struct Waveform
         {
             public string WaveformName;
@@ -59,24 +55,33 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public int[] BurstStartLocations;
             public int[] BurstStopLocations;
         }
+
         public struct WaveformTimingConfiguration
         {
             public double DutyCycle_Percent;
             public double PreBurstTime_s;
             public double PostBurstTime_s;
             public string BurstStartTriggerExport;
+            public static WaveformTimingConfiguration GetDefault()
+            {
+                return new WaveformTimingConfiguration()
+                {
+                    DutyCycle_Percent = 50,
+                    PreBurstTime_s = 1e-6,
+                    PostBurstTime_s = 1e-6,
+                    BurstStartTriggerExport = "PXI_Trig0"
+                };
+            }
         }
+
+        [Obsolete("This method is obsolete, please use WaveformTimingConfiguration.GetDefault()")]
         public static WaveformTimingConfiguration GetDefaultWaveformTimingConfiguration()
         {
-            return new WaveformTimingConfiguration
-            {
-                DutyCycle_Percent = 50,
-                PreBurstTime_s = 1e-6,
-                PostBurstTime_s = 1e-6,
-                BurstStartTriggerExport = "PXI_Trig0"
-        };
+            return WaveformTimingConfiguration.GetDefault();
         }
+
         public enum PAENMode { Disabled, Static, Dynamic };
+
         public struct PAENConfiguration
         {
             public PAENMode PAEnableMode;
@@ -84,20 +89,27 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double CommandEnableTime_s;
             public double CommandDisableTime_s;
             public string PAEnableTriggerExportTerminal;
+            public static PAENConfiguration GetDefault()
+            {
+                return new PAENConfiguration
+                {
+                    //Default configuration is set for a DUT with a simple digital toggle high/low
+                    //for PA Enable
+                    PAEnableMode = PAENMode.Dynamic,
+                    PAEnableTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.Pfi0.ToString(),
+                    PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle,
+                    CommandEnableTime_s = 0,
+                    CommandDisableTime_s = 0
+                };
+            }
         }
+
+        [Obsolete("This method is obsolete, please use PAENConfiguration.GetDefault()")]
         public static PAENConfiguration GetDefaultPAENConfiguration()
         {
-            return new PAENConfiguration
-            {
-                //Default configuration is set for a DUT with a simple digital toggle high/low
-                //for PA Enable
-                PAEnableMode = PAENMode.Dynamic,
-                PAEnableTriggerExportTerminal = RfsgMarkerEventExportedOutputTerminal.Pfi0.ToString(),
-                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle,
-                CommandEnableTime_s = 0,
-                CommandDisableTime_s = 0
-            };
+            return PAENConfiguration.GetDefault();
         }
+
         #endregion
         public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
@@ -119,6 +131,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
             }
         }
+
         public static Waveform LoadWaveformFromTDMS(NIRfsg rfsgHandle, string filePath, string waveformName = "", bool normalizeWaveform = true)
         {
             Waveform waveform = new Waveform();
@@ -159,6 +172,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             return waveform;
         }
+
         public static void DownloadWaveform(NIRfsg rfsgHandle, Waveform waveform)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
@@ -211,6 +225,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //Download the newly created script for generation when "Initiate" is called
             NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, script);
         }
+
         public static void ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
