@@ -1,8 +1,7 @@
-﻿using System;
-using System.Text;
-using System.IO;
-using Ivi.Driver;
+﻿using Ivi.Driver;
 using NationalInstruments.ModularInstruments.NIDigital;
+using System;
+using System.IO;
 
 
 namespace NationalInstruments.ReferenceDesignLibraries
@@ -24,30 +23,32 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public PpmuOutputFunction PinOutputFunction;
             public double Voltage_V;
             public double Current_A;
-        }
-        public static SourcePinConfiguration GetDefaultSourcePinConfiguration()
-        {
-            return new SourcePinConfiguration
+            public static SourcePinConfiguration GetDefault()
             {
-                PinOutputFunction = PpmuOutputFunction.DCVoltage,
-                Voltage_V = 1.8,
-            };
+                return new SourcePinConfiguration
+                {
+                    PinOutputFunction = PpmuOutputFunction.DCVoltage,
+                    Voltage_V = 1.8,
+                };
+            }
         }
+
         public struct TriggerConfiguration
         {
             public TriggerType BurstTriggerType;
             public DigitalEdge DigitalEdgeType;
             public string DigitalEdgeSource;
-        }
-        public static TriggerConfiguration GetDefaultTriggerConfiguration()
-        {
-            return new TriggerConfiguration
+            public static TriggerConfiguration GetDefault()
             {
-                BurstTriggerType = TriggerType.None,
-                DigitalEdgeType = DigitalEdge.Rising,
-                DigitalEdgeSource = "PXI_Trig0",
-            };
+                return new TriggerConfiguration
+                {
+                    BurstTriggerType = TriggerType.None,
+                    DigitalEdgeType = DigitalEdge.Rising,
+                    DigitalEdgeSource = "PXI_Trig0",
+                };
+            }
         }
+
         #endregion
         #region Configuration
         public static void LoadProjectFiles(NIDigital nIDigital, ProjectFiles projectFiles)
@@ -74,7 +75,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 nIDigital.LoadTiming(projectFiles.TimingFiles);
             }
             else throw new ArgumentException("At least one timing sheet must be supplied to the instrument", "TimingFiles");
-            
+
 
             foreach (string path in projectFiles.DigitalPatternFiles) nIDigital.LoadPattern(path);
 
