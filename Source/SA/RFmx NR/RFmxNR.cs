@@ -1,8 +1,7 @@
-﻿using System;
+﻿using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments.RFmx.InstrMX;
-using NationalInstruments.DataInfrastructure;
 using NationalInstruments.RFmx.NRMX;
-using NationalInstruments.ModularInstruments.NIRfsg;
+using System;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
@@ -24,24 +23,26 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             public bool AutoLevelEnabled;
             public double AutoLevelMeasurementInterval;
-        }
-        public static CommonConfiguration GetDefaultCommonConfiguration()
-        {
-            return new CommonConfiguration
-            {
-                CenterFrequency_Hz = 3.5e9,
-                ReferenceLevel_dBm = 0,
-                ExternalAttenuation_dB = 0,
-                FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
-                DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
-                DigitalEdgeType = RFmxNRMXDigitalEdgeTriggerEdge.Rising,
-                TriggerDelay_s = 0,
-                EnableTrigger = true,
 
-                AutoLevelEnabled = false,
-                AutoLevelMeasurementInterval = 10e-3
-            };
+            public static CommonConfiguration GetDefault()
+            {
+                return new CommonConfiguration
+                {
+                    CenterFrequency_Hz = 3.5e9,
+                    ReferenceLevel_dBm = 0,
+                    ExternalAttenuation_dB = 0,
+                    FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
+                    DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
+                    DigitalEdgeType = RFmxNRMXDigitalEdgeTriggerEdge.Rising,
+                    TriggerDelay_s = 0,
+                    EnableTrigger = true,
+
+                    AutoLevelEnabled = false,
+                    AutoLevelMeasurementInterval = 10e-3
+                };
+            }
         }
+
         public struct SignalConfiguration
         {
             public RFmxNRMXFrequencyRange frequencyRange;
@@ -66,35 +67,37 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int puschDmrsTypeAPosition;
             public RFmxNRMXPuschDmrsDuration puschDmrsDuration;
             public int puschDmrsAdditionalPositions;
-        }
-        public static SignalConfiguration GetDfaultSignalConfiguration()
-        {
-            return new SignalConfiguration
+
+            public static SignalConfiguration GetDefault()
             {
-                frequencyRange = RFmxNRMXFrequencyRange.Range1,
-                band = 78,
-                cellID = 0,
-                carrierBandwidth = 100e6,
-                subcarrierSpacing = 30e3,
-                autoResourceBlockDetectionEnabled = RFmxNRMXAutoResourceBlockDetectionEnabled.False,
+                return new SignalConfiguration
+                {
+                    frequencyRange = RFmxNRMXFrequencyRange.Range1,
+                    band = 78,
+                    cellID = 0,
+                    carrierBandwidth = 100e6,
+                    subcarrierSpacing = 30e3,
+                    autoResourceBlockDetectionEnabled = RFmxNRMXAutoResourceBlockDetectionEnabled.False,
 
-                puschTransformPrecodingEnabled = RFmxNRMXPuschTransformPrecodingEnabled.False,
-                puschModulationType = RFmxNRMXPuschModulationType.Qpsk,
-                NumberOfResourceBlockClusters = 1,
-                puschResourceBlockOffset = new int[] { 0 },
-                puschNumberOfResourceBlocks = new int[] { -1 },
-                puschSlotAllocation = "0-Last",
-                puschSymbolAllocation = "0-Last",
+                    puschTransformPrecodingEnabled = RFmxNRMXPuschTransformPrecodingEnabled.False,
+                    puschModulationType = RFmxNRMXPuschModulationType.Qpsk,
+                    NumberOfResourceBlockClusters = 1,
+                    puschResourceBlockOffset = new int[] { 0 },
+                    puschNumberOfResourceBlocks = new int[] { -1 },
+                    puschSlotAllocation = "0-Last",
+                    puschSymbolAllocation = "0-Last",
 
-                puschDmrsPowerMode = RFmxNRMXPuschDmrsPowerMode.CdmGroups,
-                puschDmrsPower = 0,
-                puschDmrsConfigurationType = RFmxNRMXPuschDmrsConfigurationType.Type1,
-                puschMappingType = RFmxNRMXPuschMappingType.TypeA,
-                puschDmrsTypeAPosition = 2,
-                puschDmrsDuration = RFmxNRMXPuschDmrsDuration.SingleSymbol,
-                puschDmrsAdditionalPositions = 0
-            };
+                    puschDmrsPowerMode = RFmxNRMXPuschDmrsPowerMode.CdmGroups,
+                    puschDmrsPower = 0,
+                    puschDmrsConfigurationType = RFmxNRMXPuschDmrsConfigurationType.Type1,
+                    puschMappingType = RFmxNRMXPuschMappingType.TypeA,
+                    puschDmrsTypeAPosition = 2,
+                    puschDmrsDuration = RFmxNRMXPuschDmrsDuration.SingleSymbol,
+                    puschDmrsAdditionalPositions = 0
+                };
+            }
         }
+
         #region Measurement Definitions
         public struct ModAccConfiguration
         {
@@ -106,21 +109,23 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             public RFmxNRMXModAccAveragingEnabled averagingEnabled;
             public int averagingCount;
-        }
-        public static ModAccConfiguration GetDefaultModaccConfiguration()
-        {
-            return new ModAccConfiguration
+
+            public static ModAccConfiguration GetDefault()
             {
-                synchronizationMode = RFmxNRMXModAccSynchronizationMode.Slot,
-                measurementLengthUnit = RFmxNRMXModAccMeasurementLengthUnit.Slot,
+                return new ModAccConfiguration
+                {
+                    synchronizationMode = RFmxNRMXModAccSynchronizationMode.Slot,
+                    measurementLengthUnit = RFmxNRMXModAccMeasurementLengthUnit.Slot,
 
-                measurementOffset = 0,
-                measurementLength = 1,
+                    measurementOffset = 0,
+                    measurementLength = 1,
 
-                averagingEnabled = RFmxNRMXModAccAveragingEnabled.False,
-                averagingCount = 10
-            };
+                    averagingEnabled = RFmxNRMXModAccAveragingEnabled.False,
+                    averagingCount = 10
+                };
+            }
         }
+
         public struct AcpConfiguration
         {
             public RFmxNRMXAcpMeasurementMethod measurementMethod;
@@ -136,26 +141,28 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int numberOfNROffsets;
             public int numberOfEutraOffsets;
             public int numberOfUtraOffsets;
-        }
-        public static AcpConfiguration GetDefaultAcpConfiguration()
-        {
-            return new AcpConfiguration
+
+            public static AcpConfiguration GetDefault()
             {
-                measurementMethod = RFmxNRMXAcpMeasurementMethod.Normal,
-                noiseCompensationEnabled = RFmxNRMXAcpNoiseCompensationEnabled.False,
+                return new AcpConfiguration
+                {
+                    measurementMethod = RFmxNRMXAcpMeasurementMethod.Normal,
+                    noiseCompensationEnabled = RFmxNRMXAcpNoiseCompensationEnabled.False,
 
-                sweepTimeAuto = RFmxNRMXAcpSweepTimeAuto.True,
-                sweepTimeInterval = 1.0e-3,
+                    sweepTimeAuto = RFmxNRMXAcpSweepTimeAuto.True,
+                    sweepTimeInterval = 1.0e-3,
 
-                averagingEnabled = RFmxNRMXAcpAveragingEnabled.False,
-                averagingCount = 10,
-                averagingType = RFmxNRMXAcpAveragingType.Rms,
+                    averagingEnabled = RFmxNRMXAcpAveragingEnabled.False,
+                    averagingCount = 10,
+                    averagingType = RFmxNRMXAcpAveragingType.Rms,
 
-                numberOfNROffsets = 2,
-                numberOfEutraOffsets = 0,
-                numberOfUtraOffsets = 0
-            };
+                    numberOfNROffsets = 2,
+                    numberOfEutraOffsets = 0,
+                    numberOfUtraOffsets = 0
+                };
+            }
         }
+
         public struct ChpConfiguration
         {
             public RFmxNRMXChpSweepTimeAuto sweepTimeAuto;
@@ -164,33 +171,36 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxNRMXChpAveragingEnabled averagingEnabled;
             public int averagingCount;
             public RFmxNRMXChpAveragingType averagingType;
-        }
-        public static ChpConfiguration GetDefaultChpConfiguration()
-        {
-            return new ChpConfiguration
+
+            public static ChpConfiguration GetDefault()
             {
-                sweepTimeAuto = RFmxNRMXChpSweepTimeAuto.True,
-                sweepTimeInterval = 1.0e-3,
-                averagingEnabled = RFmxNRMXChpAveragingEnabled.False,
-                averagingCount = 10,
-                averagingType = RFmxNRMXChpAveragingType.Rms
-            };
+                return new ChpConfiguration
+                {
+                    sweepTimeAuto = RFmxNRMXChpSweepTimeAuto.True,
+                    sweepTimeInterval = 1.0e-3,
+                    averagingEnabled = RFmxNRMXChpAveragingEnabled.False,
+                    averagingCount = 10,
+                    averagingType = RFmxNRMXChpAveragingType.Rms
+                };
+            }
         }
+
         public struct ChpServoConfiguration
         {
             public double TargetChpPower_dBm;
             public double Tolerance_dBm;
             public int MaxNumberOfIterations;
-        }
-        public static ChpServoConfiguration GetDefaultServoConfiguration()
-        {
-            return new ChpServoConfiguration
+            public static ChpServoConfiguration GetDefault()
             {
-                TargetChpPower_dBm = 0,
-                Tolerance_dBm = 0.05,
-                MaxNumberOfIterations = 10
-            };
+                return new ChpServoConfiguration
+                {
+                    TargetChpPower_dBm = 0,
+                    Tolerance_dBm = 0.05,
+                    MaxNumberOfIterations = 10
+                };
+            }
         }
+
         #endregion
         #endregion
         #region Instrument Configuration
@@ -452,11 +462,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return chpResults;
         }
 
-  
+
         #endregion
 
     }
 
 }
-
-
