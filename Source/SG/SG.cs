@@ -1,13 +1,11 @@
-﻿using System;
+﻿using NationalInstruments.DataInfrastructure;
+using NationalInstruments.ModularInstruments.NIRfsg;
+using NationalInstruments.ModularInstruments.NIRfsgPlayback;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Ivi.Driver;
-using NationalInstruments.DataInfrastructure;
-using NationalInstruments.ModularInstruments.NIRfsg;
-using NationalInstruments.ModularInstruments.NIRfsgPlayback;
-
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
@@ -36,12 +34,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     ShareLOSGToSA = true,
                 };
             }
-        }
-
-        [Obsolete("This method is obsolete, please use InstrumentConfiguration.GetDefault()")]
-        public static InstrumentConfiguration GetDefaultInstrumentConfiguration()
-        {
-            return InstrumentConfiguration.GetDefault();
         }
 
         public struct Waveform
@@ -74,12 +66,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
 
-        [Obsolete("This method is obsolete, please use WaveformTimingConfiguration.GetDefault()")]
-        public static WaveformTimingConfiguration GetDefaultWaveformTimingConfiguration()
-        {
-            return WaveformTimingConfiguration.GetDefault();
-        }
-
         public enum PAENMode { Disabled, Static, Dynamic };
 
         public struct PAENConfiguration
@@ -102,12 +88,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     CommandDisableTime_s = 0
                 };
             }
-        }
-
-        [Obsolete("This method is obsolete, please use PAENConfiguration.GetDefault()")]
-        public static PAENConfiguration GetDefaultPAENConfiguration()
-        {
-            return PAENConfiguration.GetDefault();
         }
 
         #endregion
