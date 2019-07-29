@@ -18,20 +18,20 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //General Settings
             public ScopeInputImpedance InputImpedance;
             public string ScopeClockSource;
-            
-        }
-        public static ScopeConfiguration GetDefaultScopeConfiguration()
-        {
-            return new ScopeConfiguration
+            public static ScopeConfiguration GetDefault()
             {
-                VerticalRange_V = 1,
-                VerticalOffset_V = 0,
-                ScopeCouplingMode = ScopeVerticalCoupling.DC,
-                ProbeAttenuation = 1,
-                InputImpedance = ScopeConfiguration.ScopeInputImpedance.FiftyOhm,
-                ScopeClockSource = ScopeInputClockSource.PxiClock.ToString(),
-            };
+                return new ScopeConfiguration
+                {
+                    VerticalRange_V = 1,
+                    VerticalOffset_V = 0,
+                    ScopeCouplingMode = ScopeVerticalCoupling.DC,
+                    ProbeAttenuation = 1,
+                    InputImpedance = ScopeConfiguration.ScopeInputImpedance.FiftyOhm,
+                    ScopeClockSource = ScopeInputClockSource.PxiClock.ToString(),
+                };
+            }
         }
+        
         public struct MeasurementConfiguration
         {
             public ScopeTriggerType ScopeTriggerType;
@@ -39,18 +39,20 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public ScopeTriggerSlope TriggerEdge;
             public double SampleRate_Hz;
             public double MeasurementTime_s;
-        }
-        public static MeasurementConfiguration GetDefaultMeasurementConfiguration()
-        {
-            return new MeasurementConfiguration
+
+            public static MeasurementConfiguration GetDefault()
             {
-                ScopeTriggerType = ScopeTriggerType.DigitalEdge,
-                ScopeTriggerSource = ScopeTriggerSource.Rtsi0, //Equivalent to PXI_Trig_0
-                TriggerEdge = ScopeTriggerSlope.Positive, //Rising edge
-                SampleRate_Hz = 20.00E+6,
-                MeasurementTime_s = 1e-3,
-            };
+                return new MeasurementConfiguration
+                {
+                    ScopeTriggerType = ScopeTriggerType.DigitalEdge,
+                    ScopeTriggerSource = ModularInstruments.NIScope.ScopeTriggerSource.Rtsi0, //Equivalent to PXI_Trig_0
+                    TriggerEdge = ScopeTriggerSlope.Positive, //Rising edge
+                    SampleRate_Hz = 20.00E+6,
+                    MeasurementTime_s = 1e-3,
+                };
+            }
         }
+        
         public struct MeasurementResults
         {
             public double[] ResultsTrace;
