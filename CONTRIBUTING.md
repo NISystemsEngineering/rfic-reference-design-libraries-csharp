@@ -49,7 +49,7 @@ All classes should be implemented as [static classes](https://docs.microsoft.com
 #### Data Types
 
 - Structs are utilized to pass configuration parameters to the various functions.
-  - For each configuration struct, a method returning that struct should be created that returns default values with the name *GetDefault**ConfigurationName***. These default values should be set in such a way that they are reasonable starting configurations for a majority of applications, and should not be set for specific hardware.
+  - For each configuration struct, a static method returning that struct should be created that returns default values. It should be given the name *GetDefault()*. These default values should be set in such a way that they are reasonable starting configurations for a majority of applications, and should not be set for specific hardware.
 - See the following example from the [Digital](Source/Digital/Digital.cs) library:
 
 ```c#
@@ -58,16 +58,23 @@ public struct TriggerConfiguration
     public TriggerType BurstTriggerType;
     public DigitalEdge DigitalEdgeType;
     public string DigitalEdgeSource;
-}
-public static TriggerConfiguration GetDefaultTriggerConfiguration()
-{
-    return new TriggerConfiguration
+
+    public static TriggerConfiguration GetDefault()
     {
-        BurstTriggerType = TriggerType.StartTrigger,
-        DigitalEdgeType = DigitalEdge.Rising,
-        DigitalEdgeSource = "PXI_Trig0",
-    };
+        return new TriggerConfiguration
+        {
+            BurstTriggerType = TriggerType.StartTrigger,
+            DigitalEdgeType = DigitalEdge.Rising,
+            DigitalEdgeSource = "PXI_Trig0",
+        };
+    }
 }
+```
+
+- A new instance of the TriggerConfiguration struct with its default values set can be created with the following:
+
+```c#
+TriggerConfiguration digiTrigConfig = TriggerConfiguration.GetDefault();
 ```
 
 - Structs should also be used for passing function results back to a function if more than one parameter is returned
