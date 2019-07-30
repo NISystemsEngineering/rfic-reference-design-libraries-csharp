@@ -1,7 +1,6 @@
-﻿using System;
-using System.Text;
+﻿using NationalInstruments.ModularInstruments.NIDigital;
+using System;
 using System.IO;
-using NationalInstruments.ModularInstruments.NIDigital;
 using static NationalInstruments.ReferenceDesignLibraries.Digital;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Examples
@@ -32,7 +31,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             LoadProjectFiles(digital, projectFiles);
 
-            SourcePinConfiguration sourcePin = GetDefaultSourcePinConfiguration();
+            SourcePinConfiguration sourcePin = SourcePinConfiguration.GetDefault();
             sourcePin.PinName = "DUTPin1";
 
             ConfigureAndSourcePin(digital, sourcePin);

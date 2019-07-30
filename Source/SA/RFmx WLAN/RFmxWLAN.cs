@@ -1,8 +1,7 @@
-﻿using System;
+﻿using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments.RFmx.InstrMX;
-using NationalInstruments.DataInfrastructure;
 using NationalInstruments.RFmx.WlanMX;
-using NationalInstruments.ModularInstruments.NIRfsg;
+using System;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
@@ -23,22 +22,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public bool EnableTrigger;
             public string LOSource;
             public double LOOffset;
-        }
-        public static CommonConfiguration GetDefaultCommonConfiguration()
-        {
-            return new CommonConfiguration
+            public static CommonConfiguration GetDefault()
             {
-                CenterFrequency_Hz = 1e9,
-                ReferenceLevel_dBm = 0,
-                ExternalAttenuation_dB = 0,
-                FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
-                DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
-                DigitalEdgeType = RFmxWlanMXDigitalEdgeTriggerEdge.Rising,
-                TriggerDelay_s = 0,
-                EnableTrigger = true,
-                LOSource = RFmxInstrMXConstants.LOSourceLOIn,
-                LOOffset = 0
-            };
+                return new CommonConfiguration
+                {
+                    CenterFrequency_Hz = 1e9,
+                    ReferenceLevel_dBm = 0,
+                    ExternalAttenuation_dB = 0,
+                    FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
+                    DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
+                    DigitalEdgeType = RFmxWlanMXDigitalEdgeTriggerEdge.Rising,
+                    TriggerDelay_s = 0,
+                    EnableTrigger = true,
+                    LOSource = RFmxInstrMXConstants.LOSourceLOIn,
+                    LOOffset = 0
+                };
+            }
         }
 
         public struct SignalConfiguration
@@ -46,29 +45,31 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public bool AutoDetectSignal;
             public RFmxWlanMXStandard Standard;
             public double ChannelBandwidth_Hz;
-        }
-        public static SignalConfiguration GetDefaultSignalConfiguration()
-        {
-            return new SignalConfiguration
+
+            public static SignalConfiguration GetDefault()
             {
-                AutoDetectSignal = true,
-                Standard = RFmxWlanMXStandard.Standard802_11ac,
-                ChannelBandwidth_Hz = 20e6
-            };
+                return new SignalConfiguration
+                {
+                    AutoDetectSignal = true,
+                    Standard = RFmxWlanMXStandard.Standard802_11ac,
+                    ChannelBandwidth_Hz = 20e6
+                };
+            }
         }
 
         public struct AutoLevelConfiguration
         {
             public bool AutoLevelReferenceLevel;
             public double AutoLevelMeasureTime_s;
-        }
-        public static AutoLevelConfiguration GetDefaultAutoLevelConfiguration()
-        {
-            return new AutoLevelConfiguration
+
+            public static AutoLevelConfiguration GetDefault()
             {
-                AutoLevelReferenceLevel = false,
-                AutoLevelMeasureTime_s = 10e-3
-            };
+                return new AutoLevelConfiguration
+                {
+                    AutoLevelReferenceLevel = false,
+                    AutoLevelMeasureTime_s = 10e-3
+                };
+            }
         }
 
         #region Measurement Definitions
@@ -77,16 +78,18 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxWlanMXTxpAveragingEnabled AveragingEnabled;
             public int AveragingCount;
             public double MaximumMeasurementInterval_s;
-        }
-        public static TxPConfiguration GetDefaultTxPConfiguration()
-        {
-            return new TxPConfiguration
+
+            public static TxPConfiguration GetDefault()
             {
-                AveragingEnabled = RFmxWlanMXTxpAveragingEnabled.False,
-                AveragingCount = 10,
-                MaximumMeasurementInterval_s = 1e-3
-            };
+                return new TxPConfiguration
+                {
+                    AveragingEnabled = RFmxWlanMXTxpAveragingEnabled.False,
+                    AveragingCount = 10,
+                    MaximumMeasurementInterval_s = 1e-3
+                };
+            }
         }
+
         #endregion
         public struct TxPResults
         {
@@ -103,19 +106,19 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double OptimizeDynamicRangeForEVMMargin_dB;
             public RFmxWlanMXOfdmModAccAveragingEnabled AveragingEnabled;
             public int AveragingCount;
-        }
-        public static OFDMModAccConfiguration GetDefaultOFDMModAccConfiguration()
-        {
-            return new OFDMModAccConfiguration
+            public static OFDMModAccConfiguration GetDefault()
             {
-                AcquisitionLength_s = 0, //This will trigger auto-length mode in the code
-                MeasurementOffset_sym = 0,
-                MaximumMeasurementLength_sym = 16,
-                OptimizeDynamicRangeForEvmEnabled = RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled.True,
-                OptimizeDynamicRangeForEVMMargin_dB = 0,
-                AveragingEnabled = RFmxWlanMXOfdmModAccAveragingEnabled.False,
-                AveragingCount = 10,
-            };
+                return new OFDMModAccConfiguration
+                {
+                    AcquisitionLength_s = 0, //This will trigger auto-length mode in the code
+                    MeasurementOffset_sym = 0,
+                    MaximumMeasurementLength_sym = 16,
+                    OptimizeDynamicRangeForEvmEnabled = RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled.True,
+                    OptimizeDynamicRangeForEVMMargin_dB = 0,
+                    AveragingEnabled = RFmxWlanMXOfdmModAccAveragingEnabled.False,
+                    AveragingCount = 10,
+                };
+            }
         }
 
         public struct OFDMModAccResults
@@ -138,39 +141,39 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int AveragingCount;
             public RFmxWlanMXSemAveragingType AveragingType;
             public RFmxWlanMXSemMaskType MaskType;
-        }
-        public static SEMConfiguration GetDefaultSEMConfiguration()
-        {
-            return new SEMConfiguration
+            public static SEMConfiguration GetDefault()
             {
-                SweepTimeAuto = RFmxWlanMXSemSweepTimeAuto.True,
-                SweepTime_s = 1e-3,
-                SpanAuto = RFmxWlanMXSemSpanAuto.True,
-                Span_Hz = 100e6,
-                AveragingEnabled = RFmxWlanMXSemAveragingEnabled.False,
-                AveragingCount = 5,
-                AveragingType = RFmxWlanMXSemAveragingType.Rms,
-                MaskType = RFmxWlanMXSemMaskType.Standard
-            };
+                return new SEMConfiguration
+                {
+                    SweepTimeAuto = RFmxWlanMXSemSweepTimeAuto.True,
+                    SweepTime_s = 1e-3,
+                    SpanAuto = RFmxWlanMXSemSpanAuto.True,
+                    Span_Hz = 100e6,
+                    AveragingEnabled = RFmxWlanMXSemAveragingEnabled.False,
+                    AveragingCount = 5,
+                    AveragingType = RFmxWlanMXSemAveragingType.Rms,
+                    MaskType = RFmxWlanMXSemMaskType.Standard
+                };
+            }
         }
 
         public struct SEMResults
         {
             public RFmxWlanMXSemMeasurementStatus measurementStatus;
-            public double  AbsolutePower_dBm;
-            public double  RelativePower_dB;
+            public double AbsolutePower_dBm;
+            public double RelativePower_dB;
 
-            public  RFmxWlanMXSemUpperOffsetMeasurementStatus[] upperOffsetMeasurementStatus;
-            public double [] UpperOffsetMargin_dB;
-            public double [] UpperOffsetMarginFrequency_Hz;
-            public double [] UpperOffsetMarginAbsolutePower_dBm;
-            public double [] UpperOffsetMarginRelativePower_dBm;
+            public RFmxWlanMXSemUpperOffsetMeasurementStatus[] upperOffsetMeasurementStatus;
+            public double[] UpperOffsetMargin_dB;
+            public double[] UpperOffsetMarginFrequency_Hz;
+            public double[] UpperOffsetMarginAbsolutePower_dBm;
+            public double[] UpperOffsetMarginRelativePower_dBm;
 
             public RFmxWlanMXSemLowerOffsetMeasurementStatus[] lowerOffsetMeasurementStatus;
-            public double [] LowerOffsetMargin_dB;
-            public double [] LowerOffsetMarginFrequency_Hz; 
-            public double [] LowerOffsetMarginAbsolutePower_dBm;
-            public double [] LowerOffsetMarginRelativePower_dBm;
+            public double[] LowerOffsetMargin_dB;
+            public double[] LowerOffsetMarginFrequency_Hz;
+            public double[] LowerOffsetMarginAbsolutePower_dBm;
+            public double[] LowerOffsetMarginRelativePower_dBm;
 
         }
         public struct TxPServoConfiguration
@@ -178,16 +181,17 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double TargetTxPPower_dBm;
             public double Tolerance_dBm;
             public int MaxNumberOfIterations;
-        }
-        public static TxPServoConfiguration GetDefaultTxPServoConfiguration()
-        {
-            return new TxPServoConfiguration
+            public static TxPServoConfiguration GetDefault()
             {
-                TargetTxPPower_dBm = 0,
-                Tolerance_dBm = 0.05,
-                MaxNumberOfIterations = 10
-            };
+                return new TxPServoConfiguration
+                {
+                    TargetTxPPower_dBm = 0,
+                    Tolerance_dBm = 0.05,
+                    MaxNumberOfIterations = 10
+                };
+            }
         }
+
         public struct TxPServoResults
         {
             public double[] ServoTrace;
@@ -196,18 +200,18 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, 
+        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxWlanMX wlanSignal, CommonConfiguration commonConfig,
             AutoLevelConfiguration autoLevelConfig, string selectorString = "")
         {
             string instrModel;
-            
+
             sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
             sessionHandle.GetInstrumentModel("", out instrModel);
 
             sessionHandle.SetLOSource("", commonConfig.LOSource);
             sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
 
-                wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
 
@@ -222,7 +226,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             if (signalConfig.AutoDetectSignal)
             {
-                wlanSignal.AutoDetectSignal(selectorString,10);
+                wlanSignal.AutoDetectSignal(selectorString, 10);
             }
             else
             {
@@ -265,7 +269,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.OfdmModAcc.Configuration.SetIQGainImbalanceCorrectionEnabled(selectorString, RFmxWlanMXOfdmModAccIQGainImbalanceCorrectionEnabled.False);
             wlanSignal.OfdmModAcc.Configuration.SetIQQuadratureErrorCorrectionEnabled(selectorString, RFmxWlanMXOfdmModAccIQQuadratureErrorCorrectionEnabled.False);
             wlanSignal.OfdmModAcc.Configuration.SetIQTimingSkewCorrectionEnabled(selectorString, RFmxWlanMXOfdmModAccIQTimingSkewCorrectionEnabled.False);
-            
+
 
             //The following values are defaults, but called out explicitly for clarity
             wlanSignal.OfdmModAcc.Configuration.SetEvmUnit(selectorString, RFmxWlanMXOfdmModAccEvmUnit.dB);
@@ -344,14 +348,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     break;
                 default:
                     throw new System.NotImplementedException("Custom SEM Mask configurations have not been implemented in this Reference Design module.");
-            }            
+            }
         }
         #endregion
         #region Measurement Results
         public static TxPResults FetchTxP(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             TxPResults txpResults = new TxPResults();
-     
+
             wlanSignal.Txp.Results.FetchPowerTrace(selectorString, 10, ref txpResults.PowerVsTime);
             wlanSignal.Txp.Results.FetchMeasurement(selectorString, 10, out txpResults.AveragePowerMean_dBm, out txpResults.PeakPowerMaximum_dBm);
 
@@ -370,7 +374,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return modAccResults;
         }
 
-        public static  SEMResults FetchSEM(RFmxWlanMX wlanSignal,string selectorString = "")
+        public static SEMResults FetchSEM(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             SEMResults semResults = new SEMResults();
             wlanSignal.Sem.Results.FetchMeasurementStatus(selectorString, 10, out semResults.measurementStatus);

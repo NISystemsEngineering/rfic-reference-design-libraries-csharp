@@ -1,13 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NationalInstruments.ReferenceDesignLibraries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using NationalInstruments.DataInfrastructure;
 using NationalInstruments.ModularInstruments.NIRfsg;
+using System.IO;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Tests
 {

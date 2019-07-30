@@ -1,13 +1,6 @@
-﻿using NationalInstruments.ReferenceDesignLibraries;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static NationalInstruments.ReferenceDesignLibraries.Scope;
-using NationalInstruments.DataInfrastructure;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NationalInstruments.ModularInstruments.NIScope;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static NationalInstruments.ReferenceDesignLibraries.Scope;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Tests
 {
@@ -19,7 +12,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             NIScope testScope = new NIScope("SIM", false, false, "Simulate = 1");
 
-            MeasurementConfiguration measConfig = GetDefaultMeasurementConfiguration();
+            MeasurementConfiguration measConfig = MeasurementConfiguration.GetDefault();
 
             ConfigureMeasurement(testScope, measConfig, "0");
 
@@ -49,7 +42,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             NIScope testScope = new NIScope("SIM", false, false, "Simulate = 1");
 
-            ScopeConfiguration scopeConfig = GetDefaultScopeConfiguration();
+            ScopeConfiguration scopeConfig = ScopeConfiguration.GetDefault();
 
             ConfigureScope(testScope, scopeConfig, "0");
 

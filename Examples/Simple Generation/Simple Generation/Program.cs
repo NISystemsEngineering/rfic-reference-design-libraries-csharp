@@ -1,6 +1,6 @@
-﻿using System;
+﻿using NationalInstruments.ModularInstruments.NIRfsg;
+using System;
 using System.IO;
-using NationalInstruments.ModularInstruments.NIRfsg;
 using static NationalInstruments.ReferenceDesignLibraries.SG;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Examples
@@ -16,7 +16,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             NIRfsg nIRfsg = new NIRfsg(resourceName, false, false);
 
-            InstrumentConfiguration instrConfig = GetDefaultInstrumentConfiguration();
+            InstrumentConfiguration instrConfig = InstrumentConfiguration.GetDefault();
             instrConfig.CarrierFrequency_Hz = 2e9;
 
             ConfigureInstrument(nIRfsg, instrConfig);

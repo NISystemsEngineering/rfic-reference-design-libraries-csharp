@@ -1,8 +1,6 @@
-﻿using System;
+﻿using NationalInstruments.ModularInstruments.NIDCPower;
+using System;
 using System.Linq;
-using NationalInstruments.DataInfrastructure;
-using NationalInstruments.ModularInstruments.NIDCPower;
-
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
@@ -14,16 +12,17 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double GainBandwidth;
             public double CompensationFrequency;
             public double PoleZeroRatio;
-        }
-        public static CustomTransientResponse GetDefaultCustomTransientResponse()
-        {
-            return new CustomTransientResponse
+            public static CustomTransientResponse GetDefault()
             {
-                GainBandwidth = 5000,
-                CompensationFrequency = 50000,
-                PoleZeroRatio = 0.16,
-            };
+                return new CustomTransientResponse
+                {
+                    GainBandwidth = 5000,
+                    CompensationFrequency = 50000,
+                    PoleZeroRatio = 0.16,
+                };
+            }
         }
+        
         public struct SupplyConfiguration
         {
             public DCPowerSourceOutputFunction OutputFunction;
@@ -35,20 +34,21 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             public DCPowerSourceTransientResponse TransientResponseMode;
             public CustomTransientResponse CustomTransientConfig;
-        }
-        public static SupplyConfiguration GetDefaultSupplyConfiguration()
-        {
-            return new SupplyConfiguration
+            public static SupplyConfiguration GetDefault()
             {
-                OutputFunction = DCPowerSourceOutputFunction.DCVoltage,
-                VoltageLevel_V = 3,
-                CurrentLimit_A = 1e-3,
-                CurrentLevel_A = 1,
-                VoltageLimit_V = 3,
-                TransientResponseMode = DCPowerSourceTransientResponse.Fast,
-                CustomTransientConfig = GetDefaultCustomTransientResponse()
-            };
+                return new SupplyConfiguration
+                {
+                    OutputFunction = DCPowerSourceOutputFunction.DCVoltage,
+                    VoltageLevel_V = 3,
+                    CurrentLimit_A = 1e-3,
+                    CurrentLevel_A = 1,
+                    VoltageLimit_V = 3,
+                    TransientResponseMode = DCPowerSourceTransientResponse.Fast,
+                    CustomTransientConfig = CustomTransientResponse.GetDefault()
+                };
+            }
         }
+        
         public enum MeasurementModeConfiguration { SinglePoint, Record };
         public struct MeasurementConfiguration
         {
@@ -57,19 +57,19 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public string MeasurementTriggerTerminal;
             public MeasurementModeConfiguration MeasurementMode;
             public double MeasurementTime_s;
-        }
-        public static MeasurementConfiguration GetDefaultMeasurementConfiguration()
-        {
-            return new MeasurementConfiguration
+            public static MeasurementConfiguration GetDefault()
             {
-                MeasureWhenMode = DCPowerMeasurementWhen.OnMeasureTrigger,
-                SenseMode = DCPowerMeasurementSense.Local,
-                MeasurementTriggerTerminal = DCPowerDigitalEdgeMeasureTriggerInputTerminal.PxiTriggerLine0.ToString(),
-                MeasurementMode = MeasurementModeConfiguration.SinglePoint,
-                MeasurementTime_s = 1e-3
-            };
-
+                return new MeasurementConfiguration
+                {
+                    MeasureWhenMode = DCPowerMeasurementWhen.OnMeasureTrigger,
+                    SenseMode = DCPowerMeasurementSense.Local,
+                    MeasurementTriggerTerminal = DCPowerDigitalEdgeMeasureTriggerInputTerminal.PxiTriggerLine0.ToString(),
+                    MeasurementMode = MeasurementModeConfiguration.SinglePoint,
+                    MeasurementTime_s = 1e-3
+                };
+            }
         }
+        
         public enum SupplyPowerMode { PowerOn, PowerOff };
         public struct MeasurementResults
         {
