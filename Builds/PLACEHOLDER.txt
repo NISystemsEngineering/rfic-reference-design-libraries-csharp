@@ -1,0 +1,1 @@
+This folder is empty by default when downloading or syncing to the repository. Either build the Reference Design Libraries solution targeting the release configuration, or download the latest binaries from https://github.com/NISystemsEngineering/rfic-reference-design-libraries-csharp/releases/latest
