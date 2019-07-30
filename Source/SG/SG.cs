@@ -410,36 +410,39 @@ namespace NationalInstruments.ReferenceDesignLibraries
         }
         private static void NormalizeWaveform(Waveform waveform)
         {
-            //Normalize the waveform data
-
-            double[] magnitudeArray = waveform.WaveformData.GetMagnitudeDataArray(false);
-            ComplexSingle waveformMax = new ComplexSingle((float)magnitudeArray.Max(), 0);
+            // Normalize the waveform data
+            float[] magnitudeArray = ComplexSingle.GetMagnitudes(waveform.WaveformData.GetRawData());
+            float magnitudeMax = magnitudeArray.Max();
             WritableBuffer<ComplexSingle> waveformBuffer = waveform.WaveformData.GetWritableBuffer();
             for (int i = 0; i < waveformBuffer.Count(); i++)
+                waveformBuffer[i] = ComplexSingle.FromPolar(waveformBuffer[i].Magnitude / magnitudeMax, waveformBuffer[i].Phase);
+
+            // Calculate PAPR over only the burst length
+            double burstPowerSum = 0;
+            int burstSampleCount = 0;
+            for (int i = 0; i < waveform.BurstStartLocations.Length; i++)
             {
-                waveformBuffer[i] = waveformBuffer[i] / waveformMax; //Scale each point by the max value
+                int offset = waveform.BurstStartLocations[i];
+                int count = waveform.BurstStopLocations[i] - offset;
+                burstSampleCount += count;
+                foreach (ComplexSingle iqPoint in waveformBuffer.Skip(offset).Take(count))
+                    burstPowerSum += iqPoint.Real * iqPoint.Real + iqPoint.Imaginary * iqPoint.Imaginary;
             }
 
-            //Calculate PAPR over only the burst length
+            // RMS = sqrt(1/n*(|x_0|^2+|x_1|^2...|x_n|^2))
+            // |x_n| = sqrt(i_n^2 + q_n^2) therefore |x_n|^2 = i_n^2 + q_n^2
+            // RMS Power = v_rms^2 = 1/n*(|x_0|^2+|x_1|^2...|x_n|^2) hence p_rms = p_avg
 
-            int offset = waveform.BurstStartLocations[0];
-            int count = waveform.BurstStopLocations[0] - offset;
-            double[] waveformBurst = new double[count];
-            //Retrieve the subset of the magnitude waveform covering the waveform burst
-            Array.Copy(waveform.WaveformData.GetMagnitudeDataArray(false), offset, waveformBurst, 0, count);
+            // averagePower = burstPowerSum / burstSampleCount;
 
-            for (int i = 0; i < count; i++)
-            {
-                waveformBurst[i] = Math.Pow(waveformBurst[i], 2);
-            }
-            double rms = Math.Sqrt(waveformBurst.Sum() / count); //RMS = sqrt(1/n*(|x_0|^2+|x_1|^2...|x_n|^2))
+            // PAPR (Peak to Average Power Ratio) = Peak Power/Avg Power
+            // PAPR (dB) = 10*log(Peak Power/Avg Power)
+            // Since we already scaled the data, the max value is simply 1
+            // instead of doing waveform.PAPR_dB = 10 * Math.Log10(1 / averagePower) we will save a divide and invert the averagePower calculation
 
-            //PAPR (Peak to Average Power Ratio) = Peak Power/Avg Power
-            //PAPR (dB) = 20*log(max/avg)
-            //Since we already scaled the data, the max value is simply 1
-            waveform.PAPR_dB = 20 * Math.Log10(1 / rms);
-
+            waveform.PAPR_dB = 10 * Math.Log10(burstSampleCount / burstPowerSum);
         }
+
         private static long TimeToSamples(double time, double sampleRate)
         {
             return (long)Math.Round(time * sampleRate);
