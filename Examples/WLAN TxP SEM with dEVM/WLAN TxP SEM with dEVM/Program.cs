@@ -1,13 +1,14 @@
-﻿using System;
-using System.IO;
+﻿using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.RFmx.WlanMX;
-using NationalInstruments.ModularInstruments.NIRfsg;
+using System;
+using System.IO;
 using static NationalInstruments.ReferenceDesignLibraries.SA.RFmxWLAN;
 using static NationalInstruments.ReferenceDesignLibraries.SG;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Examples
-{    static class RFmxWLANExample
+{
+    static class RFmxWLANExample
     {
         static void Main()
         {
@@ -16,7 +17,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             string filePath = Path.GetFullPath(@"Support Files\80211a_20M_48Mbps.tdms");
 
             NIRfsg nIRfsg = new NIRfsg(resourceName, false, false);
-            InstrumentConfiguration instrConfig = GetDefaultInstrumentConfiguration();
+            InstrumentConfiguration instrConfig = InstrumentConfiguration.GetDefault();
             instrConfig.CarrierFrequency_Hz = 2.412e9;
 
             ConfigureInstrument(nIRfsg, instrConfig);
@@ -48,7 +49,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             instr.GetWlanSignalConfiguration();
 
 
-            CommonConfiguration commonConfiguration = GetDefaultCommonConfiguration();
+            CommonConfiguration commonConfiguration = CommonConfiguration.GetDefault();
             commonConfiguration.CenterFrequency_Hz = 2.412e9;
 
             AutoLevelConfiguration autoLevel = new AutoLevelConfiguration
@@ -59,7 +60,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             SA.RFmxWLAN.ConfigureCommon(instr, wlan, commonConfiguration, autoLevel);
 
-            SignalConfiguration signal = GetDefaultSignalConfiguration();
+            SignalConfiguration signal = SignalConfiguration.GetDefault();
             signal.AutoDetectSignal = false;
             signal.ChannelBandwidth_Hz = 20e6;
             signal.Standard = RFmxWlanMXStandard.Standard802_11ag;
@@ -75,18 +76,18 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             SA.RFmxWLAN.ConfigureTxP(wlan, txpConfig);
 
-            OFDMModAccConfiguration modAccConfig = GetDefaultOFDMModAccConfiguration();
+            OFDMModAccConfiguration modAccConfig = OFDMModAccConfiguration.GetDefault();
             modAccConfig.OptimizeDynamicRangeForEvmEnabled = RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled.False;
             modAccConfig.AveragingEnabled = RFmxWlanMXOfdmModAccAveragingEnabled.True;
 
             SA.RFmxWLAN.ConfigureOFDMModAcc(wlan, modAccConfig);
 
-            TxPServoConfiguration servoConfig = GetDefaultTxPServoConfiguration();
+            TxPServoConfiguration servoConfig = TxPServoConfiguration.GetDefault();
             servoConfig.TargetTxPPower_dBm = 0.5;
 
             SA.RFmxWLAN.TxPServoPower(wlan, nIRfsg, servoConfig, autoLevel);
 
-            SEMConfiguration semConfig = GetDefaultSEMConfiguration();
+            SEMConfiguration semConfig = SEMConfiguration.GetDefault();
             SA.RFmxWLAN.ConfigureSEM(wlan, semConfig);
 
             wlan.Initiate("", "");

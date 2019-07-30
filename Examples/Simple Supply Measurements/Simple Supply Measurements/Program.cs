@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NationalInstruments.ModularInstruments.NIDCPower;
+﻿using NationalInstruments.ModularInstruments.NIDCPower;
+using System;
 using static NationalInstruments.ReferenceDesignLibraries.Supply;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Examples
@@ -15,7 +12,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             NIDCPower dcPower = new NIDCPower("4139", channelNames, false);
 
             // Configure instrument settings
-            SupplyConfiguration supplyConfig = GetDefaultSupplyConfiguration();
+            SupplyConfiguration supplyConfig = SupplyConfiguration.GetDefault();
 
             supplyConfig.OutputFunction = DCPowerSourceOutputFunction.DCVoltage;
             supplyConfig.VoltageLevel_V = 3;

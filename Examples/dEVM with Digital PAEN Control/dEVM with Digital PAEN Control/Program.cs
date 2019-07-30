@@ -1,8 +1,8 @@
-﻿using System;
-using System.IO;
-using NationalInstruments.ModularInstruments.NIDigital;
+﻿using NationalInstruments.ModularInstruments.NIDigital;
 using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments.ReferenceDesignLibraries;
+using System;
+using System.IO;
 using static NationalInstruments.ReferenceDesignLibraries.Digital;
 using static NationalInstruments.ReferenceDesignLibraries.SG;
 
