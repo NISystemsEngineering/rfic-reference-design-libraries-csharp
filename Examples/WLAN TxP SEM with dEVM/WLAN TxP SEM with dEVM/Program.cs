@@ -21,7 +21,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             instrConfig.CarrierFrequency_Hz = 2.412e9;
 
             ConfigureInstrument(nIRfsg, instrConfig);
-            Waveform waveform = LoadWaveformFromTDMS(nIRfsg, filePath);
+            Waveform waveform = LoadWaveformFromTDMS(filePath);
 
             DownloadWaveform(nIRfsg, waveform);
 
