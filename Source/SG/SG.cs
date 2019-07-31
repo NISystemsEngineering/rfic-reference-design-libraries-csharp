@@ -112,7 +112,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
 
-        public static Waveform LoadWaveformFromTDMS(NIRfsg rfsgHandle, string filePath, string waveformName = "", bool normalizeWaveform = true)
+        public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "", bool normalizeWaveform = true)
         {
             Waveform waveform = new Waveform();
 

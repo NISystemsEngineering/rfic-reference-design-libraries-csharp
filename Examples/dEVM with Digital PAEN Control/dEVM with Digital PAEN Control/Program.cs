@@ -37,7 +37,7 @@ namespace Digital_Dynamic_PAEN_Example
 
             string waveformPath = Path.GetFullPath(@"TDMS Files\11AC_MCS8_40M.tdms");
 
-            Waveform wave = LoadWaveformFromTDMS(rfsgSession, waveformPath, "wave");
+            Waveform wave = LoadWaveformFromTDMS(waveformPath, "wave");
             DownloadWaveform(rfsgSession, wave);
 
             WaveformTimingConfiguration waveTiming = new WaveformTimingConfiguration
