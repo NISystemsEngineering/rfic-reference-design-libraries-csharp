@@ -113,7 +113,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
 
             servoSession.GetDigitalGain(out double _, out double servoGain_dB);
             servoSession.GetServoSteps(numAverages, false, false, 0, out double[] _, out results.ServoTrace);
-            // The final input is 
+            // The final input power is calculated by the input power level plus the final servo gain
             results.FinalInputPower_dBm = rfsgSession.RF.PowerLevel + servoGain_dB;
             results.FinalOutputPower_dBm = results.ServoTrace[results.ServoTrace.Length - 1];
             results.CalculatedDutGain_dB = results.FinalOutputPower_dBm - results.FinalInputPower_dBm;
