@@ -7,7 +7,8 @@ param (
     [string[]]$ExcludeFilePattern = "", # An array of regular expressions used to parse files to exclude from the search
     [string[]]$ValidMatchValues = "", # An array of valid strings to compare to any value captured in $SearchTextOrPattern
     [switch]$RecurseDirectory = $false, # Specify whether or not to recurse the search directory, if input
-    [switch]$IgnoreFilesWithoutMatch = $false # A flag to specify that files without the match should not produce an error
+    [switch]$IgnoreFilesWithoutMatch = $false, # A flag to specify that files without the match should not produce an error
+    [switch]$MultiLineSearch = $false # A flag to set if the search pattern spans multiple lines; if so, file content will need to be read as raw
 )
 
 # Determine if the input path is a file or folder
@@ -70,8 +71,19 @@ if ($files.Count -gt 0) {
 
         Foreach ($file in $files) {
             
-            # Use Get-Content to get full file text as a single string for multi-line matching
-            $results = $file | Get-Content -Raw | Select-String -Pattern $SearchTextOrPattern -AllMatches
+            # The Select-String commandlet only searches by line; hence, if a multiline search is required,
+            # Select-String will not work. Getting the raw file as a string solves the problem, but multiple
+            # matches cannot be found. Hence, this flag allows for some flexibility
+            if ($MultiLineSearch)
+            {
+                # Use Get-Content to get full file text as a single string for multi-line matching
+                $results = $file | Get-Content -Raw | Select-String -Pattern $SearchTextOrPattern -AllMatches
+            } 
+            else 
+            {
+                # Use Get-Content to get full file text as a single string for multi-line matching
+                $results = $file | Select-String -Pattern $SearchTextOrPattern -AllMatches
+            }
 
             Foreach ($result in $results) {
                 # Relative paths are much easier to understand since this is a part of a build process
