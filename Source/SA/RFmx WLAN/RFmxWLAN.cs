@@ -281,6 +281,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.OfdmModAcc.Configuration.SetCommonClockSourceEnabled(selectorString, RFmxWlanMXOfdmModAccCommonClockSourceEnabled.True);
 
         }
+        [Obsolete("TxPServoPower is deprecated. Use instead the PowerServo module and related functions.")]
         public static TxPServoResults TxPServoPower(RFmxWlanMX wlanSignal, NIRfsg rfsgSession, TxPServoConfiguration servoConfig,
             AutoLevelConfiguration autoLevelConfig, string selectorString = "")
         {
