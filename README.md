@@ -1,5 +1,5 @@
 # RFIC Reference Design Libraries - C# 
-![Build status](https://dev.azure.com/ni/ASE/_apis/build/status/ADV%20Reference%20Design%20Libraries/adv-reference-design-libraries-csharp)
+![Build status](https://dev.azure.com/ni/ASE/_apis/build/status/RFIC%20Reference%20Design%20Libraries/rfic-reference-design-libraries-csharp)
 
 ## Overview
 
