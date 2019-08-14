@@ -148,7 +148,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.ReadSampleRateFromFile(filePath, 0, out waveform.SampleRate);
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
-            if (normalizeWaveform) NormalizeWaveform(waveform);
+            if (normalizeWaveform) NormalizeWaveform(ref waveform);
 
             return waveform;
         }
@@ -324,6 +324,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = 
                 RfsgMarkerEventExportedOutputTerminal.FromString(waveTiming.BurstStartTriggerExport);
         }
+
         public static Waveform GetWaveformParametersByName(NIRfsg rfsgHandle, string waveformName)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
@@ -342,6 +343,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             return waveform;
         }
+
         public static void TogglePFILine(NIRfsg rfsgHandle, RfsgMarkerEventToggleInitialState toggleDirection = RfsgMarkerEventToggleInitialState.DigitalLow)
         {
             rfsgHandle.Abort();
@@ -408,7 +410,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.RF.OutputEnabled = false;
             rfsgHandle.Close();
         }
-        private static void NormalizeWaveform(Waveform waveform)
+        private static void NormalizeWaveform(ref Waveform waveform)
         {
             // Normalize the waveform data
             float[] magnitudeArray = ComplexSingle.GetMagnitudes(waveform.WaveformData.GetRawData());
