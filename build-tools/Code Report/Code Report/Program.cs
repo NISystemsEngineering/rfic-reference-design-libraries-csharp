@@ -12,19 +12,65 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Text;
 using System.Xml;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Code_Report
 {
     class Program
     {
-        public static void Main()
-        { 
+        private static string SearchPath;
+        private static string ReportPath = "Report.xml";
+        private static bool RecursiveSearch = true;
+        private static bool ListParameters = false;
+        public static void Main(string[] args)
+        {
+            string flag, value;
+            #region Parse Arguments
+            foreach (string argument in args)
+            {
+                // Matches argument syntax of: arg=value OR
+                // arg="value"
+                Regex rx = new Regex("(.+)=\"*([^\"]+)");
+                Match match = rx.Match(argument);
+                if (match.Success)
+                {
+                    flag = match.Groups[1].Value;
+                    value = match.Groups[2].Value;
+                    switch (flag)
+                    {
+                        case "SearchPath":
+                            SearchPath = value;
+                            break;
+                        case "ReportPath":
+                            ReportPath = value;
+                            break;
+                        case "Recursive":
+                            RecursiveSearch = bool.Parse(value);
+                            break;
+                        case "ListParams":
+                            ListParameters = bool.Parse(value);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                    throw new System.ArgumentException($"The specified argument \"{argument}\" is not valid");
+            }
+            #endregion
+            SearchOption searchMode = RecursiveSearch ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
-            string[] csFiles = Directory.GetFiles(@"C:\github\rf-adv-reference-design-libraries\Source\", "*.cs", SearchOption.AllDirectories);
+            SearchPath = Path.GetFullPath(SearchPath);
+            ReportPath = Path.GetFullPath(ReportPath);
+
+            string[] csFiles = Directory.GetFiles(SearchPath, "*.cs", searchMode);
             Array.Sort(csFiles);
 
             string programText;
-            XmlWriter xml = XmlWriter.Create("Test.xml");
+            XmlWriterSettings config = new XmlWriterSettings();
+            config.Indent = true;
+            XmlWriter xml = XmlWriter.Create(ReportPath, config);
             xml.WriteStartElement("Modules");
             
             foreach(string filePath in csFiles)
@@ -52,75 +98,73 @@ namespace Code_Report
             xml.WriteEndElement();
             xml.Flush();
             xml.Close();
-            //Console.Write(xmlText.ToString());
-
-            /*
-            MemberDeclarationSyntax firstMember = root.Members[0];
-            Console.WriteLine($"The first member is a {firstMember.Kind()}.");
-            var helloWorldDeclaration = (NamespaceDeclarationSyntax)firstMember;
-            Console.WriteLine($"There are {helloWorldDeclaration.Members.Count} members declared in this namespace.");
-            Console.WriteLine($"The first member is a {helloWorldDeclaration.Members[0].Kind()}.");
-
-            var programDeclaration = (ClassDeclarationSyntax)helloWorldDeclaration.Members[0];
-            Console.WriteLine($"There are {programDeclaration.Members.Count} members declared in the {programDeclaration.Identifier} class.");
-            Console.WriteLine($"The first member is a {programDeclaration.Members[0].Kind()}.");
-            var mainDeclaration = (MethodDeclarationSyntax)programDeclaration.Members[0];
-            Console.WriteLine($"The return type of the {mainDeclaration.Identifier} method is {mainDeclaration.ReturnType}.");
-            Console.WriteLine($"The method has {mainDeclaration.ParameterList.Parameters.Count} parameters.");
-            foreach (ParameterSyntax item in mainDeclaration.ParameterList.Parameters)
-                Console.WriteLine($"The type of the {item.Identifier} parameter is {item.Type}.");
-            Console.WriteLine($"The body text of the {mainDeclaration.Identifier} method follows:");
-            Console.WriteLine(mainDeclaration.Body.ToFullString());
-
-            var argsParameter = mainDeclaration.ParameterList.Parameters[0];*/
-
+        }
+        internal struct MemberData
+        {
+            internal string MemberTypeName;
+            internal SortedList<string, string> paramList;
         }
         static void ParseClass(ClassDeclarationSyntax myClass, XmlWriter xmlWriter)
         {
             string className = myClass.Identifier.ToString();
             xmlWriter.WriteStartElement("Class");
             xmlWriter.WriteAttributeString("Name", myClass.Identifier.ToString());
+            SortedList<string, MemberData> membersList = new SortedList<string, MemberData>();
+            SortedList<string, string> paramList;
+            MemberData memData;
             foreach (MemberDeclarationSyntax classMember in myClass.Members)
             {
+                paramList = new SortedList<string, string>(); 
                 switch (classMember.Kind())
                 {
                     case SyntaxKind.MethodDeclaration:
                         MethodDeclarationSyntax method = (MethodDeclarationSyntax)classMember;
-                        List<string> parameterList = new List<string>();
-                        StringBuilder sb = new StringBuilder();
-                        //Console.WriteLine($"Method {method.Identifier} found with members {sb.ToString()}");
-                        xmlWriter.WriteStartElement("Method");
-                        xmlWriter.WriteAttributeString("Name", method.Identifier.ToString());
                         foreach (ParameterSyntax param in method.ParameterList.Parameters)
                         {
-                            //xmlWriter.WriteElementString("Param", param.Identifier.ToString());
+                            paramList.Add(param.Identifier.ToString(), "Param");
                         }
-                        xmlWriter.WriteEndElement();
+                        memData = new MemberData { MemberTypeName = "Method", paramList = paramList };
+                        membersList.Add(method.Identifier.ToString(), memData);
                         break;
-                    /*case SyntaxKind.PropertyDeclaration:
-                        break;*/
                     case SyntaxKind.StructDeclaration:
                         StructDeclarationSyntax myStruct = (StructDeclarationSyntax)classMember;
-                        xmlWriter.WriteStartElement("Type");
-                        xmlWriter.WriteAttributeString("Name", myStruct.Identifier.ToString());
-                        xmlWriter.WriteEndElement();
-                        Console.WriteLine($"Struct {myStruct.Identifier} found with members {myStruct.TypeParameterList}.");
+                        foreach (MemberDeclarationSyntax structMem in myStruct.Members)
+                        {
+                            // Some structs have methods defined for them as well
+                            if (structMem.Kind() == SyntaxKind.FieldDeclaration)
+                            {
+                                FieldDeclarationSyntax var = (FieldDeclarationSyntax)structMem;
+                                paramList.Add(var.Declaration.Variables[0].Identifier.ToString(), "Param");
+                            }
+                        }
+                        memData = new MemberData { MemberTypeName = "Type", paramList = paramList };
+                        membersList.Add(myStruct.Identifier.ToString(), memData);
                         break;
                     case SyntaxKind.EnumDeclaration:
                         EnumDeclarationSyntax myEnum = (EnumDeclarationSyntax)classMember;
-                        xmlWriter.WriteStartElement("Type");
-                        xmlWriter.WriteAttributeString("Name", myEnum.Identifier.ToString());
-                        xmlWriter.WriteEndElement();
-                        Console.WriteLine($"Enum {myEnum.Identifier} found.");
+                        memData = new MemberData { MemberTypeName = "Type", paramList = paramList };
+                        membersList.Add(myEnum.Identifier.ToString(), memData);
                         break;
                     case SyntaxKind.ClassDeclaration:
                         ClassDeclarationSyntax subClass = (ClassDeclarationSyntax)classMember;
                         ParseClass(subClass, xmlWriter);
                         break;
                     default:
-                        //Console.WriteLine($"Member {classMember.Kind()} found.");
                         break;
                 }
+            }
+            foreach (KeyValuePair<string, MemberData> pair in membersList)
+            {
+                xmlWriter.WriteStartElement(pair.Value.MemberTypeName);
+                xmlWriter.WriteAttributeString("Name", pair.Key);
+                if (ListParameters)
+                {
+                    foreach (KeyValuePair<string, string> paramPair in pair.Value.paramList)
+                    {
+                        xmlWriter.WriteElementString(paramPair.Value, paramPair.Key);
+                    }
+                }
+                xmlWriter.WriteEndElement();
             }
             xmlWriter.WriteEndElement();
             xmlWriter.Flush();
