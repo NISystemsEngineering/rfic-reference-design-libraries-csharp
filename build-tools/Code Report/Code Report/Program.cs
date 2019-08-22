@@ -1,18 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Symbols;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.MSBuild;
-using Microsoft.CodeAnalysis.Text;
 using System.Xml;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Code_Report
@@ -109,6 +102,14 @@ namespace Code_Report
             string className = myClass.Identifier.ToString();
             xmlWriter.WriteStartElement("Class");
             xmlWriter.WriteAttributeString("Name", myClass.Identifier.ToString());
+
+            // These sorted lists are utilized so that we can drill into the code in the order it is presented,
+            // while also creating the sorted list that we want to export at the same time. We cannot merely
+            // sort the items beforehand because we need to sort by item name, but do not have access to the
+            // name beforehand until we determine the type of object.
+
+            // We add specific data to the value attribute of the sorted list, while using the item name
+            // as the key so that they are sorted properly.
             SortedList<string, MemberData> membersList = new SortedList<string, MemberData>();
             SortedList<string, string> paramList;
             MemberData memData;
@@ -119,6 +120,14 @@ namespace Code_Report
                 {
                     case SyntaxKind.MethodDeclaration:
                         MethodDeclarationSyntax method = (MethodDeclarationSyntax)classMember;
+                        // Get the return data type
+                        TypeSyntax returnType = method.ReturnType;
+                        if (returnType.Kind() == SyntaxKind.IdentifierName)
+                        {
+                            IdentifierNameSyntax returnValue = (IdentifierNameSyntax)returnType;
+                            paramList.Add(returnValue.Identifier.ToString(), "Param");
+                        }
+                        // Get all input and output parameters
                         foreach (ParameterSyntax param in method.ParameterList.Parameters)
                         {
                             paramList.Add(param.Identifier.ToString(), "Param");
@@ -128,6 +137,7 @@ namespace Code_Report
                         break;
                     case SyntaxKind.StructDeclaration:
                         StructDeclarationSyntax myStruct = (StructDeclarationSyntax)classMember;
+                        // Get all members of the struct
                         foreach (MemberDeclarationSyntax structMem in myStruct.Members)
                         {
                             // Some structs have methods defined for them as well
@@ -141,11 +151,13 @@ namespace Code_Report
                         membersList.Add(myStruct.Identifier.ToString(), memData);
                         break;
                     case SyntaxKind.EnumDeclaration:
+                        // A few enums are defined in the class modules
                         EnumDeclarationSyntax myEnum = (EnumDeclarationSyntax)classMember;
                         memData = new MemberData { MemberTypeName = "Type", paramList = paramList };
                         membersList.Add(myEnum.Identifier.ToString(), memData);
                         break;
                     case SyntaxKind.ClassDeclaration:
+                        // Recursively parse any sub-classes that are found
                         ClassDeclarationSyntax subClass = (ClassDeclarationSyntax)classMember;
                         ParseClass(subClass, xmlWriter);
                         break;
@@ -153,6 +165,7 @@ namespace Code_Report
                         break;
                 }
             }
+            // Now, write all the data we have gathered for this class that has been sorted to the file
             foreach (KeyValuePair<string, MemberData> pair in membersList)
             {
                 xmlWriter.WriteStartElement(pair.Value.MemberTypeName);
@@ -167,7 +180,6 @@ namespace Code_Report
                 xmlWriter.WriteEndElement();
             }
             xmlWriter.WriteEndElement();
-            xmlWriter.Flush();
         }
     }
 }
