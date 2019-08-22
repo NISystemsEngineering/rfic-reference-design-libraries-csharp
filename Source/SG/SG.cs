@@ -128,15 +128,22 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.ReadSignalBandwidthFromFile(filePath, 0, out waveform.SignalBandwidth_Hz);
 
             NIRfsgPlayback.ReadWaveformFileVersionFromFile(filePath, out string waveformVersion);
-            if (waveformVersion == "1.0.0") NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out waveform.PAPR_dB);
-            else NIRfsgPlayback.ReadPaprFromFile(filePath, 0, out waveform.PAPR_dB); //Version 2.0.0 and later
+
+            if (waveformVersion == "1.0.0")
+            {
+                NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out waveform.PAPR_dB);
+                waveform.RuntimeScaling = -1.5;
+            }
+            else
+            {
+                NIRfsgPlayback.ReadPaprFromFile(filePath, 0, out waveform.PAPR_dB); //Version 2.0.0 and later
+                NIRfsgPlayback.ReadRuntimeScalingFromFile(filePath, 0, out waveform.RuntimeScaling);
+            }
 
             NIRfsgPlayback.ReadSampleRateFromFile(filePath, 0, out waveform.SampleRate);
 
             NIRfsgPlayback.ReadBurstStartLocationsFromFile(filePath, 0, ref waveform.BurstStartLocations);
             NIRfsgPlayback.ReadBurstStopLocationsFromFile(filePath, 0, ref waveform.BurstStopLocations);
-
-            NIRfsgPlayback.ReadRuntimeScalingFromFile(filePath, 0, out waveform.RuntimeScaling);
 
             //Statement reads: if NOT BurstStartLocations > 0 AND expression is not null (? operand)
             //In other words, manually set BurstStartLocations when the length is 0 or less or array is null
