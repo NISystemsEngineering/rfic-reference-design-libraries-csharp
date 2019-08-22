@@ -436,7 +436,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             for (int i = 0; i < waveform.BurstStartLocations.Length; i++)
             {
                 int offset = waveform.BurstStartLocations[i];
-                int count = waveform.BurstStopLocations[i] - offset;
+                int count = waveform.BurstStopLocations[i] - offset + 1; // add one to make all samples inclusive
                 burstSampleCount += count;
                 foreach (ComplexSingle iqPoint in waveformBuffer.Skip(offset).Take(count))
                     burstPowerSum += iqPoint.Real * iqPoint.Real + iqPoint.Imaginary * iqPoint.Imaginary;
