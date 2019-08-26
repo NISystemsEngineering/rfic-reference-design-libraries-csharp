@@ -113,7 +113,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
 
-        public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "", bool normalizeWaveform = true)
+        public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "")
         {
             Waveform waveform = new Waveform();
 
@@ -131,8 +131,18 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             if (waveformVersion == "1.0.0")
             {
-                NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out waveform.PAPR_dB);
-                waveform.RuntimeScaling = -1.5;
+                // 1.0.0 waveforms use peak power adjustment = papr + runtime scaling
+                // we will scale the waveform and calculate papr and runtime scaling manually
+                var peak = ComplexSingle.GetMagnitudes(waveform.WaveformData.GetRawData()).Max();
+                waveform.RuntimeScaling = 20.0 * Math.Log10(peak);
+                NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out double peakPowerAdjustment);
+                waveform.PAPR_dB = peakPowerAdjustment + waveform.RuntimeScaling;
+
+                // scale the waveform to full scale
+                var waveformBuffer = waveform.WaveformData.GetWritableBuffer();
+                var scale = ComplexSingle.FromPolar(1.0f / peak, 0.0f);
+                for (int i = 0; i < waveform.WaveformData.SampleCount; i++)
+                    waveformBuffer[i] = waveformBuffer[i] * scale; // multiplication is faster than division
             }
             else
             {
@@ -159,8 +169,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
 
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
-
-            if (normalizeWaveform) NormalizeWaveform(ref waveform);
 
             return waveform;
         }
