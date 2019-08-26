@@ -46,6 +46,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double SampleRate;
             public int[] BurstStartLocations;
             public int[] BurstStopLocations;
+            public double RuntimeScaling;
         }
 
         public struct WaveformTimingConfiguration
@@ -89,8 +90,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 };
             }
         }
-
         #endregion
+
         public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
             rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
@@ -119,15 +120,27 @@ namespace NationalInstruments.ReferenceDesignLibraries
             if (string.IsNullOrEmpty(waveformName))
             {
                 waveformName = Path.GetFileNameWithoutExtension(filePath);
-                Utilities.FormatWaveformName(ref waveformName);
+                waveformName = Utilities.FormatWaveformName(waveformName);
             }
+
             waveform.WaveformName = waveformName;
             NIRfsgPlayback.ReadWaveformFromFileComplex(filePath, ref waveform.WaveformData);
             NIRfsgPlayback.ReadSignalBandwidthFromFile(filePath, 0, out waveform.SignalBandwidth_Hz);
 
             NIRfsgPlayback.ReadWaveformFileVersionFromFile(filePath, out string waveformVersion);
-            if (waveformVersion == "1.0.0") NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out waveform.PAPR_dB);
-            else NIRfsgPlayback.ReadPaprFromFile(filePath, 0, out waveform.PAPR_dB); //Version 2.0.0 and later
+
+            if (waveformVersion == "1.0.0")
+            {
+                NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out waveform.PAPR_dB);
+                waveform.RuntimeScaling = -1.5;
+            }
+            else
+            {
+                NIRfsgPlayback.ReadPaprFromFile(filePath, 0, out waveform.PAPR_dB); //Version 2.0.0 and later
+                NIRfsgPlayback.ReadRuntimeScalingFromFile(filePath, 0, out waveform.RuntimeScaling);
+            }
+
+            NIRfsgPlayback.ReadSampleRateFromFile(filePath, 0, out waveform.SampleRate);
 
             NIRfsgPlayback.ReadBurstStartLocationsFromFile(filePath, 0, ref waveform.BurstStartLocations);
             NIRfsgPlayback.ReadBurstStopLocationsFromFile(filePath, 0, ref waveform.BurstStopLocations);
@@ -145,10 +158,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 };
             }
 
-            NIRfsgPlayback.ReadSampleRateFromFile(filePath, 0, out waveform.SampleRate);
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
-            if (normalizeWaveform) NormalizeWaveform(waveform);
+            if (normalizeWaveform) NormalizeWaveform(ref waveform);
 
             return waveform;
         }
@@ -179,9 +191,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             //Manually configure additional settings
             NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled);
-            NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, -1.5);
+            NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, waveform.RuntimeScaling);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
+
 		public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
 		{
             //Configure the trigger to be generated on the first sample of each waveform generation,
@@ -324,6 +337,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = 
                 RfsgMarkerEventExportedOutputTerminal.FromString(waveTiming.BurstStartTriggerExport);
         }
+
         public static Waveform GetWaveformParametersByName(NIRfsg rfsgHandle, string waveformName)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
@@ -332,16 +346,19 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 WaveformName = waveformName
             };
+
             NIRfsgPlayback.RetrieveWaveformSignalBandwidth(rfsgPtr, waveformName, out waveform.SignalBandwidth_Hz);
             NIRfsgPlayback.RetrieveWaveformPapr(rfsgPtr, waveformName, out waveform.PAPR_dB);
             NIRfsgPlayback.RetrieveWaveformSampleRate(rfsgPtr, waveformName, out waveform.SampleRate);
             NIRfsgPlayback.RetrieveWaveformBurstStartLocations(rfsgPtr, waveformName, ref waveform.BurstStartLocations);
             NIRfsgPlayback.RetrieveWaveformBurstStopLocations(rfsgPtr, waveformName, ref waveform.BurstStopLocations);
+            NIRfsgPlayback.RetrieveWaveformRuntimeScaling(rfsgPtr, waveformName, out waveform.RuntimeScaling);
 
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
             return waveform;
         }
+
         public static void TogglePFILine(NIRfsg rfsgHandle, RfsgMarkerEventToggleInitialState toggleDirection = RfsgMarkerEventToggleInitialState.DigitalLow)
         {
             rfsgHandle.Abort();
@@ -368,6 +385,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Arb.Scripting.SelectedScriptName = cachedScriptName;
             rfsgHandle.Utility.Commit();
         }
+
         public static void AbortGeneration(NIRfsg rfsgHandle, int timeOut_ms = 1000)
         {
             //This should trigger the generator to stop infinite generation and trigger any post
@@ -402,13 +420,15 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 }
             }
         }
+
         public static void CloseInstrument(NIRfsg rfsgHandle)
         {
             rfsgHandle.Abort();
             rfsgHandle.RF.OutputEnabled = false;
             rfsgHandle.Close();
         }
-        private static void NormalizeWaveform(Waveform waveform)
+
+        private static void NormalizeWaveform(ref Waveform waveform)
         {
             // Normalize the waveform data
             float[] magnitudeArray = ComplexSingle.GetMagnitudes(waveform.WaveformData.GetRawData());
@@ -423,7 +443,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             for (int i = 0; i < waveform.BurstStartLocations.Length; i++)
             {
                 int offset = waveform.BurstStartLocations[i];
-                int count = waveform.BurstStopLocations[i] - offset;
+                int count = waveform.BurstStopLocations[i] - offset + 1; // add one to make all samples inclusive
                 burstSampleCount += count;
                 foreach (ComplexSingle iqPoint in waveformBuffer.Skip(offset).Take(count))
                     burstPowerSum += iqPoint.Real * iqPoint.Real + iqPoint.Imaginary * iqPoint.Imaginary;
@@ -458,12 +478,12 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
         public static class Utilities
         {
-            public static void FormatWaveformName(ref string waveformName)
+            public static string FormatWaveformName(string waveformName)
             {
                 //The RFSG playback library and script compiler won't accept names with non-text/numeric characters
                 waveformName = System.Text.RegularExpressions.Regex.Replace(waveformName, "[^a-zA-Z0-9]", ""); //Remove all non-text/numeric characters
                 waveformName = string.Concat("Wfm", waveformName);
-                waveformName = waveformName.ToUpper();
+                return waveformName.ToUpper();
             }
         }
     }
