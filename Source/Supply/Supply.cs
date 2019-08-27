@@ -131,7 +131,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
         }
         public static void ConfigureMeasurement(NIDCPower supplyHandle, MeasurementConfiguration measConfig, string channelNames = "")
         {
-            //Driver l
+            //On demand mode does not allow for multiple records to be acquired, so we need to validate the configuration given to this function. 
+
             if (measConfig.MeasureWhenMode == DCPowerMeasurementWhen.OnDemand &&
                 measConfig.MeasurementMode == MeasurementModeConfiguration.Record)
             {
@@ -153,6 +154,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             int recordLength;
 
+            /*Single Point: Acquire a single measurement averaged over the duration of the Measurement Time
+              Record: Acquire samples at the maximum sampling rate of the supply for the total duration of Measurement Time. */
             switch (measConfig.MeasurementMode)
             {
                 case MeasurementModeConfiguration.Record:
@@ -166,6 +169,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 case MeasurementModeConfiguration.SinglePoint:
                 default:
                     supplyHandle.Outputs[channelNames].Measurement.ApertureTime = measConfig.MeasurementTime_s;
+                    //Acquire a single record that is the average measurement over Measurement Time 
+                    apertureTime = measConfig.MeasurementTime_s;
                     recordLength = 1;
                     break;
             }
