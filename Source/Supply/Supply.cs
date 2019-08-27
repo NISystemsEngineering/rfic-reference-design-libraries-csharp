@@ -150,9 +150,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
 
             supplyHandle.Outputs[channelNames].Measurement.Sense = measConfig.SenseMode;
-            supplyHandle.Outputs[channelNames].Measurement.ApertureTimeUnits = DCPowerMeasureApertureTimeUnits.Seconds;
 
             int recordLength;
+            double apertureTime;
 
             /*Single Point: Acquire a single measurement averaged over the duration of the Measurement Time
               Record: Acquire samples at the maximum sampling rate of the supply for the total duration of Measurement Time. */
@@ -161,22 +161,22 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 case MeasurementModeConfiguration.Record:
                     //Set the aperture time to the minimum value and read it back. This sets the "sample rate". 
                     //Then, we calculate how many records we need to acquire at that sample rate to get the requested measurement time.
-
                     supplyHandle.Outputs[channelNames].Measurement.ApertureTime = 0;
                     double minApertureTime = supplyHandle.Outputs[channelNames].Measurement.ApertureTime; //dt (Seconds per Sample)
                     recordLength = (int)Math.Ceiling(measConfig.MeasurementTime_s / minApertureTime) + 1; // (Time_s)/(dt S/s) = #of samples
+                    apertureTime = minApertureTime;
                     break;
                 case MeasurementModeConfiguration.SinglePoint:
                 default:
-                    supplyHandle.Outputs[channelNames].Measurement.ApertureTime = measConfig.MeasurementTime_s;
                     //Acquire a single record that is the average measurement over Measurement Time 
                     apertureTime = measConfig.MeasurementTime_s;
                     recordLength = 1;
                     break;
             }
 
+            supplyHandle.Outputs[channelNames].Measurement.ApertureTimeUnits = DCPowerMeasureApertureTimeUnits.Seconds;
+            supplyHandle.Outputs[channelNames].Measurement.ApertureTime = apertureTime;
             supplyHandle.Outputs[channelNames].Measurement.RecordLength = recordLength;
-            supplyHandle.Control.Commit();
         }
         public static void TurnSupplyOnOrOff(NIDCPower supplyHandle, SupplyPowerMode powerMode, string channelNames = "")
         {
