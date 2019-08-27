@@ -243,7 +243,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
             return results;
         }
-        public static void CloseSupply(NIDCPower supplyHandle, string channelNames = "")
+        public static void CloseSupply(NIDCPower supplyHandle)
         {
             //Quickly ensures all outputs are disabled and resets the device
             supplyHandle.Utility.Disable();
