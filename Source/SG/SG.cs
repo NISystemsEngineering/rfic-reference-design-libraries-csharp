@@ -436,45 +436,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Close();
         }
 
-        private static void NormalizeWaveform(ref Waveform waveform)
-        {
-            // Normalize the waveform data
-            float[] magnitudeArray = ComplexSingle.GetMagnitudes(waveform.WaveformData.GetRawData());
-            float magnitudeMax = magnitudeArray.Max();
-            WritableBuffer<ComplexSingle> waveformBuffer = waveform.WaveformData.GetWritableBuffer();
-            for (int i = 0; i < waveformBuffer.Count(); i++)
-                waveformBuffer[i] = ComplexSingle.FromPolar(waveformBuffer[i].Magnitude / magnitudeMax, waveformBuffer[i].Phase);
-
-            // Calculate PAPR over only the burst length
-            double burstPowerSum = 0;
-            int burstSampleCount = 0;
-            for (int i = 0; i < waveform.BurstStartLocations.Length; i++)
-            {
-                int offset = waveform.BurstStartLocations[i];
-                int count = waveform.BurstStopLocations[i] - offset + 1; // add one to make all samples inclusive
-                burstSampleCount += count;
-                foreach (ComplexSingle iqPoint in waveformBuffer.Skip(offset).Take(count))
-                    burstPowerSum += iqPoint.Real * iqPoint.Real + iqPoint.Imaginary * iqPoint.Imaginary;
-            }
-
-            // RMS = sqrt(1/n*(|x_0|^2+|x_1|^2...|x_n|^2))
-            // |x_n| = sqrt(i_n^2 + q_n^2) therefore |x_n|^2 = i_n^2 + q_n^2
-            // RMS Power = v_rms^2 = 1/n*(|x_0|^2+|x_1|^2...|x_n|^2) hence p_rms = p_avg
-
-            // averagePower = burstPowerSum / burstSampleCount;
-
-            // PAPR (Peak to Average Power Ratio) = Peak Power/Avg Power
-            // PAPR (dB) = 10*log(Peak Power/Avg Power)
-            // Since we already scaled the data, the max value is simply 1
-            // instead of doing waveform.PAPR_dB = 10 * Math.Log10(1 / averagePower) we will save a divide and invert the averagePower calculation
-
-            waveform.PAPR_dB = 10 * Math.Log10(burstSampleCount / burstPowerSum);
-        }
-
         private static long TimeToSamples(double time, double sampleRate)
         {
             return (long)Math.Round(time * sampleRate);
         }
+
         private static double CalculateWaveformDuration(int[] BurstStartLocations, int[] BurstStopLocations, double SampleRate)
         {
             int finalStopIndex = BurstStopLocations.Length - 1;
