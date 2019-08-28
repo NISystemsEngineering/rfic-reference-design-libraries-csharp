@@ -10,7 +10,7 @@ Invoke-Expression $command
 
 Write-Host "Check for disabling of specific versions for references"
 
-$command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\"" -SearchTextOrPattern '<SpecificVersion>(.+)</SpecificVersion>' -FilePattern ""*.csproj""" +
+$command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -SearchTextOrPattern '<SpecificVersion>(.+)</SpecificVersion>' -FilePattern ""*.csproj""" +
     "  -Verbose -ValidMatchValues ""False"" -RecurseDirectory -ExcludeFilePattern 'Tests'"
 
 Invoke-Expression $command
