@@ -49,7 +49,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             TurnSupplyOnOrOff(dcPower, SupplyPowerMode.PowerOff, channelNames);
 
-            CloseSupply(dcPower, channelNames);
+            CloseSupply(dcPower);
         }
     }
 }
