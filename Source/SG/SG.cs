@@ -133,14 +133,14 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 // 1.0.0 waveforms use peak power adjustment = papr + runtime scaling
                 // we will scale the waveform and calculate papr and runtime scaling manually
-                var peak = ComplexSingle.GetMagnitudes(waveform.WaveformData.GetRawData()).Max();
+                float peak = ComplexSingle.GetMagnitudes(waveform.WaveformData.GetRawData()).Max();
                 waveform.RuntimeScaling = 20.0 * Math.Log10(peak);
                 NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out double peakPowerAdjustment);
                 waveform.PAPR_dB = peakPowerAdjustment + waveform.RuntimeScaling;
 
                 // scale the waveform to full scale
-                var waveformBuffer = waveform.WaveformData.GetWritableBuffer();
-                var scale = ComplexSingle.FromPolar(1.0f / peak, 0.0f);
+                WritableBuffer<ComplexSingle> waveformBuffer = waveform.WaveformData.GetWritableBuffer();
+                ComplexSingle scale = ComplexSingle.FromPolar(1.0f / peak, 0.0f);
                 for (int i = 0; i < waveform.WaveformData.SampleCount; i++)
                     waveformBuffer[i] = waveformBuffer[i] * scale; // multiplication is faster than division
             }
