@@ -2,7 +2,7 @@
 using NationalInstruments.RFmx.LteMX;
 using System.Text.RegularExpressions;
 
-namespace NationalInstruments.ReferenceDesignLibraries.RFmxLTE
+namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
     public static class RFmxLTE
     {
@@ -77,7 +77,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.RFmxLTE
                     UplinkDownlinkConfiguration = RFmxLteMXUplinkDownlinkConfiguration.Configuration0,
                     Band = 1,
                     PuschAutoResourceBlockDetectionEnabled = RFmxLteMXAutoResourceBlockDetectionEnabled.True,
-                    AutoDmrsDetectionEnabled = RFmxLteMXAutoDmrsDetectionEnabled.False,
+                    AutoDmrsDetectionEnabled = RFmxLteMXAutoDmrsDetectionEnabled.True,
                     DownlinkAutoCellIDDetectionEnabled = RFmxLteMXDownlinkAutoCellIDDetectionEnabled.False,
                     ComponentCarrierConfigurations = new ComponentCarrierConfiguration[] { ComponentCarrierConfiguration.GetDefault() }
                 };
