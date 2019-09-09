@@ -154,7 +154,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 return new AcpConfiguration
                 {
                     NumberOfUtraOffsets = 2,
-                    NumberOfEutraOffsets = 1,
+                    NumberOfEutraOffsets = 0,
                     NumberOfNrOffsets = 1,
                     NumberOfEndcOffsets = 0,
                     MeasurementMethod = RFmxNRMXAcpMeasurementMethod.Normal,
@@ -233,7 +233,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nr.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
 
             if (commonConfig.AutoLevelEnabled)
-                nr.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s, out commonConfig.ReferenceLevel_dBm);
+                nr.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s, out _);
             else
                 nr.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
         }
