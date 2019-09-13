@@ -82,6 +82,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxNRMXFrequencyRange FrequencyRange;
             public int Band;
             public RFmxNRMXAutoResourceBlockDetectionEnabled AutoResourceBlockDetectionEnabled;
+            public RFmxNRMXDownlinkTestModel DownlinkTestModel;
+            public RFmxNRMXDownlinkTestModelDuplexScheme DownlinkTestModelDuplexScheme;
             public ComponentCarrierConfiguration[] ComponentCarrierConfigurations;
 
             public static SignalConfiguration GetDefault()
@@ -92,6 +94,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     FrequencyRange = RFmxNRMXFrequencyRange.Range1,
                     Band = 78,
                     AutoResourceBlockDetectionEnabled = RFmxNRMXAutoResourceBlockDetectionEnabled.True,
+                    DownlinkTestModel = RFmxNRMXDownlinkTestModel.TM1_1,
+                    DownlinkTestModelDuplexScheme = RFmxNRMXDownlinkTestModelDuplexScheme.Fdd,
                     ComponentCarrierConfigurations = new ComponentCarrierConfiguration[] { ComponentCarrierConfiguration.GetDefault() }
                 };
             }
@@ -247,6 +251,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nr.SetFrequencyRange(selectorString, signalConfig.FrequencyRange);
             nr.SetBand(selectorString, signalConfig.Band);
             nr.SetAutoResourceBlockDetectionEnabled(selectorString, signalConfig.AutoResourceBlockDetectionEnabled);
+            nr.ComponentCarrier.SetDownlinkTestModel(selectorString, signalConfig.DownlinkTestModel);
+            nr.ComponentCarrier.SetDownlinkTestModelDuplexScheme(selectorString, signalConfig.DownlinkTestModelDuplexScheme);
             nr.ComponentCarrier.SetNumberOfComponentCarriers(selectorString, signalConfig.ComponentCarrierConfigurations.Length);
             for (int i = 0; i < signalConfig.ComponentCarrierConfigurations.Length; i++)
             {
