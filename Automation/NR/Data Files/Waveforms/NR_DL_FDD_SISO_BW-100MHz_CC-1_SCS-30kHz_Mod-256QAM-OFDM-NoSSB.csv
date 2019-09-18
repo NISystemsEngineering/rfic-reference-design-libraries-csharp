@@ -1,27 +1,24 @@
-<PropertyGroup name='Group 1' id='fea5ed0b-faec-44b5-a7cf-80b16a3ca26e' description='Description for Group 1'>,
+<PropertyGroup name='Group 1' id='ef0521c0-62fc-4152-8f7f-60840784616d' description='Description for Group 1'>
 <AliasName>,<Value>
-NR Signal Config {RFmxNR_SignalConfiguration},
-Frequency Range {NRMX_RFmxNRMXFrequencyRange},"""Range1"""
-Band {Number},78
-Cell ID {Number},0
-Carrier Bandwidth {Number},100e6
-Subcarrier Spacing {Number},30000
-Auto Resource Block Detection {NRMX_RFmxNRMXAutoResourceBlockDetectionEnabled},"""True"""
-PUSCH Transform Precoding {NRMX_RFmxNRMXPuschTransformPrecodingEnabled},"""False"""
-PUSCH Modulation Type {NRMX_RFmxNRMXPuschModulationType},"""Qam256"""
-Number of Resource Block Clusters {Number},0
-PUSCH Resource Block Offset {Number [0] .. [0]},
-PUSCH Resource Block Offset[0],0
-PUSCH Number of Resource Blocks {Number [0] .. [1]},
-PUSCH Number of Resource Blocks[0],-1
-PUSCH Number of Resource Blocks[1],2
-PUSCH Slot Allocation {String},0-Last
-PUSCH Symbol Allocation {String},0-Last
-PUSCH DRMS Power Mode {NRMX_RFmxNRMXPuschDmrsPowerMode},"""CdmGroups"""
-PUSCH DRMS Power {Number},0
-PUSCH DRMS Configuration Type {NRMX_RFmxNRMXPuschDmrsConfigurationType},"""Type1"""
-PUSCH Mapping Type {NRMX_RFmxNRMXPuschMappingType},"""TypeA"""
-PUSCH DRMS Type A Position {Number},2
-PUSCH DRMS Duration {NRMX_RFmxNRMXPuschDmrsDuration},"""SingleSymbol"""
-PUSCH Additional Positions {Number},0
-<PropertyGroup>,
+Link Direction,"""Downlink"""
+Frequency Range,"""Range1"""
+Band,78
+Auto Resource Block Detection Enabled?,"""True"""
+Downlink Test Model,"""TM1_1"""
+Downlink Test Model Duplex Scheme,"""Fdd"""
+Component Carrier Configurations {[0] .. [0]}
+Component Carrier Configurations[0].Bandwidth (Hz),100e6
+Component Carrier Configurations[0].Cell ID,0
+Component Carrier Configurations[0].PUSCH Modulation Type,"""Qam256"""
+Component Carrier Configurations[0].Subcarrier Spacing (Hz),30e3
+Component Carrier Configurations[0].PUSCH Resource Block Offset,0
+Component Carrier Configurations[0].PUSCH Number of Resource Blocks,-1
+Component Carrier Configurations[0].PUSCH Transform Precoding Enabled,"""False"""
+Component Carrier Configurations[0].PUSCH Slot Allocation,0-last
+Component Carrier Configurations[0].PUSCH Symbol Allocation,0-last
+Component Carrier Configurations[0].PUSCH DRMS Configuration Type,"""Type1"""
+Component Carrier Configurations[0].PUSCH Mapping Type,"""TypeA"""
+Component Carrier Configurations[0].PUSCH DRMS Type A Position,2
+Component Carrier Configurations[0].PUSCH DRMS Duration,"""SingleSymbol"""
+Component Carrier Configurations[0].PUSCH DRMS Additional Positions,0
+<PropertyGroup>
