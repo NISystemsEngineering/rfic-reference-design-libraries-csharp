@@ -36,7 +36,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public struct ComponentCarrierConfiguration
         {
-            public double Bandwidth;
+            public double Bandwidth_Hz;
             public int CellId;
             public RFmxLteMXPuschModulationType PuschModulationType;
             public int PuschResourceBlockOffset;
@@ -47,7 +47,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             {
                 return new ComponentCarrierConfiguration()
                 {
-                    Bandwidth = 10e6,
+                    Bandwidth_Hz = 10e6,
                     CellId = 0,
                     PuschModulationType = RFmxLteMXPuschModulationType.ModulationTypeQpsk,
                     PuschResourceBlockOffset = 0,
@@ -113,10 +113,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int PeakCompositeEvmSymbolIndex;
             public double MeanRmsCompositeEvm;
             public double MaxPeakCompositeEvm;
-            public double MeanFrequencyError;
+            public double MeanFrequencyError_Hz;
             public int PeakCompositeEvmSlotIndex;
         }
-
         public struct ModAccResults
         {
             public ModAccComponentCarrierResults[] ComponentCarrierResults;
@@ -158,8 +157,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public struct AcpOffsetResults
         {
             public double LowerAbsolutePower_dBm;
-            public double LowerRelativePower_dBm;
-            public double UpperAbsolutePower_dB;
+            public double LowerRelativePower_dB;
+            public double UpperAbsolutePower_dBm;
             public double UpperRelativePower_dB;
             public double OffsetFrequency_Hz;
             public double OffsetIntegrationBandwidth_Hz;
@@ -199,7 +198,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             {
                 string carrierString = RFmxLteMX.BuildCarrierString(selectorString, i);
                 ComponentCarrierConfiguration componentCarrierConfig = signalConfig.ComponentCarrierConfigurations[i];
-                lte.ComponentCarrier.SetBandwidth(carrierString, componentCarrierConfig.Bandwidth);
+                lte.ComponentCarrier.SetBandwidth(carrierString, componentCarrierConfig.Bandwidth_Hz);
                 lte.ComponentCarrier.SetCellId(carrierString, componentCarrierConfig.CellId);
                 lte.ComponentCarrier.ConfigurePuschModulationType(carrierString, componentCarrierConfig.PuschModulationType);
                 lte.ComponentCarrier.ConfigurePuschResourceBlocks(carrierString, componentCarrierConfig.PuschResourceBlockOffset, componentCarrierConfig.PuschNumberOfResourceBlocks);
@@ -249,10 +248,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 lte.Acp.Configuration.GetOffsetIntegrationBandwidth(signalString, out double offsetIbw);
                 results.OffsetResults[i] = new AcpOffsetResults()
                 {
-                    LowerRelativePower_dBm = lowerRelativePower[i],
+                    LowerRelativePower_dB = lowerRelativePower[i],
                     UpperRelativePower_dB = upperRelativePower[i],
                     LowerAbsolutePower_dBm = lowerAbsolutePower[i],
-                    UpperAbsolutePower_dB = upperAbsolutePower[i],
+                    UpperAbsolutePower_dBm = upperAbsolutePower[i],
                     OffsetFrequency_Hz = offsetFrequency,
                     OffsetIntegrationBandwidth_Hz = offsetIbw
                 };
@@ -291,7 +290,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 {
                     MeanRmsCompositeEvm = meanRmsCompositeEvm[i],
                     MaxPeakCompositeEvm = maxPeakCompositeEvm[i],
-                    MeanFrequencyError = meanFrequencyError[i],
+                    MeanFrequencyError_Hz = meanFrequencyError[i],
                     PeakCompositeEvmSymbolIndex = peakCompositeEvmSymbolIndex[i],
                     PeakCompositeEvmSubcarrierIndex = peakCompositeEvmSubcarrierIndex[i],
                     PeakCompositeEvmSlotIndex = peakCompositeEvmSlotIndex[i]
