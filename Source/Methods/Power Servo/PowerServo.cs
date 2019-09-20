@@ -9,6 +9,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
     {
         #region Type Definitions
         internal static string FGPABitfileName = "NI-RFIC.lvbitx";
+        internal static ushort numAverages = 0;
         public struct DutConfiguration
         {
             public double DutDesiredOutputPower_dBm;
@@ -28,13 +29,21 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         public struct ServoConfiguration
         {
             public ushort ServoMaxSteps;
+            public ushort ServoMinSteps;
+            public double ServoInitialAveragingTime_S;
+            public double ServoFinalAveragingTime_S;
+            public double ServoActiveServoWindow;
             public double ServoTolerance_dB;
             //public bool ServoContinuousLeveling;
             public static ServoConfiguration GetDefault()
             {
                 return new ServoConfiguration
                 {
+                    ServoMinSteps = 2,
                     ServoMaxSteps = 10,
+                    ServoInitialAveragingTime_S = 200e-6,
+                    ServoFinalAveragingTime_S = 400e-6,
+                    ServoActiveServoWindow = 1e-3,
                     ServoTolerance_dB = 0.05,
                     //ServoContinuousLeveling = false
                 };
@@ -53,8 +62,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public double[] ServoTrace;
         }
         #endregion
-        public static void InitializeVSTForServo(string VSTResourceName, out NIRfsg niRFSGSession, out RFmxInstrMX niRFmxInstrSession,
-            out niPowerServo powerServoSession)
+        /* 
+         * Initialize the RFSG and RFmx drivers for the RF generator and the RF analyzer,
+         * respectively. Also create a new servo session based on the RFSA handle. 
+         */
+        public static void InitializeVSTForServo(string VSTResourceName, out NIRfsg niRFSGSession, 
+                                                 out RFmxInstrMX niRFmxInstrSession, out niPowerServo powerServoSession)
         {
             niRFSGSession = new NIRfsg(VSTResourceName, false, false, $"DriverSetup=Bitfile:{FGPABitfileName}");
             niRFmxInstrSession = new RFmxInstrMX(VSTResourceName, $"RFmxSetup=Bitfile:{FGPABitfileName}");
@@ -63,14 +76,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             powerServoSession = new niPowerServo(rfsaSession, false);
             powerServoSession.Reset();
         }
-        public static CalculatedVSTLevels CalculateVSTLevels(niPowerServo servoSession, DutConfiguration dutConfig, SG.Waveform waveform)
+        public static CalculatedVSTLevels CalculateVSTLevels(niPowerServo servoSession, DutConfiguration dutConfig, 
+                                                             SG.Waveform waveform)
         {
             CalculatedVSTLevels calcLevels;
             servoSession.CalculateServoParams(dutConfig.DutDesiredOutputPower_dBm, dutConfig.DutEstimatedGain_dBm,
-                dutConfig.DutGainAccuaracy_dB, waveform.PAPR_dB, out calcLevels.VSAReferenceLevel_dBm, out calcLevels.VSGAveragePowerLevel_dBm);
+                                              dutConfig.DutGainAccuaracy_dB, waveform.PAPR_dB,
+                                              out calcLevels.VSAReferenceLevel_dBm, out calcLevels.VSGAveragePowerLevel_dBm);
             return calcLevels;
         }
-        public static void ConfigureServo(niPowerServo servoSession, ServoConfiguration servoConfig, SG.Waveform waveform)
+        public static void ConfigureServo(niPowerServo servoSession, ServoConfiguration servoConfig)
         {
             servoSession.ResetDigitalGainOnFailureEnabled(true);
             servoSession.DigitalGainStepLimitEnabled(false);
@@ -80,8 +95,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             servoSession.Enable();
 
             /* BEGIN COMMENT
-            Regardless of whether the waveform has 1 or more bursts, we will insruct the servo that the waveform is bursted
-            and specify the first burst (pontentially first of multiple) that this burst length is to be used. The rationale
+            Regardless of whether the waveform has 1 or more bursts, we will instruct the servo that the waveform is bursted
+            and specify the first burst (potentially first of multiple) that this burst length is to be used. The rationale
             is as follows:
             1) Setting all waveforms to be bursted and specifying the duration reduces code complexity, while maintaining
                the same result for continuous waveforms
@@ -94,44 +109,55 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                is not practical, the first burst for all waveforms will be used instead.
             END COMMENT*/
 
-            double burstDuration = (waveform.BurstStopLocations[0] - waveform.BurstStartLocations[0]) / waveform.SampleRate;
-            
-            // Set the initial servo measurement time to a quarter of the burst length, then ensure that we have at least
-            // four steps so as to have at least one measurment of the entire burst length
-            double initialMeasTime = burstDuration / 4;
-            servoSession.Setup(servoConfig.ServoTolerance_dB, initialMeasTime, burstDuration, 4, servoConfig.ServoMaxSteps,
-                false, 0);
-            servoSession.ConfigureActiveServoWindow(true, burstDuration);
+            /* BEGIN COMMENT
+             * 
+             * bbachman: The user should define the servo schedule which also depends
+             * on the use case, instead of having it hard-coded.
+             * Using only the bursted setting is ok which forces the servo to work only on trigger events.
+             * 
+               END COMMENT*/
+
+
+            servoSession.Setup(servoConfig.ServoTolerance_dB, servoConfig.ServoInitialAveragingTime_S,
+                               servoConfig.ServoFinalAveragingTime_S, servoConfig.ServoMinSteps, 
+                               servoConfig.ServoMaxSteps, false, 0);
+            servoSession.ConfigureActiveServoWindow(true, servoConfig.ServoActiveServoWindow);
         }
-        public static ServoResults InitiateServo(niPowerServo servoSession, NIRfsg rfsgSession, double timeOut_s = 1.0)
+        public static void InitiateServo(niPowerServo servoSession, double timeOut_s = 1.0)
+        {
+            // Initiate the power servo
+            servoSession.Start();
+            servoSession.Wait(timeOut_s, out numAverages, out bool done, out bool failed);
+            if (failed)
+            {
+                throw new System.OperationCanceledException("FPGA power servo failed to complete. Either the maximum " + 
+                                                            "number of iterations were exceeded, the digital gain limit " +
+                                                            "was reached, or a timeout occured. Try increasing the maximum " +
+                                                            "number of servo steps, decreasing the expected gain, or increasing " +
+                                                            "the gain accuracy parameter. The digital gain has been reset to " +
+                                                            "the default value.");
+            }
+        }
+
+        public static ServoResults FetchServoResults(niPowerServo servoSession, NIRfsg rfsgSession)
         {
             ServoResults results = new ServoResults();
 
-            // Initiate the power servo
-            servoSession.Start();
-            servoSession.Wait(timeOut_s, out ushort numAverages, out bool done, out bool failed);
-
-            servoSession.GetDigitalGain(out double _, out double servoGain_dB);
+            servoSession.GetDigitalGain(out double _, out double servoDigitalGain_dB);
             servoSession.GetServoSteps(numAverages, false, false, 0, out double[] _, out results.ServoTrace);
             // The final input power is calculated by the input power level plus the final servo gain
-            results.FinalInputPower_dBm = rfsgSession.RF.PowerLevel + servoGain_dB;
+            results.FinalInputPower_dBm = rfsgSession.RF.PowerLevel + servoDigitalGain_dB;
             results.FinalOutputPower_dBm = results.ServoTrace[results.ServoTrace.Length - 1];
             results.CalculatedDutGain_dB = results.FinalOutputPower_dBm - results.FinalInputPower_dBm;
 
-            if (failed)
-            {
-                throw new System.OperationCanceledException("FPGA power servo failed to complete. Either the maximum number of iterations" +
-                    " were exceeded, the digital gain limit was reached, or a timeout occured. Try increasing the maximum servo steps, " +
-                    "decreasing the expected gain, or increasing the gain accuracy parameter. The digital gain has been reset to the default value.");
-            }
-
             return results;
         }
+
         public static void AbortServo(niPowerServo servoSession)
         {
             // NOTE: Only call after disabling  RF generation to avoid a power step in the PA input 
             // that occurs when the servo IP is disabled. This is due to the digital gain being reset to 1.
-
+            
             servoSession.Disable();
             servoSession.Reset();
         }
