@@ -16,13 +16,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxSpecAnMXDpdMeasurementSampleRateMode dpdSampleRateMode;
             public double sampleRate;
             public RFmxSpecAnMXDpdSignalType signalType;
-            public RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent idleDurationPresent;   //TBD pull idle flag from SG
-            public RFmxSpecAnMXDpdApplyDpdIdleDurationPresent dpdIdleDurationPresent;        //TBD pull idle flag from SG
+            public RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent idleDurationPresent;   //TBD pull idle present flag from SG
+            public RFmxSpecAnMXDpdApplyDpdIdleDurationPresent dpdIdleDurationPresent;        //TBD pull idle present flag from SG
             public RFmxSpecAnMXDpdPreDpdCfrEnabled preDpdCFREnabled;
             public RFmxSpecAnMXDpdApplyDpdCfrEnabled applyDpdCFREnabled;
-            public double dutAverageInputPower;
-            public double prefilterGain;           
-            public double rfsgIqRate;
+            public double dutAverageInputPower;      
             public double timeout;
 
 
@@ -32,7 +30,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 {
                     timeout = 3,
                     dpdMeasurementInterval = 100e-6,
-                    prefilterGain = -1.5,
                     dpdSampleRateMode = RFmxSpecAnMXDpdMeasurementSampleRateMode.ReferenceWaveform,
                     sampleRate = 320e6,
                     signalType = RFmxSpecAnMXDpdSignalType.Modulated,
@@ -111,46 +108,47 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region ConfigureDPD
-        public static void ConfigureCommonDPD(RFmxSpecAnMX specAnSignal, CommonDPDConfiguration commonDPDConfig, Waveform waveform)
+        public static void ConfigureCommonDPD(RFmxSpecAnMX specAnSignal, CommonDPDConfiguration commonDPDConfig, Waveform waveform, string selectorString = "")
         {
-            specAnSignal.SelectMeasurements("", RFmxSpecAnMXMeasurementTypes.Dpd, true);
+            specAnSignal.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Dpd, true);
             
-            specAnSignal.Dpd.Configuration.ConfigureReferenceWaveform("",waveform.WaveformData,commonDPDConfig.idleDurationPresent,
+            specAnSignal.Dpd.Configuration.ConfigureReferenceWaveform(selectorString, waveform.WaveformData,commonDPDConfig.idleDurationPresent,
                  commonDPDConfig.signalType);
-            specAnSignal.Dpd.Configuration.ConfigureDutAverageInputPower("", commonDPDConfig.dutAverageInputPower);
-            specAnSignal.Dpd.Configuration.ConfigureMeasurementInterval("", commonDPDConfig.dpdMeasurementInterval);
-            specAnSignal.Dpd.Configuration.ConfigureMeasurementSampleRate("", commonDPDConfig.dpdSampleRateMode, commonDPDConfig.sampleRate);
+            specAnSignal.Dpd.Configuration.ConfigureDutAverageInputPower(selectorString, commonDPDConfig.dutAverageInputPower);
+            specAnSignal.Dpd.Configuration.ConfigureMeasurementInterval(selectorString, commonDPDConfig.dpdMeasurementInterval);
+            specAnSignal.Dpd.Configuration.ConfigureMeasurementSampleRate(selectorString, commonDPDConfig.dpdSampleRateMode, commonDPDConfig.sampleRate);
 
         }
        
-        public static void ConfigureRFmxLUT(RFmxSpecAnMX specAnSignal, LUTDPDConfiguration lutConfig)
+        public static void ConfigureRFmxLUT(RFmxSpecAnMX specAnSignal, LUTDPDConfiguration lutConfig, string selectorString = "")
         {
-            specAnSignal.Dpd.Configuration.ConfigureDpdModel("", RFmxSpecAnMXDpdModel.LookupTable);
-            specAnSignal.Dpd.Configuration.ConfigureLookupTableThreshold("", lutConfig.thresholdEnabled, lutConfig.thresholdLevel,
+            specAnSignal.Dpd.Configuration.ConfigureDpdModel(selectorString, RFmxSpecAnMXDpdModel.LookupTable);
+            specAnSignal.Dpd.Configuration.ConfigureLookupTableType(selectorString, lutConfig.lutType);
+            specAnSignal.Dpd.Configuration.ConfigureLookupTableThreshold(selectorString, lutConfig.thresholdEnabled, lutConfig.thresholdLevel,
                 lutConfig.thresholdType);
-            specAnSignal.Dpd.Configuration.ConfigureLookupTableStepSize("", lutConfig.LUTStepSize);
+            specAnSignal.Dpd.Configuration.ConfigureLookupTableStepSize(selectorString, lutConfig.LUTStepSize);
         }
       
-        public static void ConfigureRFmxMP(RFmxSpecAnMX specAnSignal, MPDPDConfiguration mpConfig)
+        public static void ConfigureRFmxMP(RFmxSpecAnMX specAnSignal, MPDPDConfiguration mpConfig, string selectorString = "")
         {
-            specAnSignal.Dpd.Configuration.ConfigureDpdModel("", RFmxSpecAnMXDpdModel.GeneralizedMemoryPolynomial);
-            specAnSignal.Dpd.Configuration.ConfigureMemoryPolynomial("", mpConfig.memoryPolynomialOrder, mpConfig.memoryPolynomialDepth);
-            specAnSignal.Dpd.Configuration.ConfigureGeneralizedMemoryPolynomialCrossTerms("", mpConfig.memoryPolynomialLeadOrder,
+            specAnSignal.Dpd.Configuration.ConfigureDpdModel(selectorString, RFmxSpecAnMXDpdModel.GeneralizedMemoryPolynomial);
+            specAnSignal.Dpd.Configuration.ConfigureMemoryPolynomial(selectorString, mpConfig.memoryPolynomialOrder, mpConfig.memoryPolynomialDepth);
+            specAnSignal.Dpd.Configuration.ConfigureGeneralizedMemoryPolynomialCrossTerms(selectorString, mpConfig.memoryPolynomialLeadOrder,
                 mpConfig.memoryPolynomialLagOrder, mpConfig.memoryPolynomialLeadMemoryDepth, mpConfig.memoryPolynomialLagMemoryDepth,
                 mpConfig.memoryPolynomialMaxLead, mpConfig.memoryPolynomialMaxLag);
-            specAnSignal.Dpd.Configuration.ConfigureIterativeDpdEnabled("", mpConfig.iterativeDpdEnabled);
-            specAnSignal.Dpd.ApplyDpd.ConfigureMemoryModelCorrectionType("", mpConfig.memoryModelCorrectionType);
+            specAnSignal.Dpd.Configuration.ConfigureIterativeDpdEnabled(selectorString, mpConfig.iterativeDpdEnabled);
+            specAnSignal.Dpd.ApplyDpd.ConfigureMemoryModelCorrectionType(selectorString, mpConfig.memoryModelCorrectionType);
         }
         #endregion
 
         #region ApplyDPD
-        public static LUTResults ApplyLUTDPD(RFmxSpecAnMX specAnSignal, NIRfsg rfsgSession, CommonDPDConfiguration commonDPDConfig, LUTDPDConfiguration lutConfig, Waveform waveform, string waveformStartTriggerExport, string selectorString = "")
+        public static LUTResults ApplyLUTDPD(RFmxSpecAnMX specAnSignal, NIRfsg rfsgSession, CommonDPDConfiguration commonDPDConfig, LUTDPDConfiguration lutConfig, Waveform waveform, string selectorString = "")
         {
             LUTResults lutResults = new LUTResults();
             IntPtr rfsgPtr;
             rfsgPtr = rfsgSession.GetInstrumentHandle().DangerousGetHandle();
             specAnSignal.Initiate("", selectorString);
-            specAnSignal.Dpd.ApplyDpd.ConfigureLookupTableCorrectionType("", lutConfig.LUTCorrectionType);
+            specAnSignal.Dpd.ApplyDpd.ConfigureLookupTableCorrectionType(selectorString, lutConfig.LUTCorrectionType);
             specAnSignal.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, waveform.WaveformData,commonDPDConfig.dpdIdleDurationPresent , commonDPDConfig.timeout, ref lutResults.waveformWithDpdComplexSingle,
                 out lutResults.postDPDPAPR, out lutResults.powerOffset);
 
@@ -159,7 +157,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             waveform.PAPR_dB = lutResults.postDPDPAPR;
             waveform.SignalBandwidth_Hz = 0.8 * waveform.SampleRate;
 
-            rfsgSession.Abort();
             SG.DownloadWaveform(rfsgSession, waveform);
             rfsgSession.RF.PowerLevel = commonDPDConfig.dutAverageInputPower - lutResults.powerOffset;
             rfsgSession.Initiate();
@@ -168,7 +165,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         }
       
-        public static MPResults ApplyMPDPD(RFmxSpecAnMX specAnSignal, NIRfsg rfsgSession, CommonDPDConfiguration commonDPDConfig,MPDPDConfiguration mpConfig, Waveform waveform, string waveformStartTriggerExport, string selectorString = "")
+        public static MPResults ApplyMPDPD(RFmxSpecAnMX specAnSignal, NIRfsg rfsgSession, CommonDPDConfiguration commonDPDConfig,MPDPDConfiguration mpConfig, Waveform waveform, string selectorString = "")
         {
             MPResults mPResults = new MPResults();
             IntPtr rfsgPtr;
@@ -180,7 +177,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             for (int i = 0; i < mpConfig.numberOfIteration; i++)
             {
-                specAnSignal.Dpd.Configuration.ConfigurePreviousDpdPolynomial("", mPResults.dpdPolynomial);
+                specAnSignal.Dpd.Configuration.ConfigurePreviousDpdPolynomial(selectorString, mPResults.dpdPolynomial);
                 specAnSignal.Initiate("", selectorString);
                 specAnSignal.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, waveform.WaveformData, commonDPDConfig.dpdIdleDurationPresent, commonDPDConfig.timeout, ref mPResults.waveformWithDpdComplexSingle,
                out mPResults.postDPDPAPR, out mPResults.powerOffset);
@@ -190,7 +187,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 waveform.PAPR_dB = mPResults.postDPDPAPR ;
                 waveform.SignalBandwidth_Hz = 0.8 * waveform.SampleRate;             
                 
-                rfsgSession.Abort();
                 SG.DownloadWaveform(rfsgSession, waveform);
                 rfsgSession.RF.PowerLevel = commonDPDConfig.dutAverageInputPower - mPResults.powerOffset;
                 rfsgSession.Initiate();
