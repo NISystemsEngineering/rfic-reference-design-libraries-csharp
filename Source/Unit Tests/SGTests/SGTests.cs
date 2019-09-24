@@ -15,12 +15,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         public void LoadNoBurstDataTest()
         {
             string filePath = Path.GetFullPath(@"Support Files\BT No Burst.tdms");
-            SG.Waveform waveform = SG.LoadWaveformFromTDMS(filePath, "", true);
+            SG.Waveform waveform = SG.LoadWaveformFromTDMS(filePath, "");
 
             Assert.IsTrue(waveform.BurstStartLocations[0] == 0, "Burst start set to 0");
             Assert.IsTrue(waveform.BurstStopLocations[0] == waveform.WaveformData.SampleCount - 1, "Burst stop set to last sample");
 
-            double papr = 5.292955; // papr != runtime scaling for file version 1.0.0 so use empirical constant
+            double papr = 0.0; // papr != runtime scaling for file version 1.0.0 so use empirical constant
             //NIRfsgPlayback.ReadWaveformFileVersionFromFile(filePath, out string waveformVersion);
             //if (waveformVersion == "1.0.0") NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out papr);
             //else NIRfsgPlayback.ReadPaprFromFile(filePath, 0, out papr); //Version 2.0.0 and later
