@@ -48,6 +48,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double SampleRate;
             public int[] BurstStartLocations;
             public int[] BurstStopLocations;
+            public bool IdleDurationPresent;
             public double RuntimeScaling;
         }
 
@@ -116,7 +117,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
 
-        public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "", bool normalizeWaveform = true)
+        public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "")
         {
             Waveform waveform = new Waveform();
 
@@ -134,8 +135,18 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             if (waveformVersion == "1.0.0")
             {
-                NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out waveform.PAPR_dB);
-                waveform.RuntimeScaling = -1.5;
+                // 1.0.0 waveforms use peak power adjustment = papr + runtime scaling
+                // we will scale the waveform and calculate papr and runtime scaling manually
+                float peak = ComplexSingle.GetMagnitudes(waveform.WaveformData.GetRawData()).Max();
+                waveform.RuntimeScaling = 20.0 * Math.Log10(peak);
+                NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out double peakPowerAdjustment);
+                waveform.PAPR_dB = peakPowerAdjustment + waveform.RuntimeScaling;
+
+                // scale the waveform to full scale
+                WritableBuffer<ComplexSingle> waveformBuffer = waveform.WaveformData.GetWritableBuffer();
+                ComplexSingle scale = ComplexSingle.FromPolar(1.0f / peak, 0.0f);
+                for (int i = 0; i < waveform.WaveformData.SampleCount; i++)
+                    waveformBuffer[i] = waveformBuffer[i] * scale; // multiplication is faster than division
             }
             else
             {
@@ -147,6 +158,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             NIRfsgPlayback.ReadBurstStartLocationsFromFile(filePath, 0, ref waveform.BurstStartLocations);
             NIRfsgPlayback.ReadBurstStopLocationsFromFile(filePath, 0, ref waveform.BurstStopLocations);
+
+            waveform.IdleDurationPresent = waveform.BurstStartLocations?.Length > 0;
 
             //Statement reads: if NOT BurstStartLocations > 0 AND expression is not null (? operand)
             //In other words, manually set BurstStartLocations when the length is 0 or less or array is null
@@ -163,8 +176,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
-            if (normalizeWaveform) NormalizeWaveform(ref waveform);
-
             return waveform;
         }
 
@@ -172,8 +183,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
             rfsgHandle.Abort();
-
-            rfsgHandle.RF.PowerLevelType = RfsgRFPowerLevelType.PeakPower;
 
             try
             {
@@ -183,6 +192,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             { //Intentionally ignore this exception; clearing the waveform failed because it doesn't exist
             }
 
+            rfsgHandle.RF.PowerLevelType = RfsgRFPowerLevelType.PeakPower; // set power level to peak before writing so RFSG doesn't scale waveform
             rfsgHandle.Arb.WriteWaveform(waveform.WaveformName, waveform.WaveformData);
 
             //Store loaded parameters
@@ -355,6 +365,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.RetrieveWaveformSampleRate(rfsgPtr, waveformName, out waveform.SampleRate);
             NIRfsgPlayback.RetrieveWaveformBurstStartLocations(rfsgPtr, waveformName, ref waveform.BurstStartLocations);
             NIRfsgPlayback.RetrieveWaveformBurstStopLocations(rfsgPtr, waveformName, ref waveform.BurstStopLocations);
+            waveform.IdleDurationPresent = waveform.BurstStartLocations?.Length > 0;
             NIRfsgPlayback.RetrieveWaveformRuntimeScaling(rfsgPtr, waveformName, out waveform.RuntimeScaling);
 
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
@@ -431,45 +442,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Close();
         }
 
-        private static void NormalizeWaveform(ref Waveform waveform)
-        {
-            // Normalize the waveform data
-            float[] magnitudeArray = ComplexSingle.GetMagnitudes(waveform.WaveformData.GetRawData());
-            float magnitudeMax = magnitudeArray.Max();
-            WritableBuffer<ComplexSingle> waveformBuffer = waveform.WaveformData.GetWritableBuffer();
-            for (int i = 0; i < waveformBuffer.Count(); i++)
-                waveformBuffer[i] = ComplexSingle.FromPolar(waveformBuffer[i].Magnitude / magnitudeMax, waveformBuffer[i].Phase);
-
-            // Calculate PAPR over only the burst length
-            double burstPowerSum = 0;
-            int burstSampleCount = 0;
-            for (int i = 0; i < waveform.BurstStartLocations.Length; i++)
-            {
-                int offset = waveform.BurstStartLocations[i];
-                int count = waveform.BurstStopLocations[i] - offset + 1; // add one to make all samples inclusive
-                burstSampleCount += count;
-                foreach (ComplexSingle iqPoint in waveformBuffer.Skip(offset).Take(count))
-                    burstPowerSum += iqPoint.Real * iqPoint.Real + iqPoint.Imaginary * iqPoint.Imaginary;
-            }
-
-            // RMS = sqrt(1/n*(|x_0|^2+|x_1|^2...|x_n|^2))
-            // |x_n| = sqrt(i_n^2 + q_n^2) therefore |x_n|^2 = i_n^2 + q_n^2
-            // RMS Power = v_rms^2 = 1/n*(|x_0|^2+|x_1|^2...|x_n|^2) hence p_rms = p_avg
-
-            // averagePower = burstPowerSum / burstSampleCount;
-
-            // PAPR (Peak to Average Power Ratio) = Peak Power/Avg Power
-            // PAPR (dB) = 10*log(Peak Power/Avg Power)
-            // Since we already scaled the data, the max value is simply 1
-            // instead of doing waveform.PAPR_dB = 10 * Math.Log10(1 / averagePower) we will save a divide and invert the averagePower calculation
-
-            waveform.PAPR_dB = 10 * Math.Log10(burstSampleCount / burstPowerSum);
-        }
-
         private static long TimeToSamples(double time, double sampleRate)
         {
             return (long)Math.Round(time * sampleRate);
         }
+
         private static double CalculateWaveformDuration(int[] BurstStartLocations, int[] BurstStopLocations, double SampleRate)
         {
             int finalStopIndex = BurstStopLocations.Length - 1;

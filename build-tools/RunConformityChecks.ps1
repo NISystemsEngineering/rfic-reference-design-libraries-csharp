@@ -17,14 +17,14 @@ Invoke-Expression $command
 
 Write-Host "`nCheck for SolutionInfo.cs file"
 
-$command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -SearchTextOrPattern '<Compile Include=""(.+)"">' -FilePattern ""*.csproj"" -Verbose" +
-    " -ValidMatchValues '..\SolutionInfo.cs','..\..\SolutionInfo.cs' -RecurseDirectory -ExcludeFilePattern 'Tests'"
+$command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -SearchTextOrPattern '<Compile Include=""(.+)"">[\s\r\n]+<Link>Properties\\SolutionInfo.cs</Link>' -FilePattern ""*.csproj"" -Verbose" +
+    " -ValidMatchValues '..\SolutionInfo.cs','..\..\SolutionInfo.cs' -RecurseDirectory -ExcludeFilePattern 'Tests' -MultiLineSearch"
 
 Invoke-Expression $command
 
 Write-Host "`nCheck for proper build output"
 $command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -SearchTextOrPattern 'Release[\W\w]+<OutputPath>(.+)</OutputPath>' -FilePattern ""*.csproj"" -Verbose" +
-    " -ValidMatchValues '..\..\Builds\','..\..\..\Builds\' -RecurseDirectory -ExcludeFilePattern 'Tests'"
+    " -ValidMatchValues '..\..\Builds\','..\..\..\Builds\' -RecurseDirectory -ExcludeFilePattern 'Tests' -MultiLineSearch"
 
 Invoke-Expression $command
 
