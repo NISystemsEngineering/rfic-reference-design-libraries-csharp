@@ -2,6 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.539
+VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxWLAN", "SA\RFmx WLAN\RFmxWLAN.csproj", "{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}"
 EndProject
