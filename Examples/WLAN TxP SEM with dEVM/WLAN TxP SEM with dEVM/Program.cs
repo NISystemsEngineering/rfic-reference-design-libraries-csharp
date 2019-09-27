@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using static NationalInstruments.ReferenceDesignLibraries.SA.RFmxWLAN;
 using static NationalInstruments.ReferenceDesignLibraries.SG;
+using static NationalInstruments.ReferenceDesignLibraries.SA.RFmxInstr;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
@@ -19,11 +20,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             NIRfsg nIRfsg = new NIRfsg(resourceName, false, false);
             InstrumentConfiguration instrConfig = InstrumentConfiguration.GetDefault();
             instrConfig.CarrierFrequency_Hz = 2.412e9;
+            SG.LoConfiguration SgLoConfig = SG.LoConfiguration.GetDefault();
 
-            ConfigureInstrument(nIRfsg, instrConfig);
+            ConfigureInstrument(nIRfsg, instrConfig, SgLoConfig);
             Waveform waveform = LoadWaveformFromTDMS(filePath);
 
-            DownloadWaveform(nIRfsg, waveform);
+            DownloadWaveform(nIRfsg, waveform, SgLoConfig);
 
             WaveformTimingConfiguration timing = new WaveformTimingConfiguration
             {
@@ -48,7 +50,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             RFmxWlanMX wlan = instr.GetWlanSignalConfiguration();
             instr.GetWlanSignalConfiguration();
 
-
+            SA.RFmxInstr.LoConfiguration SaLoConfig = SA.RFmxInstr.LoConfiguration.GetDefault();
+            SA.RFmxInstr.ConfigureInstrument(instr, SaLoConfig);
             CommonConfiguration commonConfiguration = CommonConfiguration.GetDefault();
             commonConfiguration.CenterFrequency_Hz = 2.412e9;
 

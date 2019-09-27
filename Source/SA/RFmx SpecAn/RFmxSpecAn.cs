@@ -18,8 +18,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxSpecAnMXDigitalEdgeTriggerEdge DigitalEdgeType;
             public double TriggerDelay_s;
             public bool EnableTrigger;
-            public string LOSource;
-            public double LOOffset;
             public static CommonConfiguration GetDefault()
             {
                 return new CommonConfiguration
@@ -34,8 +32,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     DigitalEdgeType = RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising,
                     TriggerDelay_s = 0,
                     EnableTrigger = true,
-                    LOSource = RFmxInstrMXConstants.LOSourceLOIn,
-                    LOOffset = 0
                 };
             }
         }
@@ -59,8 +55,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             AutoLevelConfiguration autoLevelConfig, string selectorString = "")
         {
             sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
-            sessionHandle.SetLOSource("", commonConfig.LOSource);
-            sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
             specAnSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             specAnSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             specAnSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);

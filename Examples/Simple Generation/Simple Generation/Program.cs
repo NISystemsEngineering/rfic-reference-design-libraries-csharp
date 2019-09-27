@@ -18,11 +18,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             InstrumentConfiguration instrConfig = InstrumentConfiguration.GetDefault();
             instrConfig.CarrierFrequency_Hz = 2e9;
+            LoConfiguration loConfig = LoConfiguration.GetDefault();
 
-            ConfigureInstrument(nIRfsg, instrConfig);
+            ConfigureInstrument(nIRfsg, instrConfig, loConfig);
             Waveform waveform = LoadWaveformFromTDMS(filePath);
 
-            DownloadWaveform(nIRfsg, waveform);
+            DownloadWaveform(nIRfsg, waveform,loConfig);
 
             switch (genType)
             {

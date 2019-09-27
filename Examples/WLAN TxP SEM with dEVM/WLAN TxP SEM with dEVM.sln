@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxWLAN", "..\..\Source\SA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SG", "..\..\Source\SG\SG.csproj", "{89ABCAC5-CEDB-4535-BD58-E205A97834D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmx Instr", "..\..\Source\SA\RFmx Instr\RFmx Instr.csproj", "{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89ABCAC5-CEDB-4535-BD58-E205A97834D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

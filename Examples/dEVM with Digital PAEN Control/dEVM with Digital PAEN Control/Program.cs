@@ -30,15 +30,15 @@ namespace Digital_Dynamic_PAEN_Example
                 ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock,
                 CarrierFrequency_Hz = 2.402e9,
                 DutAverageInputPower_dBm = 0,
-                ShareLOSGToSA = false,
             };
+            LoConfiguration loConfig =LoConfiguration.GetDefault();
 
-            ConfigureInstrument(rfsgSession, instrConfig);
+            ConfigureInstrument(rfsgSession, instrConfig,loConfig);
 
             string waveformPath = Path.GetFullPath(@"TDMS Files\11AC_MCS8_40M.tdms");
 
             Waveform wave = LoadWaveformFromTDMS(waveformPath, "wave");
-            DownloadWaveform(rfsgSession, wave);
+            DownloadWaveform(rfsgSession, wave,loConfig);
 
             WaveformTimingConfiguration waveTiming = new WaveformTimingConfiguration
             {

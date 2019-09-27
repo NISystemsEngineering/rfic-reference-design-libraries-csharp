@@ -23,17 +23,32 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double CarrierFrequency_Hz;
             public double DutAverageInputPower_dBm;
             public double ExternalAttenuation_dBm;
-            public bool ShareLOSGToSA;
+
+            
             public static InstrumentConfiguration GetDefault()
             {
                 return new InstrumentConfiguration()
                 {
-                    SelectedPorts="",
+                    SelectedPorts = "",
                     ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
                     CarrierFrequency_Hz = 1e9,
                     DutAverageInputPower_dBm = 0,
                     ExternalAttenuation_dBm = 0,
-                    ShareLOSGToSA = true,
+                };
+            }
+        }
+        public struct LoConfiguration
+        {
+            public string LoSharingMode; //{"None","Automatic","Manual"}
+            public string LoOffsetMode;  //{"NoOffset","Automatic","UserDefined"}
+            public double LoOffset_Hz;
+            public static LoConfiguration GetDefault()
+            {
+                return new LoConfiguration()
+                {
+                    LoSharingMode = "Automatic",
+                    LoOffsetMode = "Automatic",
+                    LoOffset_Hz = 0,
                 };
             }
         }
@@ -95,25 +110,38 @@ namespace NationalInstruments.ReferenceDesignLibraries
         }
         #endregion
 
-        public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
+        public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig, LoConfiguration loConfig)
         {
             rfsgHandle.SignalPath.SelectedPorts = instrConfig.SelectedPorts;
             rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
             rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.DutAverageInputPower_dBm);
 
             rfsgHandle.FrequencyReference.Source = RfsgFrequencyReferenceSource.FromString(instrConfig.ReferenceClockSource);
-            
-            if (instrConfig.ShareLOSGToSA)
+
+            switch (loConfig.LoSharingMode.ToLower())
             {
-                rfsgHandle.RF.LocalOscillator.LOOutEnabled = true;
-                rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
+
+                default:
+                    rfsgHandle.RF.LocalOscillator.LOOutEnabled = false;
+                    // Return to the default value, in case in future modifications the above case changes
+                    // this to something other than the default
+                    rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
+                    break;
+                case "manual":
+                    rfsgHandle.RF.LocalOscillator.LOOutEnabled = true;
+                    rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
+                    break;    
             }
-            else
+
+            switch (loConfig.LoOffsetMode.ToLower())
             {
-                rfsgHandle.RF.LocalOscillator.LOOutEnabled = false;
-                // Return to the default value, in case in future modifications the above case changes
-                // this to something other than the default
-                rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
+                default:
+                    rfsgHandle.RF.Upconverter.FrequencyOffset = loConfig.LoOffset_Hz = 0;
+                    break;
+
+                case "userdefined":
+                    rfsgHandle.RF.Upconverter.FrequencyOffset = loConfig.LoOffset_Hz;
+                    break;
             }
         }
 
@@ -179,7 +207,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             return waveform;
         }
 
-        public static void DownloadWaveform(NIRfsg rfsgHandle, Waveform waveform)
+        public static void DownloadWaveform(NIRfsg rfsgHandle, Waveform waveform, LoConfiguration loConfig)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
             rfsgHandle.Abort();
@@ -203,9 +231,37 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformSampleRate(rfsgPtr, waveform.WaveformName, waveform.SampleRate);
 
             //Manually configure additional settings
-            NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled);
             NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, waveform.RuntimeScaling);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
+
+            //LO configuration
+            switch (loConfig.LoSharingMode.ToLower())
+            {
+                default:
+                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Disabled);
+                    break;
+
+                case "automatic":
+                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Enabled);
+                    break;
+            }
+
+
+            switch (loConfig.LoOffsetMode.ToLower())
+            {
+                case "nooffset":
+                default:
+                    NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.NoOffset);
+                    break;
+                case "automatic":
+                
+                    NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Auto);
+                    break;
+                case "userdefined":
+                    NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled);
+                    break;
+            }
+
         }
 
 		public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
