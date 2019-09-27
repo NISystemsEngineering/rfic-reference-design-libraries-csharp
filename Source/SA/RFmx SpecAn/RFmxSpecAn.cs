@@ -8,6 +8,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region Type Definitions
         public struct CommonConfiguration
         {
+            public string SelectedPorts;
             public double CenterFrequency_Hz;
             public double ReferenceLevel_dBm;
             public double Span_Hz;
@@ -23,6 +24,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             {
                 return new CommonConfiguration
                 {
+                    SelectedPorts = "",
                     CenterFrequency_Hz = 1e9,
                     ReferenceLevel_dBm = 0,
                     Span_Hz = 1e6,
@@ -59,6 +61,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
             sessionHandle.SetLOSource("", commonConfig.LOSource);
             sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
+            specAnSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             specAnSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             specAnSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             specAnSignal.Spectrum.Configuration.ConfigureSpan(selectorString, commonConfig.Span_Hz);
