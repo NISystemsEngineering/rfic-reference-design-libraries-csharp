@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WLAN TxP SEM with dEVM", "WLAN TxP SEM with dEVM\WLAN TxP SEM with dEVM.csproj", "{7CC38ED8-D79E-41B9-A3E5-ACA3CF3FBA6A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA} = {AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Project Dependencies", "Project Dependencies", "{339E25B3-88E7-4F76-91F9-C52D6F1341B0}"
 EndProject
