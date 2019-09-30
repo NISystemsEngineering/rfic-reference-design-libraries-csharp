@@ -171,13 +171,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double[] UpperOffsetMargin_dB;
             public double[] UpperOffsetMarginFrequency_Hz;
             public double[] UpperOffsetMarginAbsolutePower_dBm;
-            public double[] UpperOffsetMarginRelativePower_dBm;
+            public double[] UpperOffsetMarginRelativePower_dB;
 
             public RFmxWlanMXSemLowerOffsetMeasurementStatus[] lowerOffsetMeasurementStatus;
             public double[] LowerOffsetMargin_dB;
             public double[] LowerOffsetMarginFrequency_Hz;
             public double[] LowerOffsetMarginAbsolutePower_dBm;
-            public double[] LowerOffsetMarginRelativePower_dBm;
+            public double[] LowerOffsetMarginRelativePower_dB;
 
         }
         public struct TxPServoConfiguration
@@ -378,10 +378,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.Sem.Results.FetchCarrierMeasurement(selectorString, 10, out semResults.AbsolutePower_dBm, out semResults.RelativePower_dB);
             wlanSignal.Sem.Results.FetchLowerOffsetMarginArray(selectorString, 10, ref semResults.lowerOffsetMeasurementStatus,
                 ref semResults.LowerOffsetMargin_dB, ref semResults.LowerOffsetMarginFrequency_Hz, ref semResults.LowerOffsetMarginAbsolutePower_dBm,
-                ref semResults.LowerOffsetMarginRelativePower_dBm);
+                ref semResults.LowerOffsetMarginRelativePower_dB);
             wlanSignal.Sem.Results.FetchUpperOffsetMarginArray(selectorString, 10, ref semResults.upperOffsetMeasurementStatus,
                ref semResults.UpperOffsetMargin_dB, ref semResults.UpperOffsetMarginFrequency_Hz, ref semResults.UpperOffsetMarginAbsolutePower_dBm,
-               ref semResults.UpperOffsetMarginRelativePower_dBm);
+               ref semResults.UpperOffsetMarginRelativePower_dB);
 
             return semResults;
         }
