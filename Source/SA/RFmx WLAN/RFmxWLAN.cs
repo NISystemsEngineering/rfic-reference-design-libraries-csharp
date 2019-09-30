@@ -12,6 +12,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region Type_Definitionss
         public struct CommonConfiguration
         {
+            public string SelectedPorts;
             public double CenterFrequency_Hz;
             public double ReferenceLevel_dBm;
             public double ExternalAttenuation_dB;
@@ -26,6 +27,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             {
                 return new CommonConfiguration
                 {
+                    SelectedPorts = "",
                     CenterFrequency_Hz = 1e9,
                     ReferenceLevel_dBm = 0,
                     ExternalAttenuation_dB = 0,
@@ -210,7 +212,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             sessionHandle.SetLOSource("", commonConfig.LOSource);
             sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
-
+            wlanSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
