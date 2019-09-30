@@ -20,7 +20,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double ExternalAttenuation_dB;
             public string FrequencyReferenceSource;
             public string DigitalEdgeSource;
-            public RFmxWlanMXDigitalEdgeTriggerEdge DigitalEdgeType;
+            public RFmxWlanMXDigitalEdgeTriggerEdge DigitalTriggerEdge;
             public double TriggerDelay_s;
             public bool EnableTrigger;
             public string LOSource;
@@ -37,7 +37,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     ExternalAttenuation_dB = 0,
                     FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
                     DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
-                    DigitalEdgeType = RFmxWlanMXDigitalEdgeTriggerEdge.Rising,
+                    DigitalTriggerEdge = RFmxWlanMXDigitalEdgeTriggerEdge.Rising,
                     TriggerDelay_s = 0,
                     EnableTrigger = true,
                     LOSource = RFmxInstrMXConstants.LOSourceLOIn,
@@ -216,7 +216,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             sessionHandle.SetLOSource("", commonConfig.LOSource);
             sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
             wlanSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
-            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalTriggerEdge, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
 
