@@ -3,7 +3,7 @@ using NationalInstruments.ModularInstruments.NIRfsg;
 using static NationalInstruments.ReferenceDesignLibraries.SG;
 using System;
 
-namespace NationalInstruments.ReferenceDesignLibraries.SA
+namespace NationalInstruments.ReferenceDesignLibraries.Methods
 {
     public static class RFmxDPD
     {
@@ -103,17 +103,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region ConfigureDPD
         public static void ConfigureCommon(RFmxSpecAnMX specAnSignal, CommonConfiguration commonConfig, Waveform waveform, string selectorString = "")
         {
-            RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent idlePresent;
-     
-            idlePresent = waveform.IdleDurationPresent ? RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.False;
+            RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent idlePresent = waveform.IdleDurationPresent ? RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.False;
 
             specAnSignal.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Dpd, true);
-
             specAnSignal.Dpd.Configuration.ConfigureReferenceWaveform(selectorString, waveform.WaveformData, idlePresent, commonConfig.SignalType);
             specAnSignal.Dpd.Configuration.ConfigureDutAverageInputPower(selectorString, commonConfig.DutAverageInputPower_dBm);
             specAnSignal.Dpd.Configuration.ConfigureMeasurementInterval(selectorString, commonConfig.MeasurementInterval_s);
-            specAnSignal.Dpd.Configuration.ConfigureMeasurementSampleRate(selectorString, commonConfig.SampleRateMode, commonConfig.SampleRate_Hz);
-            
+            specAnSignal.Dpd.Configuration.ConfigureMeasurementSampleRate(selectorString, commonConfig.SampleRateMode, commonConfig.SampleRate_Hz);         
         }
 
         public static void ConfigureLookupTable(RFmxSpecAnMX specAnSignal, LookupTableConfiguration lutConfig, string selectorString = "")
