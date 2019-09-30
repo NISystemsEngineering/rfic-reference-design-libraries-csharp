@@ -18,6 +18,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         #region Type Definitions
         public struct InstrumentConfiguration
         {
+            public string SelectedPorts;
             public string ReferenceClockSource;
             public double CarrierFrequency_Hz;
             public double DutAverageInputPower_dBm;
@@ -27,6 +28,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 return new InstrumentConfiguration()
                 {
+                    SelectedPorts="",
                     ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
                     CarrierFrequency_Hz = 1e9,
                     DutAverageInputPower_dBm = 0,
@@ -95,11 +97,12 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
         public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
+            rfsgHandle.SignalPath.SelectedPorts = instrConfig.SelectedPorts;
             rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
             rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.DutAverageInputPower_dBm);
 
             rfsgHandle.FrequencyReference.Source = RfsgFrequencyReferenceSource.FromString(instrConfig.ReferenceClockSource);
-
+            
             if (instrConfig.ShareLOSGToSA)
             {
                 rfsgHandle.RF.LocalOscillator.LOOutEnabled = true;

@@ -9,6 +9,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region Type Definitions
         public struct CommonConfiguration
         {
+            public string SelectedPorts;
             public double CenterFrequency_Hz;
             public double ReferenceLevel_dBm;
             public double ExternalAttenuation_dB;
@@ -22,6 +23,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             {
                 return new CommonConfiguration
                 {
+                    SelectedPorts = "",
                     CenterFrequency_Hz = 3.5e9,
                     ReferenceLevel_dBm = 0.0,
                     ExternalAttenuation_dB = 0.0,
@@ -181,6 +183,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public static void ConfigureCommon(RFmxInstrMX instr, RFmxLteMX lte, CommonConfiguration commonConfig, string selectorString = "")
         {
             instr.ConfigureFrequencyReference(selectorString, commonConfig.FrequencyReferenceSource, 10e6);
+            lte.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             lte.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
             lte.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
         }
