@@ -146,7 +146,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxWlanMXSemAveragingEnabled AveragingEnabled;
             public int AveragingCount;
             public RFmxWlanMXSemAveragingType AveragingType;
-            public RFmxWlanMXSemMaskType MaskType;
             public static SEMConfiguration GetDefault()
             {
                 return new SEMConfiguration
@@ -158,7 +157,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     AveragingEnabled = RFmxWlanMXSemAveragingEnabled.False,
                     AveragingCount = 5,
                     AveragingType = RFmxWlanMXSemAveragingType.Rms,
-                    MaskType = RFmxWlanMXSemMaskType.Standard
                 };
             }
         }
@@ -346,14 +344,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.Sem.Configuration.ConfigureAveraging(selectorString, semConfig.AveragingEnabled, semConfig.AveragingCount, semConfig.AveragingType);
             wlanSignal.Sem.Configuration.ConfigureSpan(selectorString, semConfig.SpanAuto, semConfig.Span_Hz);
 
-            switch (semConfig.MaskType)
-            {
-                case RFmxWlanMXSemMaskType.Standard:
-                    wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, semConfig.MaskType);
-                    break;
-                default:
-                    throw new System.NotImplementedException("Custom SEM Mask configurations have not been implemented in this Reference Design module.");
-            }
+            // Support for custom masks has not been implemented in this module
+            wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, RFmxWlanMXSemMaskType.Standard);
         }
         #endregion
         #region Measurement Results
