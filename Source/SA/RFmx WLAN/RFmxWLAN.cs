@@ -15,6 +15,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public string SelectedPorts;
             public double CenterFrequency_Hz;
             public double ReferenceLevel_dBm;
+            public bool AutoLevelEnabled;
+            public double AutoLevelMeasurementInterval_s;
             public double ExternalAttenuation_dB;
             public string FrequencyReferenceSource;
             public string DigitalEdgeSource;
@@ -30,6 +32,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     SelectedPorts = "",
                     CenterFrequency_Hz = 1e9,
                     ReferenceLevel_dBm = 0,
+                    AutoLevelEnabled = false,
+                    AutoLevelMeasurementInterval_s = 10e-3,
                     ExternalAttenuation_dB = 0,
                     FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
                     DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
@@ -202,8 +206,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxWlanMX wlanSignal, CommonConfiguration commonConfig,
-            AutoLevelConfiguration autoLevelConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
             string instrModel;
 
@@ -217,7 +220,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
 
-            if (autoLevelConfig.AutoLevelReferenceLevel) wlanSignal.AutoLevel(selectorString, autoLevelConfig.AutoLevelMeasureTime_s);
+            if (commonConfig.AutoLevelEnabled) wlanSignal.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s);
             else wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
 
         }
