@@ -131,7 +131,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     break;
                 case "manual":
                     rfsgHandle.RF.LocalOscillator.LOOutEnabled = true;
-                    rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
+                    rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.FromString(loConfig.LoSource);
                     break;    
             }
 
