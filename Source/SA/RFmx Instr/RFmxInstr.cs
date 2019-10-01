@@ -42,7 +42,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     break;
                 case "manual":
                     sessionHandle.SetAutomaticSGSASharedLO(selectorString, RFmxInstrMXAutomaticSGSASharedLO.Disabled);
-                    sessionHandle.SetLOSource(selectorString, RFmxInstrMXConstants.LOSourceLOIn);
+                    sessionHandle.SetLOSource(selectorString, loConfig.LoSource);
                     break;
                 
             }
