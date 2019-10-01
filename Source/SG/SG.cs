@@ -122,7 +122,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
 
                 default:
-                    rfsgHandle.RF.LocalOscillator.LOOutEnabled = false;
+                    rfsgHandle.RF.LocalOscillator[loConfig.LoChannelName].LOOutEnabled = false;
                     // Return to the default value, in case in future modifications the above case changes
                     // this to something other than the default
                     rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
