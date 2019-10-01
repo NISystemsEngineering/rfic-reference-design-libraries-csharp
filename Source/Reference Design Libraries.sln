@@ -36,7 +36,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxLTE", "SA\RFmx LTE\RFmx
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LTETests", "Unit Tests\LTETests\LTETests.csproj", "{2E7D656A-7813-436E-A217-61DEC8C2B907}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxDPD", "SA\RFmxDPD\RFmxDPD.csproj", "{C725B272-463E-421D-8648-4E3F87868711}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxDPD", "Methods\RFmxDPD\RFmxDPD.csproj", "{C725B272-463E-421D-8648-4E3F87868711}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
