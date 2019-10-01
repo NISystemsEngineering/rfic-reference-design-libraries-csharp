@@ -40,6 +40,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public struct LoConfiguration
         {
             public string LoSharingMode; //{"None","Automatic","Manual"}
+            public string LoSource;
+            public string LoChannelName;
             public string LoOffsetMode;  //{"NoOffset","Automatic","UserDefined"}
             public double LoOffset_Hz;
             public static LoConfiguration GetDefault()
