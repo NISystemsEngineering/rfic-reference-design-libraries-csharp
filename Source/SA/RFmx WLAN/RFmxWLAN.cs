@@ -201,10 +201,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxWlanMX wlanSignal, CommonConfiguration commonConfig,
             AutoLevelConfiguration autoLevelConfig, string selectorString = "")
         {
-            string instrModel;
-
             sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
-            sessionHandle.GetInstrumentModel("", out instrModel);
 
             wlanSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
