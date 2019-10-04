@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using static NationalInstruments.ReferenceDesignLibraries.SA.RFmxWLAN;
 using static NationalInstruments.ReferenceDesignLibraries.SG;
-using static NationalInstruments.ReferenceDesignLibraries.SA.RFmxInstr;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
@@ -20,12 +19,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             NIRfsg nIRfsg = new NIRfsg(resourceName, false, false);
             InstrumentConfiguration instrConfig = InstrumentConfiguration.GetDefault();
             instrConfig.CarrierFrequency_Hz = 2.412e9;
-            SG.LoConfiguration SgLoConfig = SG.LoConfiguration.GetDefault();
 
-            ConfigureInstrument(nIRfsg, instrConfig, SgLoConfig);
+            ConfigureInstrument(nIRfsg, instrConfig);
             Waveform waveform = LoadWaveformFromTDMS(filePath);
 
-            DownloadWaveform(nIRfsg, waveform, SgLoConfig);
+            DownloadWaveform(nIRfsg, waveform);
 
             WaveformTimingConfiguration timing = new WaveformTimingConfiguration
             {
@@ -46,12 +44,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             nIRfsg.Initiate();
             #endregion
 
-            RFmxInstrMX instr = new RFmxInstrMX("VST2", "");
+            RFmxInstrMX instr = new RFmxInstrMX(resourceName, "");
             RFmxWlanMX wlan = instr.GetWlanSignalConfiguration();
             instr.GetWlanSignalConfiguration();
 
-            SA.RFmxInstr.LoConfiguration SaLoConfig = SA.RFmxInstr.LoConfiguration.GetDefault();
-            SA.RFmxInstr.ConfigureInstrument(instr, SaLoConfig);
+
             CommonConfiguration commonConfiguration = CommonConfiguration.GetDefault();
             commonConfiguration.CenterFrequency_Hz = 2.412e9;
 
@@ -61,7 +58,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 AutoLevelReferenceLevel = true
             };
 
-            SA.RFmxWLAN.ConfigureCommon(instr, wlan, commonConfiguration, autoLevel);
+            SA.RFmxWLAN.ConfigureCommon(instr, wlan, commonConfiguration);
 
             SignalConfiguration signal = SignalConfiguration.GetDefault();
             signal.AutoDetectSignal = false;
