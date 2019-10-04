@@ -15,10 +15,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public string SelectedPorts;
             public double CenterFrequency_Hz;
             public double ReferenceLevel_dBm;
+            public bool AutoLevelEnabled;
+            public double AutoLevelMeasurementInterval_s;
             public double ExternalAttenuation_dB;
             public string FrequencyReferenceSource;
             public string DigitalEdgeSource;
-            public RFmxWlanMXDigitalEdgeTriggerEdge DigitalEdgeType;
+            public RFmxWlanMXDigitalEdgeTriggerEdge DigitalTriggerEdge;
             public double TriggerDelay_s;
             public bool EnableTrigger;
             public string LOSource;
@@ -30,10 +32,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     SelectedPorts = "",
                     CenterFrequency_Hz = 1e9,
                     ReferenceLevel_dBm = 0,
+                    AutoLevelEnabled = false,
+                    AutoLevelMeasurementInterval_s = 10e-3,
                     ExternalAttenuation_dB = 0,
                     FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
                     DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
-                    DigitalEdgeType = RFmxWlanMXDigitalEdgeTriggerEdge.Rising,
+                    DigitalTriggerEdge = RFmxWlanMXDigitalEdgeTriggerEdge.Rising,
                     TriggerDelay_s = 0,
                     EnableTrigger = true,
                     LOSource = RFmxInstrMXConstants.LOSourceLOIn,
@@ -142,7 +146,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxWlanMXSemAveragingEnabled AveragingEnabled;
             public int AveragingCount;
             public RFmxWlanMXSemAveragingType AveragingType;
-            public RFmxWlanMXSemMaskType MaskType;
             public static SEMConfiguration GetDefault()
             {
                 return new SEMConfiguration
@@ -154,7 +157,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     AveragingEnabled = RFmxWlanMXSemAveragingEnabled.False,
                     AveragingCount = 5,
                     AveragingType = RFmxWlanMXSemAveragingType.Rms,
-                    MaskType = RFmxWlanMXSemMaskType.Standard
                 };
             }
         }
@@ -169,13 +171,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double[] UpperOffsetMargin_dB;
             public double[] UpperOffsetMarginFrequency_Hz;
             public double[] UpperOffsetMarginAbsolutePower_dBm;
-            public double[] UpperOffsetMarginRelativePower_dBm;
+            public double[] UpperOffsetMarginRelativePower_dB;
 
             public RFmxWlanMXSemLowerOffsetMeasurementStatus[] lowerOffsetMeasurementStatus;
             public double[] LowerOffsetMargin_dB;
             public double[] LowerOffsetMarginFrequency_Hz;
             public double[] LowerOffsetMarginAbsolutePower_dBm;
-            public double[] LowerOffsetMarginRelativePower_dBm;
+            public double[] LowerOffsetMarginRelativePower_dB;
 
         }
         public struct TxPServoConfiguration
@@ -202,8 +204,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxWlanMX wlanSignal, CommonConfiguration commonConfig,
-            AutoLevelConfiguration autoLevelConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
             string instrModel;
 
@@ -213,11 +214,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             sessionHandle.SetLOSource("", commonConfig.LOSource);
             sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
             wlanSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
-            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalTriggerEdge, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
 
-            if (autoLevelConfig.AutoLevelReferenceLevel) wlanSignal.AutoLevel(selectorString, autoLevelConfig.AutoLevelMeasureTime_s);
+            if (commonConfig.AutoLevelEnabled) wlanSignal.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s);
             else wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
 
         }
@@ -343,14 +344,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.Sem.Configuration.ConfigureAveraging(selectorString, semConfig.AveragingEnabled, semConfig.AveragingCount, semConfig.AveragingType);
             wlanSignal.Sem.Configuration.ConfigureSpan(selectorString, semConfig.SpanAuto, semConfig.Span_Hz);
 
-            switch (semConfig.MaskType)
-            {
-                case RFmxWlanMXSemMaskType.Standard:
-                    wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, semConfig.MaskType);
-                    break;
-                default:
-                    throw new System.NotImplementedException("Custom SEM Mask configurations have not been implemented in this Reference Design module.");
-            }
+            // Support for custom masks has not been implemented in this module
+            wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, RFmxWlanMXSemMaskType.Standard);
         }
         #endregion
         #region Measurement Results
@@ -383,10 +378,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.Sem.Results.FetchCarrierMeasurement(selectorString, 10, out semResults.AbsolutePower_dBm, out semResults.RelativePower_dB);
             wlanSignal.Sem.Results.FetchLowerOffsetMarginArray(selectorString, 10, ref semResults.lowerOffsetMeasurementStatus,
                 ref semResults.LowerOffsetMargin_dB, ref semResults.LowerOffsetMarginFrequency_Hz, ref semResults.LowerOffsetMarginAbsolutePower_dBm,
-                ref semResults.LowerOffsetMarginRelativePower_dBm);
+                ref semResults.LowerOffsetMarginRelativePower_dB);
             wlanSignal.Sem.Results.FetchUpperOffsetMarginArray(selectorString, 10, ref semResults.upperOffsetMeasurementStatus,
                ref semResults.UpperOffsetMargin_dB, ref semResults.UpperOffsetMarginFrequency_Hz, ref semResults.UpperOffsetMarginAbsolutePower_dBm,
-               ref semResults.UpperOffsetMarginRelativePower_dBm);
+               ref semResults.UpperOffsetMarginRelativePower_dB);
 
             return semResults;
         }
