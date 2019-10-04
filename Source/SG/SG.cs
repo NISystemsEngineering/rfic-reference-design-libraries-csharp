@@ -23,7 +23,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double CarrierFrequency_Hz;
             public double DutAverageInputPower_dBm;
             public double ExternalAttenuation_dBm;
-
+            public LocalOscillatorConfiguration[] LoConfigurations;
             
             public static InstrumentConfiguration GetDefault()
             {
@@ -34,23 +34,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     CarrierFrequency_Hz = 1e9,
                     DutAverageInputPower_dBm = 0,
                     ExternalAttenuation_dBm = 0,
-                };
-            }
-        }
-        public struct LoConfiguration
-        {
-            public string LoSharingMode; //{"None","Automatic","Manual"}
-            public string LoSource;
-            public string LoChannelName;
-            public string LoOffsetMode;  //{"NoOffset","Automatic","UserDefined"}
-            public double LoOffset_Hz;
-            public static LoConfiguration GetDefault()
-            {
-                return new LoConfiguration()
-                {
-                    LoSharingMode = "Automatic",
-                    LoOffsetMode = "Automatic",
-                    LoOffset_Hz = 0,
+                    LoConfigurations = new LocalOscillatorConfiguration[] { LocalOscillatorConfiguration.GetDefault() }
                 };
             }
         }
@@ -112,38 +96,46 @@ namespace NationalInstruments.ReferenceDesignLibraries
         }
         #endregion
 
-        public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig, LoConfiguration loConfig)
+        public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
             rfsgHandle.SignalPath.SelectedPorts = instrConfig.SelectedPorts;
-            rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
-            rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.DutAverageInputPower_dBm);
-
             rfsgHandle.FrequencyReference.Source = RfsgFrequencyReferenceSource.FromString(instrConfig.ReferenceClockSource);
+            rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.DutAverageInputPower_dBm);
+            rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
 
-            switch (loConfig.LoSharingMode.ToLower())
+            foreach (LocalOscillatorConfiguration loConfig in instrConfig.LoConfigurations)
             {
+                switch (loConfig.SharingMode)
+                {
+                    case LocalOscillatorSharingMode.None:
+                        rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Disabled;
+                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].LOOutEnabled = false;
+                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.Onboard;
+                        break;
+                    case LocalOscillatorSharingMode.Manual:
+                        rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Disabled;
+                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].LOOutEnabled = loConfig.ExportEnabled;
+                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.FromString(loConfig.Source);
+                        break;
+                    default: // default to automatic case
+                        rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Enabled;
+                        rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("LOOutEnabled"));
+                        rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("Source"));
+                        break;
+                }
 
-                default:
-                    rfsgHandle.RF.LocalOscillator[loConfig.LoChannelName].LOOutEnabled = false;
-                    // Return to the default value, in case in future modifications the above case changes
-                    // this to something other than the default
-                    rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
-                    break;
-                case "manual":
-                    rfsgHandle.RF.LocalOscillator.LOOutEnabled = true;
-                    rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.FromString(loConfig.LoSource);
-                    break;    
-            }
-
-            switch (loConfig.LoOffsetMode.ToLower())
-            {
-                default:
-                    rfsgHandle.RF.Upconverter.FrequencyOffset = loConfig.LoOffset_Hz = 0;
-                    break;
-
-                case "userdefined":
-                    rfsgHandle.RF.Upconverter.FrequencyOffset = loConfig.LoOffset_Hz;
-                    break;
+                switch (loConfig.OffsetMode)
+                {
+                    case LocalOscillatorOffsetMode.NoOffset:
+                        rfsgHandle.RF.Upconverter.FrequencyOffset = 0.0;
+                        break;
+                    case LocalOscillatorOffsetMode.UserDefined:
+                        rfsgHandle.RF.Upconverter.FrequencyOffset = loConfig.Offset_Hz;
+                        break;
+                    default: // default to automatic case
+                        rfsgHandle.Utility.ResetAttribute(typeof(RfsgUpconverter).GetProperty("FrequencyOffset"));
+                        break;
+                }
             }
         }
 
@@ -209,9 +201,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
             return waveform;
         }
 
-        public static void DownloadWaveform(NIRfsg rfsgHandle, Waveform waveform, LoConfiguration loConfig)
+        public static void DownloadWaveform(NIRfsg rfsgHandle, Waveform waveform)
         {
-            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
             rfsgHandle.Abort();
 
             try
@@ -225,6 +216,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.RF.PowerLevelType = RfsgRFPowerLevelType.PeakPower; // set power level to peak before writing so RFSG doesn't scale waveform
             rfsgHandle.Arb.WriteWaveform(waveform.WaveformName, waveform.WaveformData);
 
+            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+
             //Store loaded parameters
             NIRfsgPlayback.StoreWaveformSignalBandwidth(rfsgPtr, waveform.WaveformName, waveform.SignalBandwidth_Hz);
             NIRfsgPlayback.StoreWaveformPapr(rfsgPtr, waveform.WaveformName, waveform.PAPR_dB);
@@ -233,37 +226,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformSampleRate(rfsgPtr, waveform.WaveformName, waveform.SampleRate);
 
             //Manually configure additional settings
+            NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled); // configured at instrument level, not waveform level
             NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, waveform.RuntimeScaling);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
-
-            //LO configuration
-            switch (loConfig.LoSharingMode.ToLower())
-            {
-                default:
-                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Disabled);
-                    break;
-
-                case "automatic":
-                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Enabled);
-                    break;
-            }
-
-
-            switch (loConfig.LoOffsetMode.ToLower())
-            {
-                case "nooffset":
-                default:
-                    NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.NoOffset);
-                    break;
-                case "automatic":
-                
-                    NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Auto);
-                    break;
-                case "userdefined":
-                    NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled);
-                    break;
-            }
-
         }
 
 		public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
