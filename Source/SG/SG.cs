@@ -37,6 +37,25 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     LoConfigurations = new LocalOscillatorConfiguration[] { LocalOscillatorConfiguration.GetDefault() }
                 };
             }
+
+            public static InstrumentConfiguration GetDefault(NIRfsg sessionHandle)
+            {
+                InstrumentConfiguration instrConfig = new InstrumentConfiguration();
+                switch (sessionHandle.Identity.InstrumentModel)
+                {
+                    case "NI PXIe-5830":
+                    case "NI PXIe-5831":
+                        instrConfig.SelectedPorts = "IF0";
+                        instrConfig.CarrierFrequency_Hz = 6.5e9;
+                        LocalOscillatorConfiguration lo1Config = LocalOscillatorConfiguration.GetDefault();
+                        lo1Config.ChannelName = "LO1";
+                        LocalOscillatorConfiguration lo2Config = LocalOscillatorConfiguration.GetDefault();
+                        lo2Config.ChannelName = "LO2";
+                        instrConfig.LoConfigurations = new LocalOscillatorConfiguration[] { lo1Config, lo2Config };
+                        break;
+                }
+                return instrConfig;
+            }
         }
 
         public struct Waveform
@@ -224,10 +243,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformBurstStartLocations(rfsgPtr, waveform.WaveformName, waveform.BurstStartLocations);
             NIRfsgPlayback.StoreWaveformBurstStopLocations(rfsgPtr, waveform.WaveformName, waveform.BurstStopLocations);
             NIRfsgPlayback.StoreWaveformSampleRate(rfsgPtr, waveform.WaveformName, waveform.SampleRate);
+            NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, waveform.RuntimeScaling);
 
             //Manually configure additional settings
             NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled); // configured at instrument level, not waveform level
-            NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, waveform.RuntimeScaling);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
 
@@ -266,7 +285,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             if (waveTiming.DutyCycle_Percent <= 0)
             {
-                throw new System.ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
+                throw new ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
             }
 
             //Calculate various timining information
