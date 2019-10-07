@@ -16,6 +16,24 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     LoConfigurations = new LocalOscillatorConfiguration[] { LocalOscillatorConfiguration.GetDefault() }       
                 };
             }
+
+            public static InstrumentConfiguration GetDefault(RFmxInstrMX sessionHandle)
+            {
+                InstrumentConfiguration instrConfig = new InstrumentConfiguration();
+                sessionHandle.GetInstrumentModel("", out string instrumentModel);
+                switch (instrumentModel)
+                {
+                    case "NI PXIe-5830":
+                    case "NI PXIe-5831":
+                        LocalOscillatorConfiguration lo1Config = LocalOscillatorConfiguration.GetDefault();
+                        lo1Config.ChannelName = "LO1";
+                        LocalOscillatorConfiguration lo2Config = LocalOscillatorConfiguration.GetDefault();
+                        lo2Config.ChannelName = "LO2";
+                        instrConfig.LoConfigurations = new LocalOscillatorConfiguration[] { lo1Config, lo2Config };
+                        break;
+                }
+                return instrConfig;
+            }
         }
         #endregion
 
