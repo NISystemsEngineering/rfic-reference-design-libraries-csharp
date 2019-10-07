@@ -188,8 +188,14 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 rfsgHandle.Arb.ClearWaveform(waveform.WaveformName); //Clear existing waveform to avoid erros
             }
-            catch (Ivi.Driver.OutOfRangeException)
-            { //Intentionally ignore this exception; clearing the waveform failed because it doesn't exist
+            catch (Exception ex)
+            {
+                if (ex is Ivi.Driver.OutOfRangeException || ex is Ivi.Driver.IviCDriverException)
+                {
+                    //Intentionally ignore this exception; clearing the waveform failed because it doesn't exist
+                }
+                else
+                    throw;
             }
 
             rfsgHandle.RF.PowerLevelType = RfsgRFPowerLevelType.PeakPower; // set power level to peak before writing so RFSG doesn't scale waveform
