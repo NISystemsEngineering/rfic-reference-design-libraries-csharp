@@ -26,7 +26,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         
         //Analyzer Configuration 
         public SA.RFmxSpecAn.CommonConfiguration CommonConfigurationSpecAn;
-        public SA.RFmxSpecAn.AutoLevelConfiguration AutolevelConfigurationSpecAn;
         
         //Measurements Configuration
         public SA.RFmxSpecAn.AmpmConfiguration AmpmConfigurationSpecAn;
@@ -64,7 +63,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             
             CommonConfigurationSpecAn = SA.RFmxSpecAn.CommonConfiguration.GetDefault();
             CommonConfigurationSpecAn.CenterFrequency_Hz = centerFrequency;
-            AutolevelConfigurationSpecAn = SA.RFmxSpecAn.AutoLevelConfiguration.GetDefault();
             AmpmConfigurationSpecAn = SA.RFmxSpecAn.AmpmConfiguration.GetDefault();
             
             TxpConfigurationSpecAn = SA.RFmxSpecAn.TxpConfiguration.GetDefault();
@@ -122,7 +120,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
            
 
             RFmxSpecAnMX specAn = instr.GetSpecAnSignalConfiguration();
-            SA.RFmxSpecAn.ConfigureCommon(instr, specAn, CommonConfigurationSpecAn,AutolevelConfigurationSpecAn);
+            SA.RFmxSpecAn.ConfigureCommon(instr, specAn, CommonConfigurationSpecAn);
             AmpmConfigurationSpecAn.ReferenceWaveform = waveform.WaveformData;
             AmpmConfigurationSpecAn.DutInputPower_dBm = SgInstrConfig.DutAverageInputPower_dBm;
             SA.RFmxSpecAn.ConfigureAmpm(specAn, AmpmConfigurationSpecAn);

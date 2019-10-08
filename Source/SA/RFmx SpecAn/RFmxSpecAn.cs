@@ -1,8 +1,6 @@
 ﻿using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.RFmx.SpecAnMX;
 
-
-
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
     public static class RFmxSpecAn
@@ -15,10 +13,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double ReferenceLevel_dBm;
             public double ExternalAttenuation_dB;
             public string FrequencyReferenceSource;
+            public bool EnableTrigger;
             public string DigitalEdgeSource;
             public RFmxSpecAnMXDigitalEdgeTriggerEdge DigitalEdgeType;
             public double TriggerDelay_s;
-            public bool EnableTrigger;
+            public bool AutoLevelEnabled;
+            public double AutoLevelMeasurementInterval_s;
+            public double AutoLevelBandwidth_Hz;
             public static CommonConfiguration GetDefault()
             {
                 return new CommonConfiguration
@@ -28,35 +29,23 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     ReferenceLevel_dBm = 0,
                     ExternalAttenuation_dB = 0,
                     FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
+                    EnableTrigger = true,
                     DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
                     DigitalEdgeType = RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising,
                     TriggerDelay_s = 0,
-                    EnableTrigger = true,
+                    AutoLevelEnabled = false,
+                    AutoLevelMeasurementInterval_s = 10e-3,
+                    AutoLevelBandwidth_Hz = 20e6
                 };
             }
         }
 
-        public struct AutoLevelConfiguration
-        {
-            public bool AutoLevelReferenceLevel;
-            public double AutoLevelMeasureTime_s;
-            public double AutoLevelBandwidth_Hz;
-            public static AutoLevelConfiguration GetDefault()
-            {
-                return new AutoLevelConfiguration
-                {
-                    AutoLevelReferenceLevel = false,
-                    AutoLevelMeasureTime_s = 10e-3,
-                    AutoLevelBandwidth_Hz=20e6
-                };
-            }
-        }
         public struct TxpConfiguration
         {
             public double MeasurementInterval_s;
             public double Rbw_Hz;
             public RFmxSpecAnMXTxpRbwFilterType RbwFilterType;
-            public double RrfAlpha;
+            public double RrcAlpha;
 
             public RFmxSpecAnMXTxpAveragingEnabled AveragingEnabled;
             public int AveragingCount;
@@ -69,7 +58,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     MeasurementInterval_s = 1e-3,
                     Rbw_Hz = 20e6,
                     RbwFilterType= RFmxSpecAnMXTxpRbwFilterType.None,
-                    RrfAlpha=0.01,
+                    RrcAlpha=0.01,
 
                     AveragingEnabled=RFmxSpecAnMXTxpAveragingEnabled.False,
                     AveragingCount = 10 ,
@@ -109,7 +98,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     SweepTimeAuto = RFmxSpecAnMXAcpSweepTimeAuto.True,
                     SweepTimeInterval_s = 1e-3
 
-                    };
+                };
             }
         }
         public struct AcpCarrierChannelConfiguration
@@ -226,28 +215,29 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         #endregion
         #region Instrument Configurations
-        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxSpecAnMX specAnSignal, CommonConfiguration commonConfig,
-            AutoLevelConfiguration autoLevelConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxSpecAnMX specAnSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
             sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
             specAnSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             specAnSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             specAnSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             specAnSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
-            if (autoLevelConfig.AutoLevelReferenceLevel) specAnSignal.AutoLevel(selectorString, autoLevelConfig.AutoLevelBandwidth_Hz, autoLevelConfig.AutoLevelMeasureTime_s, out _);
+            if (commonConfig.AutoLevelEnabled) specAnSignal.AutoLevel(selectorString, commonConfig.AutoLevelBandwidth_Hz, commonConfig.AutoLevelMeasurementInterval_s, out _);
             else specAnSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
 
         }
         public static void ConfigureTxp(RFmxSpecAnMX specAn, TxpConfiguration txpConfig, string selectorString = "")
         {
             specAn.Txp.Configuration.SetMeasurementEnabled(selectorString, true);
+            specAn.Txp.Configuration.SetAllTracesEnabled(selectorString, true);
             specAn.Txp.Configuration.SetMeasurementInterval(selectorString,txpConfig.MeasurementInterval_s);
-            specAn.Txp.Configuration.ConfigureRbwFilter(selectorString,txpConfig.Rbw_Hz,txpConfig.RbwFilterType,txpConfig.RrfAlpha);
+            specAn.Txp.Configuration.ConfigureRbwFilter(selectorString,txpConfig.Rbw_Hz,txpConfig.RbwFilterType,txpConfig.RrcAlpha);
            
         }
         public static void ConfigureAcpCommon(RFmxSpecAnMX specAn, AcpCommonConfiguration acpCommonConfig, string selectorString = "")
         {
             specAn.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
+            specAn.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
             specAn.Acp.Configuration.ConfigurePowerUnits(selectorString, acpCommonConfig.PowerUnits);
             specAn.Acp.Configuration.ConfigureAveraging(selectorString, acpCommonConfig.AveragingEnabled, acpCommonConfig.AveragingCount, acpCommonConfig.AveragingType);
             specAn.Acp.Configuration.ConfigureFft(selectorString, acpCommonConfig.FftWindow, acpCommonConfig.FftPadding);
@@ -284,6 +274,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public static void ConfigureAmpm(RFmxSpecAnMX specAn, AmpmConfiguration ampmConfig, string selectorString = "")
         {
             specAn.Ampm.Configuration.SetMeasurementEnabled(selectorString, true);
+            specAn.Ampm.Configuration.SetAllTracesEnabled(selectorString, true);
             specAn.Ampm.Configuration.ConfigureMeasurementInterval(selectorString, ampmConfig.MeasurementInterval_s);
             specAn.Ampm.Configuration.ConfigureDutAverageInputPower(selectorString, ampmConfig.DutInputPower_dBm);
             specAn.Ampm.Configuration.ConfigureReferenceWaveform(selectorString, ampmConfig.ReferenceWaveform, ampmConfig.IdleDurationPresent, ampmConfig.SignalType);
