@@ -32,9 +32,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         public SA.RFmxSpecAn.AmpmResults AmpmResultsSpecAn;
 
         public SA.RFmxSpecAn.AcpCommonConfiguration AcpCommonConfigurationSpecAn;
-        public SA.RFmxSpecAn.AcpCarrierChannelConfiguration[] AcpCarrierChannelConfigurationSpecAn;
         const int NumberOfOffsets = 3;
-        public SA.RFmxSpecAn.AcpOffsetChannelConfiguration[] AcpOffsetChannelConfigurationSpecAn;
+       
         public SA.RFmxSpecAn.AcpResults AcpResultsSpecAn;
 
         public SA.RFmxSpecAn.TxpConfiguration TxpConfigurationSpecAn;
@@ -69,35 +68,35 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             TxpConfigurationSpecAn.Rbw_Hz = 20e6;
             AcpCommonConfigurationSpecAn = SA.RFmxSpecAn.AcpCommonConfiguration.GetDefault();
             AcpCommonConfigurationSpecAn.Rbw_Hz = 10e6;
-            AcpCarrierChannelConfigurationSpecAn = new SA.RFmxSpecAn.AcpCarrierChannelConfiguration[1];
-            AcpCarrierChannelConfigurationSpecAn[0]= SA.RFmxSpecAn.AcpCarrierChannelConfiguration.GetDefault();
-            AcpOffsetChannelConfigurationSpecAn = new SA.RFmxSpecAn.AcpOffsetChannelConfiguration[NumberOfOffsets];
+            AcpCommonConfigurationSpecAn.CarrierChannelConfiguration = new SA.RFmxSpecAn.AcpCarrierChannelConfiguration[1];
+            AcpCommonConfigurationSpecAn.CarrierChannelConfiguration[0]= SA.RFmxSpecAn.AcpCarrierChannelConfiguration.GetDefault();
+            AcpCommonConfigurationSpecAn.OffsetChannelConfiguration = new SA.RFmxSpecAn.AcpOffsetChannelConfiguration[NumberOfOffsets];
 
             //Define ACP offset configuration
             for (int i = 0; i < NumberOfOffsets; i++)
             {
-                AcpOffsetChannelConfigurationSpecAn[i].OffsetEnabled = RFmxSpecAnMXAcpOffsetEnabled.True;
-                AcpOffsetChannelConfigurationSpecAn[i].OffsetSideBand = RFmxSpecAnMXAcpOffsetSideband.Both;
-                AcpOffsetChannelConfigurationSpecAn[i].OffsetPowerReferenceCarrier = RFmxSpecAnMXAcpOffsetPowerReferenceCarrier.Closest;
-                AcpOffsetChannelConfigurationSpecAn[i].OffsetPowerReferenceSpecificIndex = 0;
-                AcpOffsetChannelConfigurationSpecAn[i].RelativeAttenuation_dB = 0.00;
-                AcpOffsetChannelConfigurationSpecAn[i].RrcFilterEnabled = RFmxSpecAnMXAcpOffsetRrcFilterEnabled.False;
-                AcpOffsetChannelConfigurationSpecAn[i].RrcFilterAlpha = 0.220;
+                AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetEnabled = RFmxSpecAnMXAcpOffsetEnabled.True;
+               AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetSideBand = RFmxSpecAnMXAcpOffsetSideband.Both;
+               AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetPowerReferenceCarrier = RFmxSpecAnMXAcpOffsetPowerReferenceCarrier.Closest;
+               AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetPowerReferenceSpecificIndex = 0;
+               AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].RelativeAttenuation_dB = 0.00;
+               AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].RrcFilterEnabled = RFmxSpecAnMXAcpOffsetRrcFilterEnabled.False;
+               AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].RrcFilterAlpha = 0.220;
 
                 if (i == 0) //For offset 0, frequency offset = 10MHz, IBW = 9MHz
                 {
-                    AcpOffsetChannelConfigurationSpecAn[i].OffsetFrequency_Hz = 20e6;
-                    AcpOffsetChannelConfigurationSpecAn[i].IntegrationBandwidth_Hz = 18e6;
+                   AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetFrequency_Hz = 20e6;
+                   AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz = 18e6;
                 }
                 else if (i == 1) //For offset 1, frequency offset = 7.5MHz, IBW = 3.84MHz
                 {
-                    AcpOffsetChannelConfigurationSpecAn[i].OffsetFrequency_Hz = 12.5e6;
-                    AcpOffsetChannelConfigurationSpecAn[i].IntegrationBandwidth_Hz = 3.84e6;
+                   AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetFrequency_Hz = 12.5e6;
+                   AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz = 3.84e6;
                 }
                 else if (i == 2) //For offset 2, frequency offset = 12.5MHz, IBW = 3.84MHz
                 {
-                    AcpOffsetChannelConfigurationSpecAn[i].OffsetFrequency_Hz = 17.5e6;
-                    AcpOffsetChannelConfigurationSpecAn[i].IntegrationBandwidth_Hz = 3.84e6;
+                   AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetFrequency_Hz = 17.5e6;
+                   AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz = 3.84e6;
                 }
             }
         }
@@ -121,14 +120,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             RFmxSpecAnMX specAn = instr.GetSpecAnSignalConfiguration();
             SA.RFmxSpecAn.ConfigureCommon(instr, specAn, CommonConfigurationSpecAn);
-            AmpmConfigurationSpecAn.ReferenceWaveform = waveform.WaveformData;
+            AmpmConfigurationSpecAn.ReferenceWaveform = waveform;
             AmpmConfigurationSpecAn.DutInputPower_dBm = SgInstrConfig.DutAverageInputPower_dBm;
             SA.RFmxSpecAn.ConfigureAmpm(specAn, AmpmConfigurationSpecAn);
 
             SA.RFmxSpecAn.ConfigureTxp(specAn, TxpConfigurationSpecAn);
             SA.RFmxSpecAn.ConfigureAcpCommon(specAn, AcpCommonConfigurationSpecAn, "");
-            SA.RFmxSpecAn.ConfigureAcpCarrierChannel(specAn, AcpCarrierChannelConfigurationSpecAn, "");
-            SA.RFmxSpecAn.ConfigureAcpOffsetChannel(specAn, AcpOffsetChannelConfigurationSpecAn, "");
             #endregion
 
             #region Measure
