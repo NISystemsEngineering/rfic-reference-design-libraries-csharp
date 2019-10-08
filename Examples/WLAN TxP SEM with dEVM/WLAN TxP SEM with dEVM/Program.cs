@@ -44,7 +44,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             nIRfsg.Initiate();
             #endregion
 
-            RFmxInstrMX instr = new RFmxInstrMX("VST2", "");
+            RFmxInstrMX instr = new RFmxInstrMX(resourceName, "");
             RFmxWlanMX wlan = instr.GetWlanSignalConfiguration();
             instr.GetWlanSignalConfiguration();
 
@@ -58,7 +58,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 AutoLevelReferenceLevel = true
             };
 
-            SA.RFmxWLAN.ConfigureCommon(instr, wlan, commonConfiguration, autoLevel);
+            SA.RFmxWLAN.ConfigureCommon(instr, wlan, commonConfiguration);
 
             SignalConfiguration signal = SignalConfiguration.GetDefault();
             signal.AutoDetectSignal = false;
