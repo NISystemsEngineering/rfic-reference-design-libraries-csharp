@@ -162,7 +162,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                         rfsgHandle.RF.Upconverter.FrequencyOffset = loConfig.Offset_Hz;
                         break;
                     default: // default to automatic case
-                        rfsgHandle.Utility.ResetAttribute(typeof(RfsgUpconverter).GetProperty("FrequencyOffset"));
+                        rfsgHandle.Utility.ResetAttribute(typeof(RfsgUpconverter).GetProperty("FrequencyOffset")); // LO offset will automatically be set based on signal bandwidth property set by rfsgpbl
                         break;
                 }
             }
