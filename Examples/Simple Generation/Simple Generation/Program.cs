@@ -8,28 +8,30 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
     class SGExample
     {
         public enum GenerationType { Bursted, Continuous };
+
         static void Main()
         {
+            // Initialize variables
             string resourceName = "VST2";
             string filePath = Path.GetFullPath(@"Support Files\80211a_20M_48Mbps.tdms");
             GenerationType genType = GenerationType.Continuous;
 
-            NIRfsg nIRfsg = new NIRfsg(resourceName, false, false);
+            // Initialize session
+            NIRfsg niRfsg = new NIRfsg(resourceName, false, false);
 
-            InstrumentConfiguration instrConfig = InstrumentConfiguration.GetDefault();
-            instrConfig.CarrierFrequency_Hz = 2e9;
-            LoConfiguration loConfig = LoConfiguration.GetDefault();
+            // Configure instrument
+            InstrumentConfiguration instrConfig = InstrumentConfiguration.GetDefault(niRfsg);
+            ConfigureInstrument(niRfsg, instrConfig);
 
-            ConfigureInstrument(nIRfsg, instrConfig, loConfig);
+            // Download waveform
             Waveform waveform = LoadWaveformFromTDMS(filePath);
-
-            DownloadWaveform(nIRfsg, waveform,loConfig);
+            DownloadWaveform(niRfsg, waveform);
 
             switch (genType)
             {
                 // For continous generation, we can simply call this function to begin the generation
                 case GenerationType.Continuous:
-                    ConfigureContinuousGeneration(nIRfsg, waveform);
+                    ConfigureContinuousGeneration(niRfsg, waveform);
                     break;
                 // For bursted generation, we need to configure the duty cycle and PA control
                 case GenerationType.Bursted:
@@ -48,19 +50,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                         CommandEnableTime_s = 0,
                         CommandDisableTime_s = 0,
                     };
-
-                    ConfigureBurstedGeneration(nIRfsg, waveform, dynamicConfig, paenConfig, out _, out _);
+                    ConfigureBurstedGeneration(niRfsg, waveform, dynamicConfig, paenConfig, out _, out _);
                     break;
             }
 
-            nIRfsg.Initiate();
+            // Initiate generation
+            niRfsg.Initiate();
 
+            // Wait on user
             Console.WriteLine("Generation has now begun. Press any key to abort generation and close the example.");
             Console.ReadKey();
 
-            AbortGeneration(nIRfsg);
+            // Stop generation
+            AbortGeneration(niRfsg);
 
-            CloseInstrument(nIRfsg);
+            // Close instrument session
+            CloseInstrument(niRfsg);
         }
     }
 }
