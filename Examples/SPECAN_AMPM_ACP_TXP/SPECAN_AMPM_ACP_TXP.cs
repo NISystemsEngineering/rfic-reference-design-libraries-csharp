@@ -122,7 +122,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             SA.RFmxSpecAn.ConfigureAmpm(specAn, AmpmConfigurationSpecAn);
 
             SA.RFmxSpecAn.ConfigureTxp(specAn, TxpConfigurationSpecAn);
-            SA.RFmxSpecAn.ConfigureAcpCommon(specAn, AcpCommonConfigurationSpecAn, "");
+            SA.RFmxSpecAn.ConfigureAcp(specAn, AcpCommonConfigurationSpecAn, "");
             #endregion
 
             #region Measure
@@ -186,8 +186,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             Console.WriteLine("\n----------------------- AMPM Results ----------------------\n");
             Console.WriteLine("Mean Linear Gain (dB):                       {0:0.00}", AmpmResultsSpecAn.MeanLinearGain_dB);
             Console.WriteLine("Mean RMS EVM (%):                            {0:0.00}", AmpmResultsSpecAn.MeanRmsEvm_percent);
-            Console.WriteLine("AM to AM Residual (dB):                      {0:0.00}", AmpmResultsSpecAn.AmToAMResidual);
-            Console.WriteLine("AM to PM Residual (dB):                      {0:0.00}", AmpmResultsSpecAn.AmToPMResidual);
+            Console.WriteLine("AM to AM Residual (dB):                      {0:0.00}", AmpmResultsSpecAn.AmToAMResidual_dB);
+            Console.WriteLine("AM to PM Residual (dB):                      {0:0.00}", AmpmResultsSpecAn.AmToPMResidual_deg);
             Console.WriteLine("1 dB Compression Point (dBm):                {0:0.00}", AmpmResultsSpecAn.OnedBCompressionPoint_dBm);
         }
         #endregion

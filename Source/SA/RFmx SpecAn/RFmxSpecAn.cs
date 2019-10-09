@@ -74,7 +74,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxSpecAnMXAcpCarrierRrcFilterEnabled RrcFilterEnabled;
             public double RrcAlpha;
             public RFmxSpecAnMXAcpCarrierMode Mode;
-            public double Frequency;
+            public double Frequency_Hz;
             public static AcpCarrierChannelConfiguration GetDefault()
             {
                 return new AcpCarrierChannelConfiguration
@@ -83,7 +83,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     RrcFilterEnabled = RFmxSpecAnMXAcpCarrierRrcFilterEnabled.False,
                     RrcAlpha = 0.22,
                     Mode = RFmxSpecAnMXAcpCarrierMode.Active,
-                    Frequency = 0.00
+                    Frequency_Hz = 0.00
                 };
         
             }
@@ -212,8 +212,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double MeanLinearGain_dB;
             public double OnedBCompressionPoint_dBm;
             public double MeanRmsEvm_percent;
-            public double AmToAMResidual;
-            public double AmToPMResidual;
+            public double AmToAMResidual_dB;
+            public double AmToPMResidual_deg;
         }
 
 
@@ -238,7 +238,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             specAn.Txp.Configuration.ConfigureRbwFilter(selectorString,txpConfig.Rbw_Hz,txpConfig.RbwFilterType,txpConfig.RrcAlpha);
            
         }
-        public static void ConfigureAcpCommon(RFmxSpecAnMX specAn, AcpCommonConfiguration acpCommonConfig, string selectorString = "")
+        public static void ConfigureAcp(RFmxSpecAnMX specAn, AcpCommonConfiguration acpCommonConfig, string selectorString = "")
         {
             specAn.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
             specAn.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
@@ -255,7 +255,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 specAn.Acp.Configuration.ConfigureCarrierIntegrationBandwidth(carrierString, acpCommonConfig.CarrierChannelConfiguration[i].IntegrationBandwidth_Hz);
                 specAn.Acp.Configuration.ConfigureCarrierRrcFilter(carrierString, acpCommonConfig.CarrierChannelConfiguration[i].RrcFilterEnabled, acpCommonConfig.CarrierChannelConfiguration[i].RrcAlpha);
                 specAn.Acp.Configuration.ConfigureCarrierMode(carrierString, acpCommonConfig.CarrierChannelConfiguration[i].Mode);
-                specAn.Acp.Configuration.ConfigureCarrierFrequency(carrierString, acpCommonConfig.CarrierChannelConfiguration[i].Frequency);
+                specAn.Acp.Configuration.ConfigureCarrierFrequency(carrierString, acpCommonConfig.CarrierChannelConfiguration[i].Frequency_Hz);
             }
 
             specAn.Acp.Configuration.ConfigureNumberOfOffsets(selectorString, acpCommonConfig.OffsetChannelConfiguration.Length);
@@ -334,7 +334,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             AmpmResults ampmResults = new AmpmResults();
             specAn.Ampm.Results.FetchDutCharacteristics(selectorString,10.0, out ampmResults.MeanLinearGain_dB, out ampmResults.OnedBCompressionPoint_dBm, out ampmResults.MeanRmsEvm_percent);
-            specAn.Ampm.Results.FetchCurveFitResidual(selectorString,10.0,out ampmResults.AmToAMResidual,out ampmResults.AmToPMResidual);
+            specAn.Ampm.Results.FetchCurveFitResidual(selectorString,10.0,out ampmResults.AmToAMResidual_dB,out ampmResults.AmToPMResidual_deg);
             return ampmResults;
         }
 
