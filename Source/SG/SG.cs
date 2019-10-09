@@ -141,7 +141,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                         string instrumentModel = rfsgHandle.Identity.InstrumentModel;
                         if (instrumentModel == "PXIe-5830" || instrumentModel == "PXIe-5831")
                         {
-                            rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Disabled;
+                            rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgRF).GetProperty("LOOutExportConfigureFromRfsa"));
                             rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.SGSAShared;
                         }
                         else
