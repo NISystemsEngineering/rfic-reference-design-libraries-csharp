@@ -58,14 +58,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 AutoLevelReferenceLevel = true
             };
 
-            SA.RFmxWLAN.ConfigureCommon(instr, wlan, commonConfiguration);
+            ConfigureCommon(instr, wlan, commonConfiguration);
 
             SignalConfiguration signal = SignalConfiguration.GetDefault();
             signal.AutoDetectSignal = false;
             signal.ChannelBandwidth_Hz = 20e6;
             signal.Standard = RFmxWlanMXStandard.Standard802_11ag;
 
-            SA.RFmxWLAN.ConfigureSignal(wlan, signal);
+            ConfigureSignal(wlan, signal);
 
             TxPConfiguration txpConfig = new TxPConfiguration
             {
@@ -74,21 +74,21 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 AveragingEnabled = RFmxWlanMXTxpAveragingEnabled.True
             };
 
-            SA.RFmxWLAN.ConfigureTxP(wlan, txpConfig);
+            ConfigureTxP(wlan, txpConfig);
 
             OFDMModAccConfiguration modAccConfig = OFDMModAccConfiguration.GetDefault();
             modAccConfig.OptimizeDynamicRangeForEvmEnabled = RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled.False;
             modAccConfig.AveragingEnabled = RFmxWlanMXOfdmModAccAveragingEnabled.True;
 
-            SA.RFmxWLAN.ConfigureOFDMModAcc(wlan, modAccConfig);
+            ConfigureOFDMModAcc(wlan, modAccConfig);
 
             TxPServoConfiguration servoConfig = TxPServoConfiguration.GetDefault();
             servoConfig.TargetTxPPower_dBm = 0.5;
 
-            SA.RFmxWLAN.TxPServoPower(wlan, nIRfsg, servoConfig, autoLevel);
+            TxPServoPower(wlan, nIRfsg, servoConfig, autoLevel);
 
             SEMConfiguration semConfig = SEMConfiguration.GetDefault();
-            SA.RFmxWLAN.ConfigureSEM(wlan, semConfig);
+            ConfigureSEM(wlan, semConfig);
 
             wlan.Initiate("", "");
 
