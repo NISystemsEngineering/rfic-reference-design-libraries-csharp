@@ -25,20 +25,17 @@ namespace Digital_Dynamic_PAEN_Example
             #region SG Configuration
             NIRfsg rfsgSession = new NIRfsg(sgName, false, false);
 
-            InstrumentConfiguration instrConfig = new InstrumentConfiguration
-            {
-                ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock,
-                CarrierFrequency_Hz = 2.402e9,
-                DutAverageInputPower_dBm = 0,
-            };
-            LoConfiguration loConfig =LoConfiguration.GetDefault();
+            InstrumentConfiguration instrConfig = InstrumentConfiguration.GetDefault(rfsgSession);
+            instrConfig.ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock;
+            instrConfig.CarrierFrequency_Hz = 2.402e9;
+            instrConfig.DutAverageInputPower_dBm = 0;
 
-            ConfigureInstrument(rfsgSession, instrConfig,loConfig);
+            ConfigureInstrument(rfsgSession, instrConfig);
 
             string waveformPath = Path.GetFullPath(@"TDMS Files\11AC_MCS8_40M.tdms");
 
             Waveform wave = LoadWaveformFromTDMS(waveformPath, "wave");
-            DownloadWaveform(rfsgSession, wave,loConfig);
+            DownloadWaveform(rfsgSession, wave);
 
             WaveformTimingConfiguration waveTiming = new WaveformTimingConfiguration
             {
