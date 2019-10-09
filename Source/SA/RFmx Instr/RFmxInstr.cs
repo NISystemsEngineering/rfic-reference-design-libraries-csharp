@@ -19,7 +19,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             public static InstrumentConfiguration GetDefault(RFmxInstrMX sessionHandle)
             {
-                InstrumentConfiguration instrConfig = new InstrumentConfiguration();
+                InstrumentConfiguration instrConfig = GetDefault(); // covers case for sub6 instruments with a single configurable LO
+                // lo configuration will now be overridden if the instrument has multiple configurable LOs
                 sessionHandle.GetInstrumentModel("", out string instrumentModel);
                 switch (instrumentModel)
                 {

@@ -40,7 +40,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             public static InstrumentConfiguration GetDefault(NIRfsg sessionHandle)
             {
-                InstrumentConfiguration instrConfig = new InstrumentConfiguration();
+                InstrumentConfiguration instrConfig = GetDefault(); // covers case for sub6 instruments with a single configurable LO
+                // lo configuration will now be overridden if the instrument has multiple configurable LOs
                 switch (sessionHandle.Identity.InstrumentModel)
                 {
                     case "NI PXIe-5830":
@@ -137,9 +138,18 @@ namespace NationalInstruments.ReferenceDesignLibraries
                         rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.FromString(loConfig.Source);
                         break;
                     default: // default to automatic case
-                        rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Enabled;
+                        string instrumentModel = rfsgHandle.Identity.InstrumentModel;
+                        if (instrumentModel == "PXIe-5830" || instrumentModel == "PXIe-5831")
+                        {
+                            rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Disabled;
+                            rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.SGSAShared;
+                        }
+                        else
+                        {
+                            rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Enabled;
+                            rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("Source"));
+                        }
                         rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("LOOutEnabled"));
-                        rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("Source"));
                         break;
                 }
 
