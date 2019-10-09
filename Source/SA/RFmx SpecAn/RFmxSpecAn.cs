@@ -98,7 +98,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int OffsetPowerReferenceSpecificIndex;
             public double RelativeAttenuation_dB;
             public RFmxSpecAnMXAcpOffsetRrcFilterEnabled RrcFilterEnabled;
-            public double RrcFilterAlpha;
+            public double RrcAlpha;
 
             public static AcpOffsetChannelConfiguration GetDefault()
             {
@@ -112,7 +112,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     OffsetPowerReferenceSpecificIndex = 0,
                     RelativeAttenuation_dB = 0,
                     RrcFilterEnabled = RFmxSpecAnMXAcpOffsetRrcFilterEnabled.False,
-                    RrcFilterAlpha = 0.22
+                    RrcAlpha = 0.22
                 };
             }
         }
@@ -204,6 +204,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public struct AcpResults
         {
+            public double TotalCarrierPower_dBm_or_dBmHz;
             public AcpOffsetResults[] OffsetResults;
             public AcpComponentCarrierResults[] ComponentCarrierResults;
         }
@@ -266,7 +267,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 specAn.Acp.Configuration.ConfigureOffset(offsetString, acpCommonConfig.OffsetChannelConfiguration[i].OffsetFrequency_Hz, acpCommonConfig.OffsetChannelConfiguration[i].OffsetSideBand, acpCommonConfig.OffsetChannelConfiguration[i].OffsetEnabled);
                 specAn.Acp.Configuration.ConfigureOffsetPowerReference(offsetString, acpCommonConfig.OffsetChannelConfiguration[i].OffsetPowerReferenceCarrier, acpCommonConfig.OffsetChannelConfiguration[i].OffsetPowerReferenceSpecificIndex);
                 specAn.Acp.Configuration.ConfigureOffsetRelativeAttenuation(offsetString, acpCommonConfig.OffsetChannelConfiguration[i].RelativeAttenuation_dB);
-                specAn.Acp.Configuration.ConfigureOffsetRrcFilter(offsetString, acpCommonConfig.OffsetChannelConfiguration[i].RrcFilterEnabled, acpCommonConfig.OffsetChannelConfiguration[i].RrcFilterAlpha);
+                specAn.Acp.Configuration.ConfigureOffsetRrcFilter(offsetString, acpCommonConfig.OffsetChannelConfiguration[i].RrcFilterEnabled, acpCommonConfig.OffsetChannelConfiguration[i].RrcAlpha);
             }
         }
 
@@ -290,7 +291,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return txpResults;
         }
 
-        public static AcpResults FetchAcp(RFmxSpecAnMX specAn, int numCarrier, string selectorString = "")
+        public static AcpResults FetchAcp(RFmxSpecAnMX specAn, int numCarrierChannels, string selectorString = "")
         {
             double[] lowerRelativePower = null;
             double[] upperRelativePower = null;
@@ -319,14 +320,15 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
 
             
-            results.ComponentCarrierResults = new AcpComponentCarrierResults[numCarrier];
-            for (int i = 0; i < numCarrier; i++)
+            results.ComponentCarrierResults = new AcpComponentCarrierResults[numCarrierChannels];
+            for (int i = 0; i < numCarrierChannels; i++)
             {
                 string carrierString = RFmxSpecAnMX.BuildCarrierString2(selectorString, i);
                 specAn.Acp.Results.FetchCarrierMeasurement(carrierString, 10.0, out results.ComponentCarrierResults[i].AbsolutePower_dBm_or_dBmHz,
                             out results.ComponentCarrierResults[i].TotalRelativePower_dB, out results.ComponentCarrierResults[i].CarrierFrequency_Hz,
                             out results.ComponentCarrierResults[i].IntegrationBandwidth_Hz);
             }
+            specAn.Acp.Results.FetchTotalCarrierPower(selectorString, 10.0, out results.TotalCarrierPower_dBm_or_dBmHz);
             return results;
         }
 

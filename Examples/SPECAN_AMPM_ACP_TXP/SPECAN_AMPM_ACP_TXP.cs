@@ -78,7 +78,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetPowerReferenceSpecificIndex = 0;
                AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].RelativeAttenuation_dB = 0.00;
                AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].RrcFilterEnabled = RFmxSpecAnMXAcpOffsetRrcFilterEnabled.False;
-               AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].RrcFilterAlpha = 0.220;
+               AcpCommonConfigurationSpecAn.OffsetChannelConfiguration[i].RrcAlpha = 0.220;
 
                 if (i == 0) //For offset 0, frequency offset = 10MHz, IBW = 9MHz
                 {
@@ -166,7 +166,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         private void PrintACPResults()
         {
             Console.WriteLine("\n----------------------- ACP Results -----------------------\n");
-            Console.WriteLine("Carrier Absolute Power (dBm): {0:0.00}\n", AcpResultsSpecAn.ComponentCarrierResults[0].AbsolutePower_dBm_or_dBmHz);
+            Console.WriteLine("Total Carrier Power (dBm): {0:0.00}\n", AcpResultsSpecAn.TotalCarrierPower_dBm_or_dBmHz);
             Console.WriteLine("\n-----------Offset Channel Measurements----------- \n");
 
             for (int i = 0; i < AcpResultsSpecAn.OffsetResults.Length; i++)
