@@ -1,10 +1,7 @@
 ﻿using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments.RFmx.InstrMX;
-using NationalInstruments.RFmx.NRMX;
 using NationalInstruments.RFmx.SpecAnMX;
 using System;
-using System.IO;
-using static NationalInstruments.ReferenceDesignLibraries.SA.RFmxSpecAn;
 using static NationalInstruments.ReferenceDesignLibraries.SG;
 
 
