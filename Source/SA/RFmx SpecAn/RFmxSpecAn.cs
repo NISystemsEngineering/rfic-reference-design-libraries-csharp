@@ -148,8 +148,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     RbwFilterType = RFmxSpecAnMXAcpRbwFilterType.Gaussian,
                     SweepTimeAuto = RFmxSpecAnMXAcpSweepTimeAuto.True,
                     SweepTimeInterval_s = 1e-3,
-                    CarrierChannelConfiguration = new AcpCarrierChannelConfiguration[] { },
-                    OffsetChannelConfiguration = new AcpOffsetChannelConfiguration[] { },
+                    CarrierChannelConfiguration = new AcpCarrierChannelConfiguration[] { AcpCarrierChannelConfiguration.GetDefault()},
+                    OffsetChannelConfiguration = new AcpOffsetChannelConfiguration[] { AcpOffsetChannelConfiguration.GetDefault()},
 
                 };
             }

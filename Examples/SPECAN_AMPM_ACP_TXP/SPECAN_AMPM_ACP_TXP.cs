@@ -65,8 +65,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             TxpConfigurationSpecAn.Rbw_Hz = 20e6;
             AcpConfigurationSpecAn = SA.RFmxSpecAn.AcpConfiguration.GetDefault();
             AcpConfigurationSpecAn.Rbw_Hz = 10e6;
-            AcpConfigurationSpecAn.CarrierChannelConfiguration = new SA.RFmxSpecAn.AcpCarrierChannelConfiguration[1];
-            AcpConfigurationSpecAn.CarrierChannelConfiguration[0]= SA.RFmxSpecAn.AcpCarrierChannelConfiguration.GetDefault();
             AcpConfigurationSpecAn.OffsetChannelConfiguration = new SA.RFmxSpecAn.AcpOffsetChannelConfiguration[NumberOfOffsets];
 
             //Define ACP offset configuration
