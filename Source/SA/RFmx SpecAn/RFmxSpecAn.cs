@@ -158,7 +158,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public struct AmpmConfiguration
         {
             public double MeasurementInterval_s;
-            public double DutInputPower_dBm;
+            public double DutAverageInputPower_dBm;
             public SG.Waveform ReferenceWaveform;
             public RFmxSpecAnMXAmpmSignalType SignalType;
 
@@ -168,7 +168,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 return new AmpmConfiguration
                 {
                     MeasurementInterval_s = 100e-6,
-                    DutInputPower_dBm = -20,
+                    DutAverageInputPower_dBm = -20,
                     ReferenceWaveform = new SG.Waveform(),
                     SignalType = RFmxSpecAnMXAmpmSignalType.Modulated
                 };
@@ -277,7 +277,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             specAn.Ampm.Configuration.SetMeasurementEnabled(selectorString, true);
             specAn.Ampm.Configuration.SetAllTracesEnabled(selectorString, true);
             specAn.Ampm.Configuration.ConfigureMeasurementInterval(selectorString, ampmConfig.MeasurementInterval_s);
-            specAn.Ampm.Configuration.ConfigureDutAverageInputPower(selectorString, ampmConfig.DutInputPower_dBm);
+            specAn.Ampm.Configuration.ConfigureDutAverageInputPower(selectorString, ampmConfig.DutAverageInputPower_dBm);
             specAn.Ampm.Configuration.ConfigureReferenceWaveform(selectorString, ampmConfig.ReferenceWaveform.WaveformData,idleDurationPresent, ampmConfig.SignalType);
         }
 

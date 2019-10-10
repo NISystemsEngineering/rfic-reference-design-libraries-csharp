@@ -116,7 +116,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             RFmxSpecAnMX specAn = instr.GetSpecAnSignalConfiguration();
             SA.RFmxSpecAn.ConfigureCommon(instr, specAn, CommonConfigurationSpecAn);
             AmpmConfigurationSpecAn.ReferenceWaveform = waveform;
-            AmpmConfigurationSpecAn.DutInputPower_dBm = SgInstrConfig.DutAverageInputPower_dBm;
+            AmpmConfigurationSpecAn.DutAverageInputPower_dBm = SgInstrConfig.DutAverageInputPower_dBm;
             SA.RFmxSpecAn.ConfigureAmpm(specAn, AmpmConfigurationSpecAn);
 
             SA.RFmxSpecAn.ConfigureTxp(specAn, TxpConfigurationSpecAn);
