@@ -60,12 +60,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             SA.RFmxWLAN.ConfigureCommon(instr, wlan, commonConfiguration);
 
-            SignalConfiguration signal = SignalConfiguration.GetDefault();
-            signal.AutoDetectSignal = false;
-            signal.ChannelBandwidth_Hz = 20e6;
-            signal.Standard = RFmxWlanMXStandard.Standard802_11ag;
-
-            SA.RFmxWLAN.ConfigureSignal(wlan, signal);
 
             TxPConfiguration txpConfig = new TxPConfiguration
             {
@@ -89,6 +83,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             SEMConfiguration semConfig = SEMConfiguration.GetDefault();
             SA.RFmxWLAN.ConfigureSEM(wlan, semConfig);
+
+            SignalConfiguration signal = SignalConfiguration.GetDefault();
+            signal.AutoDetectSignal = true;
+            signal.ChannelBandwidth_Hz = 20e6;
+            signal.Standard = RFmxWlanMXStandard.Standard802_11ag;
+
+            SA.RFmxWLAN.ConfigureSignal(wlan, signal);
 
             wlan.Initiate("", "");
 
