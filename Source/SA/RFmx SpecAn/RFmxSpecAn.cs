@@ -116,7 +116,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 };
             }
         }
-        public struct AcpCommonConfiguration
+        public struct AcpConfiguration
         {
             public RFmxSpecAnMXAcpPowerUnits PowerUnits;
             public RFmxSpecAnMXAcpAveragingEnabled AveragingEnabled;
@@ -133,9 +133,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double SweepTimeInterval_s;
             public AcpCarrierChannelConfiguration[] CarrierChannelConfiguration;
             public AcpOffsetChannelConfiguration[] OffsetChannelConfiguration;
-            public static AcpCommonConfiguration GetDefault()
+            public static AcpConfiguration GetDefault()
             {
-                return new AcpCommonConfiguration
+                return new AcpConfiguration
                 {
                     PowerUnits = RFmxSpecAnMXAcpPowerUnits.dBm,
                     AveragingEnabled = RFmxSpecAnMXAcpAveragingEnabled.False,
@@ -239,35 +239,35 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             specAn.Txp.Configuration.ConfigureRbwFilter(selectorString,txpConfig.Rbw_Hz,txpConfig.RbwFilterType,txpConfig.RrcAlpha);
            
         }
-        public static void ConfigureAcp(RFmxSpecAnMX specAn, AcpCommonConfiguration acpCommonConfig, string selectorString = "")
+        public static void ConfigureAcp(RFmxSpecAnMX specAn, AcpConfiguration acpConfig, string selectorString = "")
         {
             specAn.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
             specAn.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
-            specAn.Acp.Configuration.ConfigurePowerUnits(selectorString, acpCommonConfig.PowerUnits);
-            specAn.Acp.Configuration.ConfigureAveraging(selectorString, acpCommonConfig.AveragingEnabled, acpCommonConfig.AveragingCount, acpCommonConfig.AveragingType);
-            specAn.Acp.Configuration.ConfigureFft(selectorString, acpCommonConfig.FftWindow, acpCommonConfig.FftPadding);
-            specAn.Acp.Configuration.ConfigureRbwFilter(selectorString, acpCommonConfig.RbwAuto, acpCommonConfig.Rbw_Hz, acpCommonConfig.RbwFilterType);
-            specAn.Acp.Configuration.ConfigureSweepTime(selectorString, acpCommonConfig.SweepTimeAuto, acpCommonConfig.SweepTimeInterval_s);
+            specAn.Acp.Configuration.ConfigurePowerUnits(selectorString, acpConfig.PowerUnits);
+            specAn.Acp.Configuration.ConfigureAveraging(selectorString, acpConfig.AveragingEnabled, acpConfig.AveragingCount, acpConfig.AveragingType);
+            specAn.Acp.Configuration.ConfigureFft(selectorString, acpConfig.FftWindow, acpConfig.FftPadding);
+            specAn.Acp.Configuration.ConfigureRbwFilter(selectorString, acpConfig.RbwAuto, acpConfig.Rbw_Hz, acpConfig.RbwFilterType);
+            specAn.Acp.Configuration.ConfigureSweepTime(selectorString, acpConfig.SweepTimeAuto, acpConfig.SweepTimeInterval_s);
        
-            specAn.Acp.Configuration.ConfigureNumberOfCarriers(selectorString, acpCommonConfig.CarrierChannelConfiguration.Length);
-            for (int i = 0; i < acpCommonConfig.CarrierChannelConfiguration.Length; i++)
+            specAn.Acp.Configuration.ConfigureNumberOfCarriers(selectorString, acpConfig.CarrierChannelConfiguration.Length);
+            for (int i = 0; i < acpConfig.CarrierChannelConfiguration.Length; i++)
             {
                 string carrierString = RFmxSpecAnMX.BuildCarrierString2(selectorString, i);
-                specAn.Acp.Configuration.ConfigureCarrierIntegrationBandwidth(carrierString, acpCommonConfig.CarrierChannelConfiguration[i].IntegrationBandwidth_Hz);
-                specAn.Acp.Configuration.ConfigureCarrierRrcFilter(carrierString, acpCommonConfig.CarrierChannelConfiguration[i].RrcFilterEnabled, acpCommonConfig.CarrierChannelConfiguration[i].RrcAlpha);
-                specAn.Acp.Configuration.ConfigureCarrierMode(carrierString, acpCommonConfig.CarrierChannelConfiguration[i].Mode);
-                specAn.Acp.Configuration.ConfigureCarrierFrequency(carrierString, acpCommonConfig.CarrierChannelConfiguration[i].Frequency_Hz);
+                specAn.Acp.Configuration.ConfigureCarrierIntegrationBandwidth(carrierString, acpConfig.CarrierChannelConfiguration[i].IntegrationBandwidth_Hz);
+                specAn.Acp.Configuration.ConfigureCarrierRrcFilter(carrierString, acpConfig.CarrierChannelConfiguration[i].RrcFilterEnabled, acpConfig.CarrierChannelConfiguration[i].RrcAlpha);
+                specAn.Acp.Configuration.ConfigureCarrierMode(carrierString, acpConfig.CarrierChannelConfiguration[i].Mode);
+                specAn.Acp.Configuration.ConfigureCarrierFrequency(carrierString, acpConfig.CarrierChannelConfiguration[i].Frequency_Hz);
             }
 
-            specAn.Acp.Configuration.ConfigureNumberOfOffsets(selectorString, acpCommonConfig.OffsetChannelConfiguration.Length);
-            for (int i = 0; i < acpCommonConfig.OffsetChannelConfiguration.Length; i++)
+            specAn.Acp.Configuration.ConfigureNumberOfOffsets(selectorString, acpConfig.OffsetChannelConfiguration.Length);
+            for (int i = 0; i < acpConfig.OffsetChannelConfiguration.Length; i++)
             {
                 string offsetString = RFmxSpecAnMX.BuildOffsetString2(selectorString, i);
-                specAn.Acp.Configuration.ConfigureOffsetIntegrationBandwidth(offsetString, acpCommonConfig.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz);
-                specAn.Acp.Configuration.ConfigureOffset(offsetString, acpCommonConfig.OffsetChannelConfiguration[i].OffsetFrequency_Hz, acpCommonConfig.OffsetChannelConfiguration[i].OffsetSideBand, acpCommonConfig.OffsetChannelConfiguration[i].OffsetEnabled);
-                specAn.Acp.Configuration.ConfigureOffsetPowerReference(offsetString, acpCommonConfig.OffsetChannelConfiguration[i].OffsetPowerReferenceCarrier, acpCommonConfig.OffsetChannelConfiguration[i].OffsetPowerReferenceSpecificIndex);
-                specAn.Acp.Configuration.ConfigureOffsetRelativeAttenuation(offsetString, acpCommonConfig.OffsetChannelConfiguration[i].RelativeAttenuation_dB);
-                specAn.Acp.Configuration.ConfigureOffsetRrcFilter(offsetString, acpCommonConfig.OffsetChannelConfiguration[i].RrcFilterEnabled, acpCommonConfig.OffsetChannelConfiguration[i].RrcAlpha);
+                specAn.Acp.Configuration.ConfigureOffsetIntegrationBandwidth(offsetString, acpConfig.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz);
+                specAn.Acp.Configuration.ConfigureOffset(offsetString, acpConfig.OffsetChannelConfiguration[i].OffsetFrequency_Hz, acpConfig.OffsetChannelConfiguration[i].OffsetSideBand, acpConfig.OffsetChannelConfiguration[i].OffsetEnabled);
+                specAn.Acp.Configuration.ConfigureOffsetPowerReference(offsetString, acpConfig.OffsetChannelConfiguration[i].OffsetPowerReferenceCarrier, acpConfig.OffsetChannelConfiguration[i].OffsetPowerReferenceSpecificIndex);
+                specAn.Acp.Configuration.ConfigureOffsetRelativeAttenuation(offsetString, acpConfig.OffsetChannelConfiguration[i].RelativeAttenuation_dB);
+                specAn.Acp.Configuration.ConfigureOffsetRrcFilter(offsetString, acpConfig.OffsetChannelConfiguration[i].RrcFilterEnabled, acpConfig.OffsetChannelConfiguration[i].RrcAlpha);
             }
         }
 
