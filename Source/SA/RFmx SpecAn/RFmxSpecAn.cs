@@ -91,11 +91,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public struct AcpOffsetChannelConfiguration
         {
             public double IntegrationBandwidth_Hz;
-            public RFmxSpecAnMXAcpOffsetEnabled OffsetEnabled;
-            public double OffsetFrequency_Hz;
-            public RFmxSpecAnMXAcpOffsetSideband OffsetSideBand;
-            public RFmxSpecAnMXAcpOffsetPowerReferenceCarrier OffsetPowerReferenceCarrier;
-            public int OffsetPowerReferenceSpecificIndex;
+            public RFmxSpecAnMXAcpOffsetEnabled Enabled;
+            public double Frequency_Hz;
+            public RFmxSpecAnMXAcpOffsetSideband SideBand;
+            public RFmxSpecAnMXAcpOffsetPowerReferenceCarrier PowerReferenceCarrier;
+            public int PowerReferenceSpecificIndex;
             public double RelativeAttenuation_dB;
             public RFmxSpecAnMXAcpOffsetRrcFilterEnabled RrcFilterEnabled;
             public double RrcAlpha;
@@ -105,11 +105,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 return new AcpOffsetChannelConfiguration
                 {
                     IntegrationBandwidth_Hz = 18e6,
-                    OffsetEnabled = RFmxSpecAnMXAcpOffsetEnabled.True,
-                    OffsetFrequency_Hz = 20e6,
-                    OffsetSideBand = RFmxSpecAnMXAcpOffsetSideband.Both,
-                    OffsetPowerReferenceCarrier = RFmxSpecAnMXAcpOffsetPowerReferenceCarrier.Closest,
-                    OffsetPowerReferenceSpecificIndex = 0,
+                    Enabled = RFmxSpecAnMXAcpOffsetEnabled.True,
+                    Frequency_Hz = 20e6,
+                    SideBand = RFmxSpecAnMXAcpOffsetSideband.Both,
+                    PowerReferenceCarrier = RFmxSpecAnMXAcpOffsetPowerReferenceCarrier.Closest,
+                    PowerReferenceSpecificIndex = 0,
                     RelativeAttenuation_dB = 0,
                     RrcFilterEnabled = RFmxSpecAnMXAcpOffsetRrcFilterEnabled.False,
                     RrcAlpha = 0.22
@@ -142,7 +142,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     AveragingCount = 10,
                     AveragingType = RFmxSpecAnMXAcpAveragingType.Rms,
                     FftWindow = RFmxSpecAnMXAcpFftWindow.FlatTop,
-                    FftPadding = 1,
+                    FftPadding = -1,
                     RbwAuto = RFmxSpecAnMXAcpRbwAutoBandwidth.True,
                     Rbw_Hz = 10e3,
                     RbwFilterType = RFmxSpecAnMXAcpRbwFilterType.Gaussian,
@@ -264,8 +264,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             {
                 string offsetString = RFmxSpecAnMX.BuildOffsetString2(selectorString, i);
                 specAn.Acp.Configuration.ConfigureOffsetIntegrationBandwidth(offsetString, acpConfig.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz);
-                specAn.Acp.Configuration.ConfigureOffset(offsetString, acpConfig.OffsetChannelConfiguration[i].OffsetFrequency_Hz, acpConfig.OffsetChannelConfiguration[i].OffsetSideBand, acpConfig.OffsetChannelConfiguration[i].OffsetEnabled);
-                specAn.Acp.Configuration.ConfigureOffsetPowerReference(offsetString, acpConfig.OffsetChannelConfiguration[i].OffsetPowerReferenceCarrier, acpConfig.OffsetChannelConfiguration[i].OffsetPowerReferenceSpecificIndex);
+                specAn.Acp.Configuration.ConfigureOffset(offsetString, acpConfig.OffsetChannelConfiguration[i].Frequency_Hz, acpConfig.OffsetChannelConfiguration[i].SideBand, acpConfig.OffsetChannelConfiguration[i].Enabled);
+                specAn.Acp.Configuration.ConfigureOffsetPowerReference(offsetString, acpConfig.OffsetChannelConfiguration[i].PowerReferenceCarrier, acpConfig.OffsetChannelConfiguration[i].PowerReferenceSpecificIndex);
                 specAn.Acp.Configuration.ConfigureOffsetRelativeAttenuation(offsetString, acpConfig.OffsetChannelConfiguration[i].RelativeAttenuation_dB);
                 specAn.Acp.Configuration.ConfigureOffsetRrcFilter(offsetString, acpConfig.OffsetChannelConfiguration[i].RrcFilterEnabled, acpConfig.OffsetChannelConfiguration[i].RrcAlpha);
             }

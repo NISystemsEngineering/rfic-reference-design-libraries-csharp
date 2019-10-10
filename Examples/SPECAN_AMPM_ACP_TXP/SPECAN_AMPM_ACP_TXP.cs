@@ -70,27 +70,27 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             //Define ACP offset configuration
             for (int i = 0; i < NumberOfOffsets; i++)
             {
-                AcpConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetEnabled = RFmxSpecAnMXAcpOffsetEnabled.True;
-               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetSideBand = RFmxSpecAnMXAcpOffsetSideband.Both;
-               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetPowerReferenceCarrier = RFmxSpecAnMXAcpOffsetPowerReferenceCarrier.Closest;
-               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetPowerReferenceSpecificIndex = 0;
+               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].Enabled = RFmxSpecAnMXAcpOffsetEnabled.True;
+               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].SideBand = RFmxSpecAnMXAcpOffsetSideband.Both;
+               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].PowerReferenceCarrier = RFmxSpecAnMXAcpOffsetPowerReferenceCarrier.Closest;
+               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].PowerReferenceSpecificIndex = 0;
                AcpConfigurationSpecAn.OffsetChannelConfiguration[i].RelativeAttenuation_dB = 0.00;
                AcpConfigurationSpecAn.OffsetChannelConfiguration[i].RrcFilterEnabled = RFmxSpecAnMXAcpOffsetRrcFilterEnabled.False;
                AcpConfigurationSpecAn.OffsetChannelConfiguration[i].RrcAlpha = 0.220;
 
                 if (i == 0) //For offset 0, frequency offset = 10MHz, IBW = 9MHz
                 {
-                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetFrequency_Hz = 20e6;
+                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].Frequency_Hz = 20e6;
                    AcpConfigurationSpecAn.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz = 18e6;
                 }
                 else if (i == 1) //For offset 1, frequency offset = 7.5MHz, IBW = 3.84MHz
                 {
-                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetFrequency_Hz = 12.5e6;
+                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].Frequency_Hz = 12.5e6;
                    AcpConfigurationSpecAn.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz = 3.84e6;
                 }
                 else if (i == 2) //For offset 2, frequency offset = 12.5MHz, IBW = 3.84MHz
                 {
-                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].OffsetFrequency_Hz = 17.5e6;
+                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].Frequency_Hz = 17.5e6;
                    AcpConfigurationSpecAn.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz = 3.84e6;
                 }
             }
