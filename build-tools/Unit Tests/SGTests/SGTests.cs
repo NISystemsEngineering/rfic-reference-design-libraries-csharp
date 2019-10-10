@@ -6,6 +6,8 @@ using System.Linq;
 using System.Collections.Generic;
 using IniParser;
 using IniParser.Model;
+using FluentAssertions;
+using FluentAssertions.Execution;
 
 //[assembly: Parallelize(Workers = 2, Scope = ExecutionScope.MethodLevel)]
 namespace NationalInstruments.ReferenceDesignLibraries.Tests
@@ -32,13 +34,17 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             FileIniDataParser parser = new FileIniDataParser();
 
             string fileName, directory, iniPath;
-            for (int i =0; i < files.Length; i++)
+
+            for (int i = 0; i < files.Length; i++)
             {
                 waveforms[i] = SG.LoadWaveformFromTDMS(files[i]);
                 fileName = Path.GetFileNameWithoutExtension(files[i]);
                 directory = Path.GetDirectoryName(files[i]);
                 iniPath = Path.Combine(directory, fileName + ".ini");
-                iniData[i] = parser.ReadFile(iniPath);
+
+                {
+                    iniData[i] = parser.ReadFile(iniPath);
+                }
             }
         }
         public delegate void TestAction(string fileName, SG.Waveform waveform, string filePath, IniData fileConfig);
@@ -47,13 +53,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             string fileName, filePath;
             SG.Waveform waveform;
             IniData fileConfig;
-            for (int i = 0; i < files.Length; i++)
+            using (new AssertionScope())
             {
-                filePath = files[i];
-                fileName = Path.GetFileNameWithoutExtension(filePath);
-                waveform = waveforms[i];
-                fileConfig = iniData[i];
-                action(fileName, waveform, filePath, fileConfig);
+                for (int i = 0; i < files.Length; i++)
+                {
+                    filePath = files[i];
+                    fileName = Path.GetFileNameWithoutExtension(filePath);
+                    waveform = waveforms[i];
+                    fileConfig = iniData[i];
+                    action(fileName, waveform, filePath, fileConfig);
+                }
             }
         }
         [TestMethod()]
@@ -61,8 +70,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                Assert.IsTrue(waveform.RuntimeScaling <= 0,
-                    $"File \"{fileName}\" runtime scaling should be leq 0.");
+                waveform.RuntimeScaling.Should().BeLessOrEqualTo(0, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -71,8 +79,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
                 double fs = 1/ waveform.WaveformData.PrecisionTiming.SampleInterval.FractionalSeconds;
-                Assert.AreEqual(fs, waveform.SampleRate, .001, $"File \"{fileName}\" sample rate" +
-                    $"should be equal to 1/f_s.");
+                waveform.SampleRate.Should().BeApproximately(fs, .001, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -80,8 +87,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                Assert.IsTrue(waveform.WaveformData.Samples.Count > 0, $"File \"{fileName}\" waveform samples" +
-                    $" should be greater than 0");
+                waveform.WaveformData.Samples.Count.Should().NotBe(0, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -89,7 +95,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                Assert.IsTrue(waveform.PAPR_dB >= 0, $"File \"{fileName}\" PAPR should be geq than 0");
+                waveform.PAPR_dB.Should().BeGreaterOrEqualTo(0, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -97,7 +103,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                Assert.IsTrue(waveform.BurstLength_s >= 0, $"File \"{fileName}\" burst length should be geq than 0");
+                waveform.BurstLength_s.Should().BeGreaterOrEqualTo(0, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -105,7 +111,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                Assert.IsTrue(waveform.SampleRate > 0, $"File \"{fileName}\" sample rate should be greater than 0");
+                waveform.SampleRate.Should().BeGreaterThan(0, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -113,8 +119,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                Assert.IsTrue(waveform.WaveformData.PrecisionTiming.SampleInterval.FractionalSeconds > 0, 
-                    $"File \"{fileName}\" waveform.dx should be greater than 0");
+                waveform.WaveformData.PrecisionTiming.SampleInterval.FractionalSeconds
+                .Should().BeGreaterThan(0, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -122,8 +128,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                Assert.IsTrue(waveform.BurstStartLocations.Length > 0,
-                    $"File \"{fileName}\" burst start locations not empty.");
+                waveform.BurstStartLocations.Should().NotBeEmpty($"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -131,8 +136,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                Assert.IsTrue(waveform.BurstStopLocations.Length > 0,
-                    $"File \"{fileName}\" burst stop locations not empty.");
+                waveform.BurstStopLocations.Should().NotBeEmpty($"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -142,11 +146,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             {
                 System.IntPtr rfsgHandle = sim.DangerousGetInstrumentHandle();
                 NIRfsgPlayback.DownloadUserWaveform(rfsgHandle, waveform.WaveformName, 
-                    waveform.WaveformData, waveform.IdleDurationPresent);
+                    waveform.WaveformData, true);
                 NIRfsgPlayback.RetrieveWaveformPapr(rfsgHandle,
                     waveform.WaveformName, out double calcPapr);
-                Assert.AreEqual(calcPapr, waveform.PAPR_dB, .1,
-                    $"File \"{fileName}\" PAPR is correctly calculated.");
+                waveform.PAPR_dB.Should().BeApproximately(calcPapr, 0.1,
+                    $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -155,8 +159,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
                 NIRfsgPlayback.ReadWaveformSizeFromFile(filePath, 0, out int size);
-                Assert.AreEqual(size, waveform.WaveformData.SampleCount,
-                    $"File \"{fileName}\" all samples read.");
+                waveform.WaveformData.SampleCount.Should().Be(size, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -167,10 +170,15 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             {
                 SG.DownloadWaveform(sim, waveform);
                 SG.Waveform newWaveform = SG.GetWaveformParametersByName(sim, waveform.WaveformName);
-                //Actual waveform data is not returned. Hence, explicitly set it so that this does not trigger a failure. 
-                newWaveform.WaveformData = waveform.WaveformData;
-                Assert.AreEqual(waveform, newWaveform,
-                    $"File \"{fileName}\" waveform read from library matches loaded type.");
+
+                newWaveform.Should().BeEquivalentTo(waveform, options =>
+                {
+                    //Actual waveform data is not returned. Hence, exclude it from comparison
+                    options.Excluding(w => w.WaveformData);
+                    //Ensure each member is compared; otherwise, it will just compare the two structs as whole values
+                    options.ComparingByMembers<SG.Waveform>();
+                    return options;
+                }, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -182,8 +190,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
                 string idle = fileConfig["TestData"]["IdleDuration"];
                 bool idlePresent = bool.Parse(idle);
                 SG.DownloadWaveform(sim, waveform);
-                Assert.AreEqual(idlePresent, waveform.IdleDurationPresent,
-                    $"File \"{fileName}\" idle duration calculated correctly.");
+                waveform.IdleDurationPresent.Should().Be(idlePresent, $"of knowledge of file \"{fileName}\"");
             });
         }
         [ClassCleanup]
