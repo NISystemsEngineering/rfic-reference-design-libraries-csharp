@@ -65,33 +65,33 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             TxpConfigurationSpecAn.Rbw_Hz = 20e6;
             AcpConfigurationSpecAn = SA.RFmxSpecAn.AcpConfiguration.GetDefault();
             AcpConfigurationSpecAn.Rbw_Hz = 10e6;
-            AcpConfigurationSpecAn.OffsetChannelConfiguration = new SA.RFmxSpecAn.AcpOffsetChannelConfiguration[NumberOfOffsets];
+            AcpConfigurationSpecAn.OffsetConfigurations = new SA.RFmxSpecAn.AcpOffsetConfiguration[NumberOfOffsets];
 
             //Define ACP offset configuration
             for (int i = 0; i < NumberOfOffsets; i++)
             {
-               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].Enabled = RFmxSpecAnMXAcpOffsetEnabled.True;
-               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].SideBand = RFmxSpecAnMXAcpOffsetSideband.Both;
-               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].PowerReferenceCarrier = RFmxSpecAnMXAcpOffsetPowerReferenceCarrier.Closest;
-               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].PowerReferenceSpecificIndex = 0;
-               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].RelativeAttenuation_dB = 0.00;
-               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].RrcFilterEnabled = RFmxSpecAnMXAcpOffsetRrcFilterEnabled.False;
-               AcpConfigurationSpecAn.OffsetChannelConfiguration[i].RrcAlpha = 0.220;
+               AcpConfigurationSpecAn.OffsetConfigurations[i].Enabled = RFmxSpecAnMXAcpOffsetEnabled.True;
+               AcpConfigurationSpecAn.OffsetConfigurations[i].SideBand = RFmxSpecAnMXAcpOffsetSideband.Both;
+               AcpConfigurationSpecAn.OffsetConfigurations[i].PowerReferenceCarrier = RFmxSpecAnMXAcpOffsetPowerReferenceCarrier.Closest;
+               AcpConfigurationSpecAn.OffsetConfigurations[i].PowerReferenceSpecificIndex = 0;
+               AcpConfigurationSpecAn.OffsetConfigurations[i].RelativeAttenuation_dB = 0.00;
+               AcpConfigurationSpecAn.OffsetConfigurations[i].RrcFilterEnabled = RFmxSpecAnMXAcpOffsetRrcFilterEnabled.False;
+               AcpConfigurationSpecAn.OffsetConfigurations[i].RrcAlpha = 0.220;
 
                 if (i == 0) //For offset 0, frequency offset = 10MHz, IBW = 9MHz
                 {
-                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].Frequency_Hz = 20e6;
-                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz = 18e6;
+                   AcpConfigurationSpecAn.OffsetConfigurations[i].Frequency_Hz = 20e6;
+                   AcpConfigurationSpecAn.OffsetConfigurations[i].IntegrationBandwidth_Hz = 18e6;
                 }
                 else if (i == 1) //For offset 1, frequency offset = 7.5MHz, IBW = 3.84MHz
                 {
-                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].Frequency_Hz = 12.5e6;
-                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz = 3.84e6;
+                   AcpConfigurationSpecAn.OffsetConfigurations[i].Frequency_Hz = 12.5e6;
+                   AcpConfigurationSpecAn.OffsetConfigurations[i].IntegrationBandwidth_Hz = 3.84e6;
                 }
                 else if (i == 2) //For offset 2, frequency offset = 12.5MHz, IBW = 3.84MHz
                 {
-                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].Frequency_Hz = 17.5e6;
-                   AcpConfigurationSpecAn.OffsetChannelConfiguration[i].IntegrationBandwidth_Hz = 3.84e6;
+                   AcpConfigurationSpecAn.OffsetConfigurations[i].Frequency_Hz = 17.5e6;
+                   AcpConfigurationSpecAn.OffsetConfigurations[i].IntegrationBandwidth_Hz = 3.84e6;
                 }
             }
         }
@@ -136,7 +136,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             specAn.SelectMeasurements("", RFmxSpecAnMXMeasurementTypes.Acp, true);
             specAn.Initiate("", "");
-            AcpResultsSpecAn = SA.RFmxSpecAn.FetchAcp(specAn,1,"");
+            AcpResultsSpecAn = SA.RFmxSpecAn.FetchAcp(specAn,"");
             PrintACPResults();
             #endregion
 
