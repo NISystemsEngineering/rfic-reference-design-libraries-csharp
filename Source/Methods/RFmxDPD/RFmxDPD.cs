@@ -7,7 +7,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
 {
     public static class RFmxDPD
     {
-        #region Type_Definitionss
+        #region Type Definitionss
         public struct CommonConfiguration
         {
             public double MeasurementInterval_s;
@@ -36,20 +36,20 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public RFmxSpecAnMXDpdLookupTableThresholdEnabled ThresholdEnabled;
             public RFmxSpecAnMXDpdLookupTableThresholdType ThresholdType;
             public double ThresholdLevel_dB;
-            public double LookupTableStepSize_dB;
-            public RFmxSpecAnMXDpdApplyDpdLookupTableCorrectionType LookupTableCorrectionType;
-            public RFmxSpecAnMXDpdLookupTableType LookupTableType;
+            public double StepSize_dB;
+            public RFmxSpecAnMXDpdApplyDpdLookupTableCorrectionType CorrectionType;
+            public RFmxSpecAnMXDpdLookupTableType Type;
 
             public static LookupTableConfiguration GetDefault()
             {
                 return new LookupTableConfiguration
                 {
-                    LookupTableType = RFmxSpecAnMXDpdLookupTableType.Linear,
+                    Type = RFmxSpecAnMXDpdLookupTableType.Linear,
                     ThresholdType = RFmxSpecAnMXDpdLookupTableThresholdType.Relative,
                     ThresholdEnabled = RFmxSpecAnMXDpdLookupTableThresholdEnabled.True,
                     ThresholdLevel_dB = -20,
-                    LookupTableStepSize_dB = 0.1,
-                    LookupTableCorrectionType = RFmxSpecAnMXDpdApplyDpdLookupTableCorrectionType.MagnitudeAndPhase
+                    StepSize_dB = 0.1,
+                    CorrectionType = RFmxSpecAnMXDpdApplyDpdLookupTableCorrectionType.MagnitudeAndPhase
 
                 };
             }
@@ -60,7 +60,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public RFmxSpecAnMXDpdApplyDpdMemoryModelCorrectionType CorrectionType;
             public RFmxSpecAnMXDpdIterativeDpdEnabled IterativeDpdEnabled;
             public int NumberOfIterations;
-            public int Order, Depth, LeadOrder, LagOrder, LeadMemoryDepth, LagMemoryDepth, MaxLead, MaxLag;
+            public int Order, Depth, LeadOrder, LagOrder, LeadMemoryDepth, LagMemoryDepth, MaximumLead, MaximumLag;
             public static MemoryPolynomialConfiguration GetDefault()
             {
                 return new MemoryPolynomialConfiguration
@@ -74,8 +74,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                     LagOrder = 2,
                     LeadMemoryDepth = 2,
                     LagMemoryDepth = 2,
-                    MaxLead = 2,
-                    MaxLag = 2
+                    MaximumLead = 2,
+                    MaximumLag = 2
                 };
             }
         }
@@ -83,8 +83,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         public struct LookupTableResults
         {
             public SG.Waveform PostDpdWaveform;
-            public float[] LookupTableInputPowers_dBm;
-            public ComplexSingle[] LookupTableComplexGains_dB;
+            public float[] InputPowers_dBm;
+            public ComplexSingle[] ComplexGains_dB;
             public double PowerOffset_dB;
         }
 
@@ -110,11 +110,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         public static void ConfigureLookupTable(RFmxSpecAnMX specAnSignal, LookupTableConfiguration lutConfig, string selectorString = "")
         {
             specAnSignal.Dpd.Configuration.ConfigureDpdModel(selectorString, RFmxSpecAnMXDpdModel.LookupTable);
-            specAnSignal.Dpd.Configuration.ConfigureLookupTableType(selectorString, lutConfig.LookupTableType);
+            specAnSignal.Dpd.Configuration.ConfigureLookupTableType(selectorString, lutConfig.Type);
             specAnSignal.Dpd.Configuration.ConfigureLookupTableThreshold(selectorString, lutConfig.ThresholdEnabled, lutConfig.ThresholdLevel_dB,
                 lutConfig.ThresholdType);
-            specAnSignal.Dpd.Configuration.ConfigureLookupTableStepSize(selectorString, lutConfig.LookupTableStepSize_dB);
-            specAnSignal.Dpd.ApplyDpd.ConfigureLookupTableCorrectionType(selectorString, lutConfig.LookupTableCorrectionType);
+            specAnSignal.Dpd.Configuration.ConfigureLookupTableStepSize(selectorString, lutConfig.StepSize_dB);
+            specAnSignal.Dpd.ApplyDpd.ConfigureLookupTableCorrectionType(selectorString, lutConfig.CorrectionType);
         }
 
         public static void ConfigureMemoryPolynomial(RFmxSpecAnMX specAnSignal, MemoryPolynomialConfiguration mpConfig, string selectorString = "")
@@ -122,7 +122,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             specAnSignal.Dpd.Configuration.ConfigureDpdModel(selectorString, RFmxSpecAnMXDpdModel.GeneralizedMemoryPolynomial);
             specAnSignal.Dpd.Configuration.ConfigureMemoryPolynomial(selectorString, mpConfig.Order, mpConfig.Depth);
             specAnSignal.Dpd.Configuration.ConfigureGeneralizedMemoryPolynomialCrossTerms(selectorString, mpConfig.LeadOrder,
-                mpConfig.LagOrder, mpConfig.LeadMemoryDepth, mpConfig.LagMemoryDepth, mpConfig.MaxLead, mpConfig.MaxLag);
+                mpConfig.LagOrder, mpConfig.LeadMemoryDepth, mpConfig.LagMemoryDepth, mpConfig.MaximumLead, mpConfig.MaximumLag);
             specAnSignal.Dpd.Configuration.ConfigureIterativeDpdEnabled(selectorString, mpConfig.IterativeDpdEnabled);
             specAnSignal.Dpd.ApplyDpd.ConfigureMemoryModelCorrectionType(selectorString, mpConfig.CorrectionType);
         }
@@ -142,7 +142,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             SG.DownloadWaveform(rfsgSession, lutResults.PostDpdWaveform);
             rfsgSession.RF.PowerLevel = rfsgSession.RF.PowerLevel + lutResults.PowerOffset_dB;
             rfsgSession.Initiate();
-            specAnSignal.Dpd.Results.FetchLookupTable(selectorString, timeout_s, ref lutResults.LookupTableInputPowers_dBm, ref lutResults.LookupTableComplexGains_dB);
+            specAnSignal.Dpd.Results.FetchLookupTable(selectorString, timeout_s, ref lutResults.InputPowers_dBm, ref lutResults.ComplexGains_dB);
             return lutResults;
         }
 
