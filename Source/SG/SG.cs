@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
@@ -32,7 +33,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     SelectedPorts = "",
                     ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
                     CarrierFrequency_Hz = 1e9,
-                    DutAverageInputPower_dBm = 0,
+                    DutAverageInputPower_dBm = -10,
                     ExternalAttenuation_dBm = 0,
                     LoConfigurations = new LocalOscillatorConfiguration[] { LocalOscillatorConfiguration.GetDefault() }
                 };
@@ -41,19 +42,21 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public static InstrumentConfiguration GetDefault(NIRfsg sessionHandle)
             {
                 InstrumentConfiguration instrConfig = GetDefault(); // covers case for sub6 instruments with a single configurable LO
-                // lo configuration will now be overridden if the instrument has multiple configurable LOs
-                switch (sessionHandle.Identity.InstrumentModel)
+                // lo configuration will now be overridden if the instrument has number of LOs != 1
+                string instrumentModel = sessionHandle.Identity.InstrumentModel;
+                if (Regex.IsMatch(instrumentModel, "NI PXIe-583.")) // matches on any instruments in 583x family
+                {   // these instruments have two configurable LOs
+                    instrConfig.SelectedPorts = "IF0";
+                    instrConfig.CarrierFrequency_Hz = 6.5e9;
+                    LocalOscillatorConfiguration lo1Config = LocalOscillatorConfiguration.GetDefault();
+                    lo1Config.ChannelName = "LO1";
+                    LocalOscillatorConfiguration lo2Config = LocalOscillatorConfiguration.GetDefault();
+                    lo2Config.ChannelName = "LO2";
+                    instrConfig.LoConfigurations = new LocalOscillatorConfiguration[] { lo1Config, lo2Config };
+                }
+                else if (Regex.IsMatch(instrumentModel, "NI PXIe-5(82.|645R)")) // matches on any baseband instrument without an LO
                 {
-                    case "NI PXIe-5830":
-                    case "NI PXIe-5831":
-                        instrConfig.SelectedPorts = "IF0";
-                        instrConfig.CarrierFrequency_Hz = 6.5e9;
-                        LocalOscillatorConfiguration lo1Config = LocalOscillatorConfiguration.GetDefault();
-                        lo1Config.ChannelName = "LO1";
-                        LocalOscillatorConfiguration lo2Config = LocalOscillatorConfiguration.GetDefault();
-                        lo2Config.ChannelName = "LO2";
-                        instrConfig.LoConfigurations = new LocalOscillatorConfiguration[] { lo1Config, lo2Config };
-                        break;
+                    instrConfig.LoConfigurations = new LocalOscillatorConfiguration[0]; // baseband instruments have no LOs
                 }
                 return instrConfig;
             }
@@ -123,32 +126,37 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.DutAverageInputPower_dBm);
             rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dBm;
 
+            string instrumentModel = rfsgHandle.Identity.InstrumentModel;
+
+            if (Regex.IsMatch(instrumentModel, "NI PXIe-5(82.|645R)")) // matches on any baseband instrument without an LO
+                return; // return early since the instrument doesn't have any LOs that can be configured
+
+            /// Properties to modify related to LO:
+            /// LOOutExportConfigureFromRfsa
+            /// Source
+            /// LOOutEnabled
             foreach (LocalOscillatorConfiguration loConfig in instrConfig.LoConfigurations)
             {
                 switch (loConfig.SharingMode)
                 {
                     case LocalOscillatorSharingMode.None:
-                        rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Disabled;
-                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].LOOutEnabled = false;
+                        if (Regex.IsMatch(instrumentModel, "NI PXIe-584.")) // matches on any instruments in the 584x family
+                            rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Disabled;
                         rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.Onboard;
+                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].LOOutEnabled = false;
                         break;
                     case LocalOscillatorSharingMode.Manual:
-                        rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Disabled;
-                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].LOOutEnabled = loConfig.ExportEnabled;
+                        if (Regex.IsMatch(instrumentModel, "NI PXIe-584.")) // matches on any instruments in the 584x family
+                            rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Disabled;
                         rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.FromString(loConfig.Source);
+                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].LOOutEnabled = loConfig.ExportEnabled;
                         break;
-                    default: // default to automatic case
-                        string instrumentModel = rfsgHandle.Identity.InstrumentModel;
-                        if (instrumentModel == "PXIe-5830" || instrumentModel == "PXIe-5831")
-                        {
-                            rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgRF).GetProperty("LOOutExportConfigureFromRfsa"));
-                            rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.SGSAShared;
-                        }
-                        else
-                        {
+                    default:
+                        rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("Source"));
+                        if (Regex.IsMatch(instrumentModel, "NI PXIe-584.")) // matches on any instruments in the 584x family
                             rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Enabled;
-                            rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("Source"));
-                        }
+                        else if (Regex.IsMatch(instrumentModel, "NI PXIe-583.")) // matches on any instruments in 583x family
+                                rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.SGSAShared;
                         rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("LOOutEnabled"));
                         break;
                 }
@@ -519,5 +527,4 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
     }
-
 }
