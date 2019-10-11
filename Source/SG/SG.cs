@@ -159,8 +159,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.ReadBurstStartLocationsFromFile(filePath, 0, ref waveform.BurstStartLocations);
             NIRfsgPlayback.ReadBurstStopLocationsFromFile(filePath, 0, ref waveform.BurstStopLocations);
 
-            waveform.IdleDurationPresent = waveform.BurstStartLocations?.Length > 0;
-
             //Statement reads: if NOT BurstStartLocations > 0 AND expression is not null (? operand)
             //In other words, manually set BurstStartLocations when the length is 0 or less or array is null
             if (!(waveform.BurstStartLocations?.Length > 0))
@@ -173,6 +171,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 //Set burst stop to the last sample (number of samples minus one)
                 waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 };
             }
+
+            // calculating IdleDurationPresent like this also accounts for tools like wlan sfp that put in burst start and stop locations even if there is no idle time in the waveform
+            waveform.IdleDurationPresent = waveform.BurstStopLocations.First() - waveform.BurstStartLocations.First() < waveform.WaveformData.SampleCount - 1;
 
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
@@ -188,8 +189,14 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 rfsgHandle.Arb.ClearWaveform(waveform.WaveformName); //Clear existing waveform to avoid erros
             }
-            catch (Ivi.Driver.OutOfRangeException)
-            { //Intentionally ignore this exception; clearing the waveform failed because it doesn't exist
+            catch (Exception ex)
+            {
+                if (ex is Ivi.Driver.OutOfRangeException || ex is Ivi.Driver.IviCDriverException)
+                {
+                    //Intentionally ignore this exception; clearing the waveform failed because it doesn't exist
+                }
+                else
+                    throw;
             }
 
             rfsgHandle.RF.PowerLevelType = RfsgRFPowerLevelType.PeakPower; // set power level to peak before writing so RFSG doesn't scale waveform
@@ -365,7 +372,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.RetrieveWaveformSampleRate(rfsgPtr, waveformName, out waveform.SampleRate);
             NIRfsgPlayback.RetrieveWaveformBurstStartLocations(rfsgPtr, waveformName, ref waveform.BurstStartLocations);
             NIRfsgPlayback.RetrieveWaveformBurstStopLocations(rfsgPtr, waveformName, ref waveform.BurstStopLocations);
-            waveform.IdleDurationPresent = waveform.BurstStartLocations?.Length > 0;
+            NIRfsgPlayback.RetrieveWaveformSize(rfsgPtr, waveformName, out int waveformSize);
+            waveform.IdleDurationPresent = waveform.BurstStopLocations.First() - waveform.BurstStartLocations.First() < waveformSize - 1;
             NIRfsgPlayback.RetrieveWaveformRuntimeScaling(rfsgPtr, waveformName, out waveform.RuntimeScaling);
 
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
