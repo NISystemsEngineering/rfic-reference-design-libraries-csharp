@@ -44,10 +44,16 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 InstrumentConfiguration instrConfig = GetDefault(); // covers case for sub6 instruments with a single configurable LO
                 // lo configuration will now be overridden if the instrument has number of LOs != 1
                 string instrumentModel = sessionHandle.Identity.InstrumentModel;
-                if (Regex.IsMatch(instrumentModel, "NI PXIe-583.")) // matches on any instruments in 583x family
-                {   // these instruments have two configurable LOs
+                if (instrumentModel.Equals("NI PXIe-5830"))
+                {
                     instrConfig.SelectedPorts = "IF0";
                     instrConfig.CarrierFrequency_Hz = 6.5e9;
+                    instrConfig.LoConfigurations[0].ChannelName = "LO2";
+                }
+                else if (instrumentModel.Equals("NI PXIe-5831"))
+                {   // these instruments have two configurable LOs
+                    instrConfig.SelectedPorts = "rf0/port0";
+                    instrConfig.CarrierFrequency_Hz = 22.5e9;
                     LocalOscillatorConfiguration lo1Config = LocalOscillatorConfiguration.GetDefault();
                     lo1Config.ChannelName = "LO1";
                     LocalOscillatorConfiguration lo2Config = LocalOscillatorConfiguration.GetDefault();
@@ -153,11 +159,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
                         break;
                     default:
                         rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("Source"));
+                        rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("LOOutEnabled"));
                         if (Regex.IsMatch(instrumentModel, "NI PXIe-584.")) // matches on any instruments in the 584x family
                             rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Enabled;
                         else if (Regex.IsMatch(instrumentModel, "NI PXIe-583.")) // matches on any instruments in 583x family
                                 rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.SGSAShared;
-                        rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("LOOutEnabled"));
                         break;
                 }
 

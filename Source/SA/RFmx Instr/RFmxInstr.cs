@@ -23,7 +23,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 InstrumentConfiguration instrConfig = GetDefault(); // covers case for sub6 instruments with a single configurable LO
                 // lo configuration will now be overridden if the instrument has number of LOs != 1
                 sessionHandle.GetInstrumentModel("", out string instrumentModel);
-                if (Regex.IsMatch(instrumentModel, "NI PXIe-583.")) // matches on any instruments in 583x family
+                if (instrumentModel.Equals("NI PXIe-5830"))
+                    instrConfig.LoConfigurations[0].ChannelName = "LO2";
+                else if (instrumentModel.Equals("NI PXIe-5831"))
                 {
                     LocalOscillatorConfiguration lo1Config = LocalOscillatorConfiguration.GetDefault();
                     lo1Config.ChannelName = "LO1";
@@ -69,10 +71,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                         instrHandle.SetLOExportEnabled(loConfig.ChannelName, loConfig.ExportEnabled);
                         break;
                     default:
-                        if (Regex.IsMatch(instrumentModel, "NI PXIe-58[34]."))
-                            instrHandle.SetAutomaticSGSASharedLO(loConfig.ChannelName, RFmxInstrMXAutomaticSGSASharedLO.Enabled);
                         instrHandle.ResetAttribute(loConfig.ChannelName, RFmxInstrMXPropertyId.LOSource);
                         instrHandle.ResetAttribute(loConfig.ChannelName, RFmxInstrMXPropertyId.LOExportEnabled);
+                        if (Regex.IsMatch(instrumentModel, "NI PXIe-58[34]."))
+                            instrHandle.SetAutomaticSGSASharedLO(loConfig.ChannelName, RFmxInstrMXAutomaticSGSASharedLO.Enabled);
                         break;
                 }
                 
@@ -87,8 +89,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                         instrHandle.SetDownconverterFrequencyOffset(loConfig.ChannelName, loConfig.Offset_Hz);
                         break;
                     default:
-                        instrHandle.SetLOLeakageAvoidanceEnabled(loConfig.ChannelName, RFmxInstrMXLOLeakageAvoidanceEnabled.True);
                         instrHandle.ResetAttribute(loConfig.ChannelName, RFmxInstrMXPropertyId.DownconverterFrequencyOffset);
+                        instrHandle.SetLOLeakageAvoidanceEnabled(loConfig.ChannelName, RFmxInstrMXLOLeakageAvoidanceEnabled.True);
                         break;
                 }
             }
