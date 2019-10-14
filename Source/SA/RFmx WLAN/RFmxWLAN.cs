@@ -217,17 +217,20 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region Measurement Configuration
         public static void ConfigureSignal(RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
         {
-
+            RFmxWlanMXStandard standard = signalConfig.Standard;
+            double bandwdidth = signalConfig.ChannelBandwidth_Hz;
             if (signalConfig.AutoDetectSignal)
             {
                 wlanSignal.AutoDetectSignal(selectorString, 10);
-            }
-            else
-            {
-                wlanSignal.ConfigureStandard(selectorString, signalConfig.Standard);
-                wlanSignal.ConfigureChannelBandwidth(selectorString, signalConfig.ChannelBandwidth_Hz);
-            }
 
+                wlanSignal.GetDetectedStandard(selectorString, out int standard_int);
+                standard = (RFmxWlanMXStandard)standard_int;
+                if (standard == RFmxWlanMXStandard.Unknown) throw new RFmxException("RFmx atuomatic signal detection failed. Check the input signal and try again.");
+
+                wlanSignal.GetDetectedChannelBandwidth(selectorString, out bandwdidth);
+            }
+            wlanSignal.ConfigureStandard(selectorString, (RFmxWlanMXStandard)standard);
+            wlanSignal.ConfigureChannelBandwidth(selectorString, bandwdidth);
         }
 
         public static void ConfigureTxP(RFmxWlanMX wlanSignal, TxPConfiguration txPConfig, string selectorString = "")
