@@ -144,7 +144,8 @@ namespace Code_Report
                             if (structMem.Kind() == SyntaxKind.FieldDeclaration)
                             {
                                 FieldDeclarationSyntax var = (FieldDeclarationSyntax)structMem;
-                                paramList.Add(var.Declaration.Variables[0].Identifier.ToString(), "Param");
+                                for (int i = 0; i < var.Declaration.Variables.Count; i++)
+                                    paramList.Add(var.Declaration.Variables[i].Identifier.ToString(), "Param");
                             }
                         }
                         memData = new MemberData { MemberTypeName = "Type", paramList = paramList };
