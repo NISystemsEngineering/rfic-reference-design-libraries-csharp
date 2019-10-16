@@ -24,8 +24,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double CarrierFrequency_Hz;
             public double DutAverageInputPower_dBm;
             public double ExternalAttenuation_dBm;
-            public LocalOscillatorConfiguration[] LoConfigurations;
-            
+
+            public LocalOscillatorSharingMode LOSharingMode;
+            public LocalOscillatorRoutingConfiguration[] LORoutingConfigurations;
+            public LocalOscillatorFrequencyOffsetConfiguration LOOffsetConfiguration;
+
             public static InstrumentConfiguration GetDefault()
             {
                 return new InstrumentConfiguration()
@@ -35,34 +38,36 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     CarrierFrequency_Hz = 1e9,
                     DutAverageInputPower_dBm = -10,
                     ExternalAttenuation_dBm = 0,
-                    LoConfigurations = new LocalOscillatorConfiguration[] { LocalOscillatorConfiguration.GetDefault() }
+                    LOSharingMode = LocalOscillatorSharingMode.Automatic,
+                    LORoutingConfigurations = new LocalOscillatorRoutingConfiguration[] { LocalOscillatorRoutingConfiguration.GetDefault() },
+                    LOOffsetConfiguration = LocalOscillatorFrequencyOffsetConfiguration.GetDefault()
                 };
             }
 
             public static InstrumentConfiguration GetDefault(NIRfsg sessionHandle)
             {
                 InstrumentConfiguration instrConfig = GetDefault(); // covers case for sub6 instruments with a single configurable LO
-                // lo configuration will now be overridden if the instrument has number of LOs != 1
+                // lo routing configurations will now be overridden if the instrument has number of LOs != 1
                 string instrumentModel = sessionHandle.Identity.InstrumentModel;
                 if (instrumentModel.Equals("NI PXIe-5830"))
                 {
                     instrConfig.SelectedPorts = "IF0";
                     instrConfig.CarrierFrequency_Hz = 6.5e9;
-                    instrConfig.LoConfigurations[0].ChannelName = "LO2";
+                    instrConfig.LORoutingConfigurations[0].ChannelName = "LO2";
                 }
-                else if (instrumentModel.Equals("NI PXIe-5831"))
+                else if (Regex.IsMatch(instrumentModel, "NI PXIe-5831"))
                 {   // these instruments have two configurable LOs
                     instrConfig.SelectedPorts = "rf0/port0";
                     instrConfig.CarrierFrequency_Hz = 22.5e9;
-                    LocalOscillatorConfiguration lo1Config = LocalOscillatorConfiguration.GetDefault();
-                    lo1Config.ChannelName = "LO1";
-                    LocalOscillatorConfiguration lo2Config = LocalOscillatorConfiguration.GetDefault();
-                    lo2Config.ChannelName = "LO2";
-                    instrConfig.LoConfigurations = new LocalOscillatorConfiguration[] { lo1Config, lo2Config };
+                    LocalOscillatorRoutingConfiguration lo1RoutingConfig = LocalOscillatorRoutingConfiguration.GetDefault();
+                    lo1RoutingConfig.ChannelName = "LO1";
+                    LocalOscillatorRoutingConfiguration lo2RoutingConfig = LocalOscillatorRoutingConfiguration.GetDefault();
+                    lo2RoutingConfig.ChannelName = "LO2";
+                    instrConfig.LORoutingConfigurations = new LocalOscillatorRoutingConfiguration[] { lo1RoutingConfig, lo2RoutingConfig };
                 }
                 else if (Regex.IsMatch(instrumentModel, "NI PXIe-5(82.|645R)")) // matches on any baseband instrument without an LO
                 {
-                    instrConfig.LoConfigurations = new LocalOscillatorConfiguration[0]; // baseband instruments have no LOs
+                    instrConfig.LORoutingConfigurations = new LocalOscillatorRoutingConfiguration[0]; // baseband instruments have no LOs
                 }
                 return instrConfig;
             }
@@ -137,48 +142,52 @@ namespace NationalInstruments.ReferenceDesignLibraries
             if (Regex.IsMatch(instrumentModel, "NI PXIe-5(82.|645R)")) // matches on any baseband instrument without an LO
                 return; // return early since the instrument doesn't have any LOs that can be configured
 
-            /// Properties to modify related to LO:
-            /// LOOutExportConfigureFromRfsa
+            /// Properties to modify related to LO routing:
             /// Source
             /// LOOutEnabled
-            foreach (LocalOscillatorConfiguration loConfig in instrConfig.LoConfigurations)
+            foreach (LocalOscillatorRoutingConfiguration loRoutingConfig in instrConfig.LORoutingConfigurations)
             {
-                switch (loConfig.SharingMode)
+                switch (instrConfig.LOSharingMode)
                 {
                     case LocalOscillatorSharingMode.None:
-                        if (Regex.IsMatch(instrumentModel, "NI PXIe-584.")) // matches on any instruments in the 584x family
-                            rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Disabled;
-                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.Onboard;
-                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].LOOutEnabled = false;
+                        rfsgHandle.RF.LocalOscillator[loRoutingConfig.ChannelName].Source = RfsgLocalOscillatorSource.Onboard;
+                        rfsgHandle.RF.LocalOscillator[loRoutingConfig.ChannelName].LOOutEnabled = false;
                         break;
                     case LocalOscillatorSharingMode.Manual:
-                        if (Regex.IsMatch(instrumentModel, "NI PXIe-584.")) // matches on any instruments in the 584x family
-                            rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Disabled;
-                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.FromString(loConfig.Source);
-                        rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].LOOutEnabled = loConfig.ExportEnabled;
+                        rfsgHandle.RF.LocalOscillator[loRoutingConfig.ChannelName].Source = RfsgLocalOscillatorSource.FromString(loRoutingConfig.Source);
+                        rfsgHandle.RF.LocalOscillator[loRoutingConfig.ChannelName].LOOutEnabled = loRoutingConfig.ExportEnabled;
                         break;
                     default:
-                        rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("Source"));
-                        rfsgHandle.Utility.ResetAttribute(loConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("LOOutEnabled"));
-                        if (Regex.IsMatch(instrumentModel, "NI PXIe-584.")) // matches on any instruments in the 584x family
-                            rfsgHandle.RF.LOOutExportConfigureFromRfsa = RfsgLOOutExportConfigureFromRfsa.Enabled;
-                        else if (Regex.IsMatch(instrumentModel, "NI PXIe-583.")) // matches on any instruments in 583x family
-                                rfsgHandle.RF.LocalOscillator[loConfig.ChannelName].Source = RfsgLocalOscillatorSource.SGSAShared;
+                        rfsgHandle.Utility.ResetAttribute(loRoutingConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("Source"));
+                        rfsgHandle.Utility.ResetAttribute(loRoutingConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("LOOutEnabled"));
                         break;
                 }
+            }
 
-                switch (loConfig.OffsetMode)
-                {
-                    case LocalOscillatorOffsetMode.NoOffset:
-                        rfsgHandle.RF.Upconverter.FrequencyOffset = 0.0;
-                        break;
-                    case LocalOscillatorOffsetMode.UserDefined:
-                        rfsgHandle.RF.Upconverter.FrequencyOffset = loConfig.Offset_Hz;
-                        break;
-                    default: // default to automatic case
-                        rfsgHandle.Utility.ResetAttribute(typeof(RfsgUpconverter).GetProperty("FrequencyOffset")); // LO offset will automatically be set based on signal bandwidth property set by rfsgpbl
-                        break;
-                }
+            // Set global automatic lo sharing property in rfsgpbl
+            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+            switch (instrConfig.LOSharingMode)
+            {
+                case LocalOscillatorSharingMode.None:
+                case LocalOscillatorSharingMode.Manual:
+                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Disabled);
+                    break;
+                default:
+                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Enabled);
+                    break;
+            }
+
+            switch (instrConfig.LOOffsetConfiguration.Mode)
+            {
+                case LocalOscillatorFrequencyOffsetMode.NoOffset:
+                    rfsgHandle.RF.Upconverter.FrequencyOffset = 0.0;
+                    break;
+                case LocalOscillatorFrequencyOffsetMode.UserDefined:
+                    rfsgHandle.RF.Upconverter.FrequencyOffset = instrConfig.LOOffsetConfiguration.Offset_Hz;
+                    break;
+                default: // default to automatic case
+                    rfsgHandle.Utility.ResetAttribute(typeof(RfsgUpconverter).GetProperty("FrequencyOffset")); // LO offset will automatically be set based on signal bandwidth property set by rfsgpbl
+                    break;
             }
         }
 
@@ -281,11 +290,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
 
-		public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
-		{
+        public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
+        {
             //Configure the trigger to be generated on the first sample of each waveform generation,
             //denoted in the script below as "marker0"
-			rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(waveformStartTriggerExport);
+            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(waveformStartTriggerExport);
 
             //A software trigger is configured that is used in the script below to control generation of
             //the script. This ensures that a complete packet is always generated before aborting, and
@@ -303,6 +312,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             //Download the newly created script for generation when "Initiate" is called
             NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, script);
+            rfsgHandle.Arb.SignalBandwidth = waveform.SignalBandwidth_Hz; // has to be manually set since we've disabled it in rfsgpbl
         }
 
         public static void ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
@@ -405,6 +415,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             //Download the generation script to the generator for later initiation
             NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, sb.ToString());
+            rfsgHandle.Arb.SignalBandwidth = waveform.SignalBandwidth_Hz; // has to be manually set since we've disabled it in rfsgpbl
 
             //Configure the triggering for PA enable if selected
             if (paenConfig.PAEnableMode != PAENMode.Disabled)
@@ -420,7 +431,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             //Configure the trigger to be generated on the first sample of each waveform generation,
             //denoted in the script below as "marker0"
-            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = 
+            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal =
                 RfsgMarkerEventExportedOutputTerminal.FromString(waveTiming.BurstStartTriggerExport);
         }
 

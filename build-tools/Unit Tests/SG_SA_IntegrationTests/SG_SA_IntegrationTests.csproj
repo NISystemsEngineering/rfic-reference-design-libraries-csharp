@@ -60,10 +60,7 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NationalInstruments.RFmx.SpecAnMX.Fx40, Version=19.0.0.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
-    </Reference>
+    <Reference Include="NationalInstruments.RFmx.LteMX.Fx40, Version=19.0.0.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
@@ -78,11 +75,18 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Support Files\LTE_TDD_2.0.tdms">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Source\SA\RFmx Instr\RFmxInstr.csproj">
       <Project>{ab49d5a9-9585-445a-ae8a-e4dd2b8956aa}</Project>
       <Name>RFmxInstr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\SA\RFmx LTE\RFmxLTE.csproj">
+      <Project>{1eb6f1ae-2eea-4dc8-8cdb-09b5fadf2236}</Project>
+      <Name>RFmxLTE</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Source\SG\SG.csproj">
       <Project>{89abcac5-cedb-4535-bd58-e205a97834d9}</Project>
