@@ -174,7 +174,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         [TestMethod()]
         public void DictionaryWaveformMatchesLoaded()
         {
-            
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
                 SG.DownloadWaveform(simulatedDevice, waveform);

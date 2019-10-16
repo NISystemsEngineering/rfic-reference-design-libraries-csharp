@@ -289,6 +289,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformBurstStopLocations(rfsgPtr, waveform.WaveformName, waveform.BurstStopLocations);
             NIRfsgPlayback.StoreWaveformSampleRate(rfsgPtr, waveform.WaveformName, waveform.SampleRate);
             NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, waveform.RuntimeScaling);
+            NIRfsgPlayback.StoreWaveformSize(rfsgPtr, waveform.WaveformName, waveform.WaveformData.SampleCount); // this has to be stored in case the user queries for this information later
 
             //Manually configure additional settings
             NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled); // configured at instrument level, not waveform level

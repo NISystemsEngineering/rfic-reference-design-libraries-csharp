@@ -61,10 +61,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 {
                     case LocalOscillatorSharingMode.None:
                     case LocalOscillatorSharingMode.Manual:
-                        instrHandle.SetAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Disabled);
+                        instrHandle.ConfigureAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Disabled);
                         break;
                     default:
-                        instrHandle.SetAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Enabled);
+                        instrHandle.ConfigureAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Enabled);
                         break;
                 }
 

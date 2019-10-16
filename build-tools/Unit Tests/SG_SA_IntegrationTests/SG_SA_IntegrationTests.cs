@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NationalInstruments.ModularInstruments.NIRfsg;
-using NationalInstruments.RFmx.InstrMX;
-using NationalInstruments.RFmx.LteMX;
 using NationalInstruments.ModularInstruments.SystemServices.DeviceServices;
 using NationalInstruments.ReferenceDesignLibraries;
 using NationalInstruments.ReferenceDesignLibraries.SA;
-using FluentAssertions;
-using FluentAssertions.Execution;
+using NationalInstruments.RFmx.InstrMX;
+using System;
+using System.Collections.Generic;
 
 namespace SG_SA_IntegrationTests
 {
@@ -185,6 +184,106 @@ namespace SG_SA_IntegrationTests
                     rfsg.RF.LocalOscillator[channelName].Source.Should().Be(RfsgLocalOscillatorSource.SGSAShared);
                     rfsg.RF.LocalOscillator[channelName].LOOutEnabled.Should().BeFalse();
                 }
+            }
+        }
+
+        [TestMethod()]
+        public void Test5831AutomaticLOOffset()
+        {
+            if (!deviceSessions.TryGetValue("NI PXIe-3622", out Tuple<NIRfsg, RFmxInstrMX> instrSessions))
+                Assert.Inconclusive("No instrument present.");
+
+            var rfsg = instrSessions.Item1;
+            var sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            SG.ConfigureInstrument(rfsg, sgConfig);
+            SG.ConfigureContinuousGeneration(rfsg, lteTddWaveform);
+
+            var instrmx = instrSessions.Item2;
+            var instrmxConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instrmx);
+            RFmxInstr.ConfigureInstrument(instrmx, instrmxConfig);
+
+            instrmx.GetLteSignalConfiguration().Commit("");
+            rfsg.Utility.Commit();
+
+            using (new AssertionScope())
+            {
+                instrmx.GetLOLeakageAvoidanceEnabled("", out RFmxInstrMXLOLeakageAvoidanceEnabled rfmxLOLeakageAvoidanceEnabled);
+                rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.True);
+
+                instrmx.GetDownconverterFrequencyOffset("", out double rfmxDownconverterFrequencyOffset);
+                rfmxDownconverterFrequencyOffset.Should().BeGreaterThan(5e6);
+
+                rfsg.RF.Upconverter.FrequencyOffset.Should().BeGreaterThan(5e6);
+            }
+        }
+
+        [TestMethod()]
+        public void Test5831NoLOOffset()
+        {
+            if (!deviceSessions.TryGetValue("NI PXIe-3622", out Tuple<NIRfsg, RFmxInstrMX> instrSessions))
+                Assert.Inconclusive("No instrument present.");
+
+            var rfsg = instrSessions.Item1;
+            var sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            sgConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.NoOffset;
+            SG.ConfigureInstrument(rfsg, sgConfig);
+            SG.ConfigureContinuousGeneration(rfsg, lteTddWaveform);
+
+            var instrmx = instrSessions.Item2;
+            var instrmxConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instrmx);
+            instrmxConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.NoOffset;
+            RFmxInstr.ConfigureInstrument(instrmx, instrmxConfig);
+
+            instrmx.GetLteSignalConfiguration().Commit("");
+            rfsg.Utility.Commit();
+
+            using (new AssertionScope())
+            {
+                instrmx.GetLOLeakageAvoidanceEnabled("", out RFmxInstrMXLOLeakageAvoidanceEnabled rfmxLOLeakageAvoidanceEnabled);
+                rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.False);
+
+                instrmx.GetDownconverterFrequencyOffset("", out double rfmxDownconverterFrequencyOffset);
+                instrmx.GetLOFrequencyStepSize("", out double rfmxLoFrequencyStepSize);
+                rfmxDownconverterFrequencyOffset.Should().BeLessOrEqualTo(rfmxLoFrequencyStepSize / 2);
+
+                double rfsgUpconverterFrequencyStepSize = rfsg.RF.LocalOscillator.FrequencyStepSize;
+                rfsg.RF.Upconverter.FrequencyOffset.Should().BeLessOrEqualTo(rfsgUpconverterFrequencyStepSize / 2);
+            }
+        }
+
+        [TestMethod()]
+        public void Test5831UserDefinedLOOffset()
+        {
+            if (!deviceSessions.TryGetValue("NI PXIe-3622", out Tuple<NIRfsg, RFmxInstrMX> instrSessions))
+                Assert.Inconclusive("No instrument present.");
+
+            var rfsg = instrSessions.Item1;
+            var sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            sgConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.UserDefined;
+            sgConfig.LOOffsetConfiguration.Offset_Hz = 101e6;
+            SG.ConfigureInstrument(rfsg, sgConfig);
+            SG.ConfigureContinuousGeneration(rfsg, lteTddWaveform);
+
+            var instrmx = instrSessions.Item2;
+            var instrmxConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instrmx);
+            instrmxConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.UserDefined;
+            instrmxConfig.LOOffsetConfiguration.Offset_Hz = 101e6;
+            RFmxInstr.ConfigureInstrument(instrmx, instrmxConfig);
+
+            instrmx.GetLteSignalConfiguration().Commit("");
+            rfsg.Utility.Commit();
+
+            using (new AssertionScope())
+            {
+                instrmx.GetLOLeakageAvoidanceEnabled("", out RFmxInstrMXLOLeakageAvoidanceEnabled rfmxLOLeakageAvoidanceEnabled);
+                rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.False);
+
+                instrmx.GetDownconverterFrequencyOffset("", out double rfmxDownconverterFrequencyOffset);
+                instrmx.GetLOFrequencyStepSize("", out double rfmxLoFrequencyStepSize);
+                rfmxDownconverterFrequencyOffset.Should().BeApproximately(instrmxConfig.LOOffsetConfiguration.Offset_Hz, rfmxLoFrequencyStepSize / 2);
+
+                double rfsgUpconverterFrequencyStepSize = rfsg.RF.LocalOscillator.FrequencyStepSize;
+                rfsg.RF.Upconverter.FrequencyOffset.Should().BeApproximately(sgConfig.LOOffsetConfiguration.Offset_Hz, rfsgUpconverterFrequencyStepSize / 2);
             }
         }
 
