@@ -8,6 +8,7 @@ using NationalInstruments.ReferenceDesignLibraries.SA;
 using NationalInstruments.RFmx.InstrMX;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace SG_SA_IntegrationTests
 {
@@ -15,7 +16,7 @@ namespace SG_SA_IntegrationTests
     public class SG_SA_IntegrationTests
     {
         static Dictionary<string, Tuple<NIRfsg, RFmxInstrMX>> deviceSessions = new Dictionary<string, Tuple<NIRfsg, RFmxInstrMX>>();
-        static SG.Waveform lteTddWaveform;
+        static SG.Waveform lteTdd10Waveform;
 
         [ClassInitialize]
         public static void TestFixtureSetup(TestContext context)
@@ -43,58 +44,92 @@ namespace SG_SA_IntegrationTests
             }
 
             if (deviceSessions.Count > 0)
-                lteTddWaveform = SG.LoadWaveformFromTDMS(@"Support Files\LTE_TDD_2.0.tdms");
+                lteTdd10Waveform = SG.LoadWaveformFromTDMS(@"Support Files\LTE_TDD_2.0.tdms");
+        }
 
-            // configure LTE sessions
-            foreach (var keyVal in deviceSessions)
+        // returns true if instrument found
+        private bool GetSessions(string model, out NIRfsg rfsg, out RFmxInstrMX instr)
+        {
+            rfsg = null;
+            instr = null;
+            if (!deviceSessions.TryGetValue(model, out Tuple<NIRfsg, RFmxInstrMX> instrSessions))
+                return false;
+            rfsg = instrSessions.Item1;
+            instr = instrSessions.Item2;
+            return true;
+        }
+
+        private string[] GetLOChannelNames(string model)
+        {
+            string[] loChannelNames;
+            switch (model)
             {
-                var rfsg = keyVal.Value.Item1;
-                SG.DownloadWaveform(rfsg, lteTddWaveform);
-
-                var lteCommonConfig = RFmxLTE.CommonConfiguration.GetDefault();
-                switch (keyVal.Key)
-                {
-                    case "NI PXIe-3621":
-                    case "NI PXIe-3622":
-                        lteCommonConfig.SelectedPorts = "rf1/port0";
-                        lteCommonConfig.CenterFrequency_Hz = 22.5e9;
-                        break;
-                }
-                var ltemx = keyVal.Value.Item2.GetLteSignalConfiguration();
-                RFmxLTE.ConfigureCommon(keyVal.Value.Item2, ltemx, lteCommonConfig);
-                RFmxLTE.ConfigureSignal(ltemx, RFmxLTE.SignalConfiguration.GetDefault());
-                RFmxLTE.ConfigureModAcc(ltemx, RFmxLTE.ModAccConfiguration.GetDefault());
+                case "NI PXIe-3621":
+                    loChannelNames = new string[] { "LO2" };
+                    break;
+                case "NI PXIe-3622":
+                    loChannelNames = new string[] { "LO1", "LO2" };
+                    break;
+                default:
+                    loChannelNames = new string[] { "" };
+                    break;
             }
+            return loChannelNames;
+        }
+
+        private void ConfigureInstrument(NIRfsg rfsg, RFmxInstrMX instr, SG.InstrumentConfiguration sgConfig, RFmxInstr.InstrumentConfiguration instrConfig)
+        {
+            SG.ConfigureInstrument(rfsg, sgConfig);
+            SG.DownloadWaveform(rfsg, lteTdd10Waveform);
+            SG.ConfigureContinuousGeneration(rfsg, lteTdd10Waveform);
+
+            RFmxInstr.ConfigureInstrument(instr, instrConfig);
+            var lteCommonConfig = RFmxLTE.CommonConfiguration.GetDefault();
+            if (Regex.IsMatch(rfsg.Identity.InstrumentModel, "NI PXIe-5831"))
+            {
+                lteCommonConfig.SelectedPorts = "rf1/port0";
+                lteCommonConfig.CenterFrequency_Hz = 22.5e9;
+            }
+            var lte = instr.GetLteSignalConfiguration();
+            RFmxLTE.ConfigureCommon(instr, lte, lteCommonConfig);
+            RFmxLTE.ConfigureSignal(lte, RFmxLTE.SignalConfiguration.GetDefault());
+            RFmxLTE.ConfigureModAcc(lte, RFmxLTE.ModAccConfiguration.GetDefault());
+
+            lte.Commit("");
+            rfsg.Utility.Commit();
+        }
+
+        [TestMethod()]
+        public void Test5830AutomaticLOSharing()
+        {
+            Test583xAutomaticLOSharing("NI PXIe-3621");
         }
 
         [TestMethod()]
         public void Test5831AutomaticLOSharing()
         {
-            if (!deviceSessions.TryGetValue("NI PXIe-3622", out Tuple<NIRfsg, RFmxInstrMX> instrSessions))
-                Assert.Inconclusive("No instrument present.");
+            Test583xAutomaticLOSharing("NI PXIe-3622");
+        }
 
-            var rfsg = instrSessions.Item1;
-            var sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
-            SG.ConfigureInstrument(rfsg, sgConfig);
-            SG.ConfigureContinuousGeneration(rfsg, lteTddWaveform);
+        private void Test583xAutomaticLOSharing(string model)
+        {
+            if (!GetSessions(model, out NIRfsg rfsg, out RFmxInstrMX instr))
+                Assert.Inconclusive();
 
-            var instrmx = instrSessions.Item2;
-            var instrmxConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instrmx);
-            RFmxInstr.ConfigureInstrument(instrmx, instrmxConfig);
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instr);
 
-            instrmx.GetLteSignalConfiguration().Commit("");
-            rfsg.Utility.Commit();
+            ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
 
             using (new AssertionScope())
             {
-                instrmx.GetAutomaticSGSASharedLO("", out RFmxInstrMXAutomaticSGSASharedLO rfmxAutomaticSGSASharedLO);
+                instr.GetAutomaticSGSASharedLO("", out RFmxInstrMXAutomaticSGSASharedLO rfmxAutomaticSGSASharedLO);
                 rfmxAutomaticSGSASharedLO.Should().Be(RFmxInstrMXAutomaticSGSASharedLO.Enabled);
 
-                foreach (string channelName in new string[] { "LO1", "LO2" })
+                foreach (var channelName in GetLOChannelNames(model))
                 {
-                    instrmx.GetLOSource(channelName, out string rfmxLOSource);
-                    instrmx.GetLOExportEnabled(channelName, out bool rfmxLOExportEnabled);
-
+                    instr.GetLOSource(channelName, out string rfmxLOSource);
+                    instr.GetLOExportEnabled(channelName, out bool rfmxLOExportEnabled);
                     rfmxLOSource.Should().Be(RFmxInstrMXConstants.LOSourceSGSAShared);
                     rfmxLOExportEnabled.Should().BeFalse();
 
@@ -105,34 +140,76 @@ namespace SG_SA_IntegrationTests
         }
 
         [TestMethod()]
-        public void Test5831NoLOSharing()
+        public void Test5840AutomaticLOSharing()
         {
-            if (!deviceSessions.TryGetValue("NI PXIe-3622", out Tuple<NIRfsg, RFmxInstrMX> instrSessions))
-                Assert.Inconclusive("No instrument present.");
+            Test584xAutomaticLOSharing("PXIe-5840");
+        }
 
-            var rfsg = instrSessions.Item1;
-            var sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
-            sgConfig.LOSharingMode = LocalOscillatorSharingMode.None;
-            SG.ConfigureInstrument(rfsg, sgConfig);
-            SG.ConfigureContinuousGeneration(rfsg, lteTddWaveform);
+        [TestMethod()]
+        public void Test5841AutomaticLOSharing()
+        {
+            Test584xAutomaticLOSharing("PXIe-5841");
+        }
 
-            var instrmx = instrSessions.Item2;
-            var instrmxConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instrmx);
-            instrmxConfig.LOSharingMode = LocalOscillatorSharingMode.None;
-            RFmxInstr.ConfigureInstrument(instrmx, instrmxConfig);
+        private void Test584xAutomaticLOSharing(string model)
+        {
+            if (!GetSessions(model, out NIRfsg rfsg, out RFmxInstrMX instr))
+                Assert.Inconclusive();
 
-            instrmx.GetLteSignalConfiguration().Commit("");
-            rfsg.Utility.Commit();
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instr);
+
+            ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
 
             using (new AssertionScope())
             {
-                instrmx.GetAutomaticSGSASharedLO("", out RFmxInstrMXAutomaticSGSASharedLO rfmxAutomaticSGSASharedLO);
+                instr.GetAutomaticSGSASharedLO("", out RFmxInstrMXAutomaticSGSASharedLO rfmxAutomaticSGSASharedLO);
+                instr.GetLOSource("", out string rfmxLOSource);
+                instr.GetLOExportEnabled("", out bool rfmxLOExportEnabled);
+
+                rfmxAutomaticSGSASharedLO.Should().Be(RFmxInstrMXAutomaticSGSASharedLO.Enabled);
+                rfmxLOSource.Should().Be(RFmxInstrMXConstants.LOSourceLOIn);
+                rfmxLOExportEnabled.Should().BeFalse();
+
+                rfsg.RF.LocalOscillator.Source.Should().Be(RfsgLocalOscillatorSource.Onboard);
+                rfsg.RF.LocalOscillator.LOOutEnabled.Should().BeFalse();
+            }
+        }
+
+        [TestMethod()]
+        public void Test5830NoLOSharing()
+        {
+            Test583xNoLOSharing("NI PXIe-3621");
+        }
+
+        [TestMethod()]
+        public void Test5831NoLOSharing()
+        {
+            Test583xNoLOSharing("NI PXIe-3622");
+        }
+
+        public void Test583xNoLOSharing(string model)
+        {
+            if (!GetSessions(model, out NIRfsg rfsg, out RFmxInstrMX instr))
+                Assert.Inconclusive();
+
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instr);
+
+            sgConfig.LOSharingMode = LocalOscillatorSharingMode.None;
+            instrConfig.LOSharingMode = LocalOscillatorSharingMode.None;
+
+            ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
+
+            using (new AssertionScope())
+            {
+                instr.GetAutomaticSGSASharedLO("", out RFmxInstrMXAutomaticSGSASharedLO rfmxAutomaticSGSASharedLO);
                 rfmxAutomaticSGSASharedLO.Should().Be(RFmxInstrMXAutomaticSGSASharedLO.Disabled);
 
-                foreach (string channelName in new string[] { "LO1", "LO2" })
+                foreach (string channelName in GetLOChannelNames(model))
                 {
-                    instrmx.GetLOSource(channelName, out string rfmxLOSource);
-                    instrmx.GetLOExportEnabled(channelName, out bool rfmxLOExportEnabled);
+                    instr.GetLOSource(channelName, out string rfmxLOSource);
+                    instr.GetLOExportEnabled(channelName, out bool rfmxLOExportEnabled);
 
                     rfmxLOSource.Should().Be(RFmxInstrMXConstants.LOSourceOnboard);
                     rfmxLOExportEnabled.Should().BeFalse();
@@ -144,39 +221,83 @@ namespace SG_SA_IntegrationTests
         }
 
         [TestMethod()]
-        public void Test5831ManualLOSharing()
+        public void Test5840NoLOSharing()
         {
-            if (!deviceSessions.TryGetValue("NI PXIe-3622", out Tuple<NIRfsg, RFmxInstrMX> instrSessions))
-                Assert.Inconclusive("No instrument present.");
+            Test584xNoLOSharing("PXIe-5840");
+        }
 
-            var rfsg = instrSessions.Item1;
-            var sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
-            sgConfig.LOSharingMode = LocalOscillatorSharingMode.Manual;
-            for (int i = 0; i < sgConfig.LORoutingConfigurations.Length; i++)
-                sgConfig.LORoutingConfigurations[i].Source = "SG_SA_Shared";
+        [TestMethod()]
+        public void Test5841NoLOSharing()
+        {
+            Test584xNoLOSharing("PXIe-5841");
+        }
 
-            SG.ConfigureInstrument(rfsg, sgConfig);
-            SG.ConfigureContinuousGeneration(rfsg, lteTddWaveform);
+        private void Test584xNoLOSharing(string model)
+        {
+            if (!GetSessions(model, out NIRfsg rfsg, out RFmxInstrMX instr))
+                Assert.Inconclusive();
 
-            var instrmx = instrSessions.Item2;
-            var instrmxConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instrmx);
-            instrmxConfig.LOSharingMode = LocalOscillatorSharingMode.Manual;
-            for (int i = 0; i < instrmxConfig.LORoutingConfigurations.Length; i++)
-                instrmxConfig.LORoutingConfigurations[i].Source = "SG_SA_Shared";
-            RFmxInstr.ConfigureInstrument(instrmx, instrmxConfig);
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instr);
 
-            instrmx.GetLteSignalConfiguration().Commit("");
-            rfsg.Utility.Commit();
+            sgConfig.LOSharingMode = LocalOscillatorSharingMode.None;
+            instrConfig.LOSharingMode = LocalOscillatorSharingMode.None;
+
+            ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
 
             using (new AssertionScope())
             {
-                instrmx.GetAutomaticSGSASharedLO("", out RFmxInstrMXAutomaticSGSASharedLO rfmxAutomaticSGSASharedLO);
+                instr.GetAutomaticSGSASharedLO("", out RFmxInstrMXAutomaticSGSASharedLO rfmxAutomaticSGSASharedLO);
+                instr.GetLOSource("", out string rfmxLOSource);
+                instr.GetLOExportEnabled("", out bool rfmxLOExportEnabled);
+
+                rfmxAutomaticSGSASharedLO.Should().Be(RFmxInstrMXAutomaticSGSASharedLO.Disabled);
+                rfmxLOSource.Should().Be(RFmxInstrMXConstants.LOSourceOnboard);
+                rfmxLOExportEnabled.Should().BeFalse();
+
+                rfsg.RF.LocalOscillator.Source.Should().Be(RfsgLocalOscillatorSource.Onboard);
+                rfsg.RF.LocalOscillator.LOOutEnabled.Should().BeFalse();
+            }
+        }
+
+        [TestMethod()]
+        public void Test5830ManualLOSharing()
+        {
+            Test583xManualLOSharing("NI PXIe-3621");
+        }
+
+        [TestMethod()]
+        public void Test5831ManualLOSharing()
+        {
+            Test583xManualLOSharing("NI PXIe-3622");
+        }
+
+        private void Test583xManualLOSharing(string model)
+        {
+            if (!GetSessions(model, out NIRfsg rfsg, out RFmxInstrMX instr))
+                Assert.Inconclusive();
+
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instr);
+
+            sgConfig.LOSharingMode = LocalOscillatorSharingMode.Manual;
+            for (int i = 0; i < sgConfig.LORoutingConfigurations.Length; i++)
+                sgConfig.LORoutingConfigurations[i].Source = "SG_SA_Shared";
+            instrConfig.LOSharingMode = LocalOscillatorSharingMode.Manual;
+            for (int i = 0; i < instrConfig.LORoutingConfigurations.Length; i++)
+                instrConfig.LORoutingConfigurations[i].Source = "SG_SA_Shared";
+
+            ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
+
+            using (new AssertionScope())
+            {
+                instr.GetAutomaticSGSASharedLO("", out RFmxInstrMXAutomaticSGSASharedLO rfmxAutomaticSGSASharedLO);
                 rfmxAutomaticSGSASharedLO.Should().Be(RFmxInstrMXAutomaticSGSASharedLO.Disabled);
 
-                foreach (string channelName in new string[] { "LO1", "LO2" })
+                foreach (string channelName in GetLOChannelNames(model))
                 {
-                    instrmx.GetLOSource(channelName, out string rfmxLOSource);
-                    instrmx.GetLOExportEnabled(channelName, out bool rfmxLOExportEnabled);
+                    instr.GetLOSource(channelName, out string rfmxLOSource);
+                    instr.GetLOExportEnabled(channelName, out bool rfmxLOExportEnabled);
 
                     rfmxLOSource.Should().Be(RFmxInstrMXConstants.LOSourceSGSAShared);
                     rfmxLOExportEnabled.Should().BeFalse();
@@ -188,62 +309,139 @@ namespace SG_SA_IntegrationTests
         }
 
         [TestMethod()]
-        public void Test5831AutomaticLOOffset()
+        public void Test5840ManualLOSharing()
         {
-            if (!deviceSessions.TryGetValue("NI PXIe-3622", out Tuple<NIRfsg, RFmxInstrMX> instrSessions))
-                Assert.Inconclusive("No instrument present.");
+            Test584xManualLOSharing("PXIe-5840");
+        }
 
-            var rfsg = instrSessions.Item1;
-            var sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
-            SG.ConfigureInstrument(rfsg, sgConfig);
-            SG.ConfigureContinuousGeneration(rfsg, lteTddWaveform);
+        [TestMethod()]
+        public void Test5841ManualLOSharing()
+        {
+            Test584xManualLOSharing("PXIe-5841");
+        }
 
-            var instrmx = instrSessions.Item2;
-            var instrmxConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instrmx);
-            RFmxInstr.ConfigureInstrument(instrmx, instrmxConfig);
+        private void Test584xManualLOSharing(string model)
+        {
+            if (!GetSessions(model, out NIRfsg rfsg, out RFmxInstrMX instr))
+                Assert.Inconclusive();
 
-            instrmx.GetLteSignalConfiguration().Commit("");
-            rfsg.Utility.Commit();
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instr);
+
+            sgConfig.LOSharingMode = LocalOscillatorSharingMode.Manual;
+            sgConfig.LORoutingConfigurations[0].ExportEnabled = true;
+            instrConfig.LOSharingMode = LocalOscillatorSharingMode.Manual;
+            instrConfig.LORoutingConfigurations[0].Source = RFmxInstrMXConstants.LOSourceLOIn;
+
+            ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
 
             using (new AssertionScope())
             {
-                instrmx.GetLOLeakageAvoidanceEnabled("", out RFmxInstrMXLOLeakageAvoidanceEnabled rfmxLOLeakageAvoidanceEnabled);
-                rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.True);
+                instr.GetAutomaticSGSASharedLO("", out RFmxInstrMXAutomaticSGSASharedLO rfmxAutomaticSGSASharedLO);
+                instr.GetLOSource("", out string rfmxLOSource);
+                instr.GetLOExportEnabled("", out bool rfmxLOExportEnabled);
 
-                instrmx.GetDownconverterFrequencyOffset("", out double rfmxDownconverterFrequencyOffset);
-                rfmxDownconverterFrequencyOffset.Should().BeGreaterThan(5e6);
-
-                rfsg.RF.Upconverter.FrequencyOffset.Should().BeGreaterThan(5e6);
+                rfmxAutomaticSGSASharedLO.Should().Be(RFmxInstrMXAutomaticSGSASharedLO.Disabled);
+                rfmxLOSource.Should().Be(RFmxInstrMXConstants.LOSourceLOIn);
+                rfmxLOExportEnabled.Should().BeFalse();
+                
+                rfsg.RF.LocalOscillator.Source.Should().Be(RfsgLocalOscillatorSource.Onboard);
+                rfsg.RF.LocalOscillator.LOOutEnabled.Should().BeTrue();
             }
+        }
+
+        [TestMethod()]
+        public void Test5830AutomaticLOOffset()
+        {
+            TestAutomaticLOOffset("NI PXIe-3621");
+        }
+
+        [TestMethod()]
+        public void Test5831AutomaticLOOffset()
+        {
+            TestAutomaticLOOffset("NI PXIe-3622");
+        }
+
+        [TestMethod()]
+        public void Test5840AutomaticLOOffset()
+        {
+            TestAutomaticLOOffset("NI PXIe-5840");
+        }
+
+        [TestMethod()]
+        public void Test5841AutomaticLOOffset()
+        {
+            TestAutomaticLOOffset("NI PXIe-5841");
+        }
+
+        private void TestAutomaticLOOffset(string model)
+        {
+            if (!GetSessions(model, out NIRfsg rfsg, out RFmxInstrMX instr))
+                Assert.Inconclusive();
+
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instr);
+
+            ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
+
+            using (new AssertionScope())
+            {
+                instr.GetLOLeakageAvoidanceEnabled("", out RFmxInstrMXLOLeakageAvoidanceEnabled rfmxLOLeakageAvoidanceEnabled);
+                instr.GetDownconverterFrequencyOffset("", out double rfmxDownconverterFrequencyOffset);
+                instr.GetLOFrequencyStepSize("", out double rfmxLoFrequencyStepSize);
+
+                rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.True);
+                rfmxDownconverterFrequencyOffset.Should().BeGreaterThan(rfmxLoFrequencyStepSize / 2);
+
+                double rfsgUpconverterFrequencyStepSize = rfsg.RF.LocalOscillator.FrequencyStepSize;
+                rfsg.RF.Upconverter.FrequencyOffset.Should().BeGreaterThan(rfsgUpconverterFrequencyStepSize / 2);
+            }
+        }
+
+        [TestMethod()]
+        public void Test5830NoLOOffset()
+        {
+            TestNoLOOffset("NI PXIe-3621");
         }
 
         [TestMethod()]
         public void Test5831NoLOOffset()
         {
-            if (!deviceSessions.TryGetValue("NI PXIe-3622", out Tuple<NIRfsg, RFmxInstrMX> instrSessions))
-                Assert.Inconclusive("No instrument present.");
+            TestNoLOOffset("NI PXIe-3622");
+        }
 
-            var rfsg = instrSessions.Item1;
-            var sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+        [TestMethod()]
+        public void Test5840NoLOOffset()
+        {
+            TestNoLOOffset("NI PXIe-5840");
+        }
+
+        [TestMethod()]
+        public void Test5841NoLOOffset()
+        {
+            TestNoLOOffset("NI PXIe-5841");
+        }
+
+        public void TestNoLOOffset(string model)
+        {
+            if (!GetSessions(model, out NIRfsg rfsg, out RFmxInstrMX instr))
+                Assert.Inconclusive();
+
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instr);
+
             sgConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.NoOffset;
-            SG.ConfigureInstrument(rfsg, sgConfig);
-            SG.ConfigureContinuousGeneration(rfsg, lteTddWaveform);
+            instrConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.NoOffset;
 
-            var instrmx = instrSessions.Item2;
-            var instrmxConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instrmx);
-            instrmxConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.NoOffset;
-            RFmxInstr.ConfigureInstrument(instrmx, instrmxConfig);
-
-            instrmx.GetLteSignalConfiguration().Commit("");
-            rfsg.Utility.Commit();
+            ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
 
             using (new AssertionScope())
             {
-                instrmx.GetLOLeakageAvoidanceEnabled("", out RFmxInstrMXLOLeakageAvoidanceEnabled rfmxLOLeakageAvoidanceEnabled);
-                rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.False);
+                instr.GetLOLeakageAvoidanceEnabled("", out RFmxInstrMXLOLeakageAvoidanceEnabled rfmxLOLeakageAvoidanceEnabled);
+                instr.GetDownconverterFrequencyOffset("", out double rfmxDownconverterFrequencyOffset);
+                instr.GetLOFrequencyStepSize("", out double rfmxLoFrequencyStepSize);
 
-                instrmx.GetDownconverterFrequencyOffset("", out double rfmxDownconverterFrequencyOffset);
-                instrmx.GetLOFrequencyStepSize("", out double rfmxLoFrequencyStepSize);
+                rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.False);
                 rfmxDownconverterFrequencyOffset.Should().BeLessOrEqualTo(rfmxLoFrequencyStepSize / 2);
 
                 double rfsgUpconverterFrequencyStepSize = rfsg.RF.LocalOscillator.FrequencyStepSize;
@@ -252,35 +450,52 @@ namespace SG_SA_IntegrationTests
         }
 
         [TestMethod()]
+        public void Test5830UserDefinedLOOffset()
+        {
+            TestUserDefinedLOOffset("NI PXIe-3621");
+        }
+
+        [TestMethod()]
         public void Test5831UserDefinedLOOffset()
         {
-            if (!deviceSessions.TryGetValue("NI PXIe-3622", out Tuple<NIRfsg, RFmxInstrMX> instrSessions))
-                Assert.Inconclusive("No instrument present.");
+            TestUserDefinedLOOffset("NI PXIe-3622");
+        }
 
-            var rfsg = instrSessions.Item1;
-            var sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+        [TestMethod()]
+        public void Test5840UserDefinedLOOffset()
+        {
+            TestUserDefinedLOOffset("NI PXIe-5840");
+        }
+
+        [TestMethod()]
+        public void Test5841UserDefinedLOOffset()
+        {
+            TestUserDefinedLOOffset("NI PXIe-5841");
+        }
+
+        public void TestUserDefinedLOOffset(string model)
+        {
+            if (!GetSessions(model, out NIRfsg rfsg, out RFmxInstrMX instr))
+                Assert.Inconclusive();
+
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
+            RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instr);
+
+            instrConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.UserDefined;
+            instrConfig.LOOffsetConfiguration.Offset_Hz = 27.5e6;
             sgConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.UserDefined;
-            sgConfig.LOOffsetConfiguration.Offset_Hz = 101e6;
-            SG.ConfigureInstrument(rfsg, sgConfig);
-            SG.ConfigureContinuousGeneration(rfsg, lteTddWaveform);
+            sgConfig.LOOffsetConfiguration.Offset_Hz = 27.5e6;
 
-            var instrmx = instrSessions.Item2;
-            var instrmxConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instrmx);
-            instrmxConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.UserDefined;
-            instrmxConfig.LOOffsetConfiguration.Offset_Hz = 101e6;
-            RFmxInstr.ConfigureInstrument(instrmx, instrmxConfig);
-
-            instrmx.GetLteSignalConfiguration().Commit("");
-            rfsg.Utility.Commit();
+            ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
 
             using (new AssertionScope())
             {
-                instrmx.GetLOLeakageAvoidanceEnabled("", out RFmxInstrMXLOLeakageAvoidanceEnabled rfmxLOLeakageAvoidanceEnabled);
-                rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.False);
+                instr.GetLOLeakageAvoidanceEnabled("", out RFmxInstrMXLOLeakageAvoidanceEnabled rfmxLOLeakageAvoidanceEnabled);
+                instr.GetDownconverterFrequencyOffset("", out double rfmxDownconverterFrequencyOffset);
+                instr.GetLOFrequencyStepSize("", out double rfmxLoFrequencyStepSize);
 
-                instrmx.GetDownconverterFrequencyOffset("", out double rfmxDownconverterFrequencyOffset);
-                instrmx.GetLOFrequencyStepSize("", out double rfmxLoFrequencyStepSize);
-                rfmxDownconverterFrequencyOffset.Should().BeApproximately(instrmxConfig.LOOffsetConfiguration.Offset_Hz, rfmxLoFrequencyStepSize / 2);
+                rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.False);
+                rfmxDownconverterFrequencyOffset.Should().BeApproximately(instrConfig.LOOffsetConfiguration.Offset_Hz, rfmxLoFrequencyStepSize / 2);
 
                 double rfsgUpconverterFrequencyStepSize = rfsg.RF.LocalOscillator.FrequencyStepSize;
                 rfsg.RF.Upconverter.FrequencyOffset.Should().BeApproximately(sgConfig.LOOffsetConfiguration.Offset_Hz, rfsgUpconverterFrequencyStepSize / 2);
