@@ -246,9 +246,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             results.OffsetResults = new AcpOffsetResults[lowerAbsolutePower.Length];
             for (int i = 0; i < lowerAbsolutePower.Length; i++)
             {
-                string signalString = Regex.Match(selectorString, "signal::[^/]*").Value; // get the signal string
-                lte.Acp.Configuration.GetOffsetFrequency(signalString, out double offsetFrequency);
-                lte.Acp.Configuration.GetOffsetIntegrationBandwidth(signalString, out double offsetIbw);
+                string offsetString = RFmxLteMX.BuildOffsetString(selectorString,i); // get the signal string
+                lte.Acp.Configuration.GetOffsetFrequency(offsetString, out double offsetFrequency);
+                lte.Acp.Configuration.GetOffsetIntegrationBandwidth(offsetString, out double offsetIbw);
                 results.OffsetResults[i] = new AcpOffsetResults()
                 {
                     LowerRelativePower_dB = lowerRelativePower[i],
