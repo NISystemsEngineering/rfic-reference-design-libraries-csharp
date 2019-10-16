@@ -142,13 +142,13 @@ namespace SG_SA_IntegrationTests
         [TestMethod()]
         public void Test5840AutomaticLOSharing()
         {
-            Test584xAutomaticLOSharing("PXIe-5840");
+            Test584xAutomaticLOSharing("NI PXIe-5840");
         }
 
         [TestMethod()]
         public void Test5841AutomaticLOSharing()
         {
-            Test584xAutomaticLOSharing("PXIe-5841");
+            Test584xAutomaticLOSharing("NI PXIe-5841");
         }
 
         private void Test584xAutomaticLOSharing(string model)
@@ -223,13 +223,13 @@ namespace SG_SA_IntegrationTests
         [TestMethod()]
         public void Test5840NoLOSharing()
         {
-            Test584xNoLOSharing("PXIe-5840");
+            Test584xNoLOSharing("NI PXIe-5840");
         }
 
         [TestMethod()]
         public void Test5841NoLOSharing()
         {
-            Test584xNoLOSharing("PXIe-5841");
+            Test584xNoLOSharing("NI PXIe-5841");
         }
 
         private void Test584xNoLOSharing(string model)
@@ -311,13 +311,13 @@ namespace SG_SA_IntegrationTests
         [TestMethod()]
         public void Test5840ManualLOSharing()
         {
-            Test584xManualLOSharing("PXIe-5840");
+            Test584xManualLOSharing("NI PXIe-5840");
         }
 
         [TestMethod()]
         public void Test5841ManualLOSharing()
         {
-            Test584xManualLOSharing("PXIe-5841");
+            Test584xManualLOSharing("NI PXIe-5841");
         }
 
         private void Test584xManualLOSharing(string model)
@@ -391,10 +391,10 @@ namespace SG_SA_IntegrationTests
                 instr.GetLOFrequencyStepSize("", out double rfmxLoFrequencyStepSize);
 
                 rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.True);
-                rfmxDownconverterFrequencyOffset.Should().BeGreaterThan(rfmxLoFrequencyStepSize / 2);
+                rfmxDownconverterFrequencyOffset.Should().NotBeInRange(-rfmxLoFrequencyStepSize / 2, rfmxLoFrequencyStepSize / 2);
 
                 double rfsgUpconverterFrequencyStepSize = rfsg.RF.LocalOscillator.FrequencyStepSize;
-                rfsg.RF.Upconverter.FrequencyOffset.Should().BeGreaterThan(rfsgUpconverterFrequencyStepSize / 2);
+                rfsg.RF.Upconverter.FrequencyOffset.Should().NotBeInRange(-rfsgUpconverterFrequencyStepSize / 2, rfsgUpconverterFrequencyStepSize / 2);
             }
         }
 
@@ -442,10 +442,10 @@ namespace SG_SA_IntegrationTests
                 instr.GetLOFrequencyStepSize("", out double rfmxLoFrequencyStepSize);
 
                 rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.False);
-                rfmxDownconverterFrequencyOffset.Should().BeLessOrEqualTo(rfmxLoFrequencyStepSize / 2);
+                rfmxDownconverterFrequencyOffset.Should().BeInRange(-rfmxLoFrequencyStepSize / 2, rfmxLoFrequencyStepSize / 2);
 
                 double rfsgUpconverterFrequencyStepSize = rfsg.RF.LocalOscillator.FrequencyStepSize;
-                rfsg.RF.Upconverter.FrequencyOffset.Should().BeLessOrEqualTo(rfsgUpconverterFrequencyStepSize / 2);
+                rfsg.RF.Upconverter.FrequencyOffset.Should().BeInRange(-rfsgUpconverterFrequencyStepSize / 2, rfsgUpconverterFrequencyStepSize / 2);
             }
         }
 
