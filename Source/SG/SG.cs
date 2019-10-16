@@ -142,6 +142,23 @@ namespace NationalInstruments.ReferenceDesignLibraries
             if (Regex.IsMatch(instrumentModel, "NI PXIe-5(82.|645R)")) // matches on any baseband instrument without an LO
                 return; // return early since the instrument doesn't have any LOs that can be configured
 
+            // Set global automatic lo sharing property in rfsgpbl
+            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+            switch (instrConfig.LOSharingMode)
+            {   // StoreAutomaticSGSASharedLO will set LO source for 583x and set LOOutExportConfigureFromRFSA for 584x - happens immediately
+                case LocalOscillatorSharingMode.None:
+                case LocalOscillatorSharingMode.Manual:
+                    // 584x - LOOutExportConfigureFromRFSA set to false
+                    // 583x - LOSource reset
+                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Disabled);
+                    break;
+                default:
+                    // 584x - LOOutExportConfigureFromRFSA set to true
+                    // 583x - LOSource set to SG_SA_Shared
+                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Enabled);
+                    break;
+            }
+
             /// Properties to modify related to LO routing:
             /// Source
             /// LOOutEnabled
@@ -158,23 +175,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
                         rfsgHandle.RF.LocalOscillator[loRoutingConfig.ChannelName].LOOutEnabled = loRoutingConfig.ExportEnabled;
                         break;
                     default:
-                        rfsgHandle.Utility.ResetAttribute(loRoutingConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("Source"));
+                        if (Regex.IsMatch(instrumentModel, "NI PXIe-584.")) // we do not want to reset LOSource for 583x - would override AutoSGSAShared behavior
+                            rfsgHandle.Utility.ResetAttribute(loRoutingConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("Source"));
                         rfsgHandle.Utility.ResetAttribute(loRoutingConfig.ChannelName, typeof(RfsgChannelBasedLO).GetProperty("LOOutEnabled"));
                         break;
                 }
-            }
-
-            // Set global automatic lo sharing property in rfsgpbl
-            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
-            switch (instrConfig.LOSharingMode)
-            {
-                case LocalOscillatorSharingMode.None:
-                case LocalOscillatorSharingMode.Manual:
-                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Disabled);
-                    break;
-                default:
-                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Enabled);
-                    break;
             }
 
             switch (instrConfig.LOOffsetConfiguration.Mode)

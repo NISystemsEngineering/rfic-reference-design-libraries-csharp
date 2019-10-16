@@ -80,6 +80,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\Common\Common.csproj">
+      <Project>{8e7d5092-b685-4ad3-9da3-7c53e56f0f32}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Source\SA\RFmx Instr\RFmxInstr.csproj">
       <Project>{ab49d5a9-9585-445a-ae8a-e4dd2b8956aa}</Project>
       <Name>RFmxInstr</Name>

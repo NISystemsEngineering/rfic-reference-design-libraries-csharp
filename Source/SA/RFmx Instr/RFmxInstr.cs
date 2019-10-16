@@ -1,4 +1,5 @@
 ﻿using NationalInstruments.RFmx.InstrMX;
+using NationalInstruments.ModularInstruments.NIRfsa;
 using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
@@ -54,6 +55,19 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             if (Regex.IsMatch(instrumentModel, "NI PXIe-5(82.|645R)")) // matches on any baseband instrument without an LO
                 return; // return early since the instrument doesn't have any LOs that can be configured
 
+            // Set channel agnostic auto SG SA shared property
+            if (Regex.IsMatch(instrumentModel, "NI PXIe-58[34]."))
+                switch (instrConfig.LOSharingMode)
+                {
+                    case LocalOscillatorSharingMode.None:
+                    case LocalOscillatorSharingMode.Manual:
+                        instrHandle.SetAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Disabled);
+                        break;
+                    default:
+                        instrHandle.SetAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Enabled);
+                        break;
+                }
+
             /// Properties to modify related to LO routing:
             /// LOSource
             /// LOOutEnabled
@@ -75,19 +89,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                         break;
                 }
             }
-
-            // Set channel agnostic auto SG SA shared property
-            if (Regex.IsMatch(instrumentModel, "NI PXIe-58[34]."))
-                switch (instrConfig.LOSharingMode)
-                {
-                    case LocalOscillatorSharingMode.None:
-                    case LocalOscillatorSharingMode.Manual:
-                        instrHandle.SetAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Disabled);
-                        break;
-                    default:
-                        instrHandle.SetAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Enabled);
-                        break;
-                }
 
             switch (instrConfig.LOOffsetConfiguration.Mode)
             {
