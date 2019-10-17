@@ -91,7 +91,7 @@ namespace Simple_NR_Measurements
                     "Offset Frequency (MHz): {5:0.###}\n" +
                     "Offset Integration Bandwidth (MHz): {6:0.###}",
                     i, offsetResult.LowerAbsolutePower_dBm, offsetResult.LowerRelativePower_dB, offsetResult.UpperAbsolutePower_dBm,
-                    offsetResult.UpperRelativePower_dB, offsetResult.OffsetFrequency_Hz / 1E6, offsetResult.OffsetIntegrationBandwidth_Hz / 1E6));
+                    offsetResult.UpperRelativePower_dB, offsetResult.Frequency_Hz / 1E6, offsetResult.IntegrationBandwidth_Hz / 1E6));
             }
             Console.WriteLine();
             Console.WriteLine(string.Format("---CHP Results---\n" +

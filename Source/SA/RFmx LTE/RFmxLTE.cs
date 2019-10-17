@@ -162,8 +162,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double LowerRelativePower_dB;
             public double UpperAbsolutePower_dBm;
             public double UpperRelativePower_dB;
-            public double OffsetFrequency_Hz;
-            public double OffsetIntegrationBandwidth_Hz;
+            public double Frequency_Hz;
+            public double IntegrationBandwidth_Hz;
         }
 
         public struct AcpComponentCarrierResults
@@ -255,8 +255,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     UpperRelativePower_dB = upperRelativePower[i],
                     LowerAbsolutePower_dBm = lowerAbsolutePower[i],
                     UpperAbsolutePower_dBm = upperAbsolutePower[i],
-                    OffsetFrequency_Hz = offsetFrequency,
-                    OffsetIntegrationBandwidth_Hz = offsetIbw
+                    Frequency_Hz = offsetFrequency,
+                    IntegrationBandwidth_Hz = offsetIbw
                 };
             }
             double[] absolutePower = null;
