@@ -1,6 +1,5 @@
 ﻿using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.RFmx.LteMX;
-using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
