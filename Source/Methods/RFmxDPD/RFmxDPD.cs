@@ -161,10 +161,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 specAnSignal.Dpd.Configuration.ConfigurePreviousDpdPolynomial(selectorString, mPResults.DpdPolynomial);
                 specAnSignal.Initiate("", selectorString);
                 //waveform data and PAPR are overwritten in post DPD waveform
-                specAnSignal.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, waveform.WaveformData, idlePresent, timeout_s, ref mPResults.PostDpdWaveform.WaveformData,
-                    out mPResults.PostDpdWaveform.PAPR_dB, out mPResults.PowerOffset_dB);
+                specAnSignal.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString,
+                                                                    waveform.WaveformData,
+                                                                    idlePresent,
+                                                                    timeout_s,
+                                                                    ref mPResults.PostDpdWaveform.WaveformData,
+                                                                    out mPResults.PostDpdWaveform.PAPR_dB,
+                                                                    out mPResults.PowerOffset_dB);
                 SG.DownloadWaveform(rfsgSession, mPResults.PostDpdWaveform);
                 rfsgSession.RF.PowerLevel = rfsgSession.RF.PowerLevel + mPResults.PowerOffset_dB;
+                SG.ConfigureContinuousGeneration(rfsgSession, mPResults.PostDpdWaveform);
                 rfsgSession.Initiate();
                 specAnSignal.Dpd.Results.FetchDpdPolynomial(selectorString, timeout_s, ref mPResults.DpdPolynomial);
             }
