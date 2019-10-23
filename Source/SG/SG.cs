@@ -28,7 +28,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 return new InstrumentConfiguration()
                 {
-                    SelectedPorts="",
+                    SelectedPorts = "",
                     ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
                     CarrierFrequency_Hz = 1e9,
                     DutAverageInputPower_dBm = 0,
@@ -50,6 +50,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public int[] BurstStopLocations;
             public bool IdleDurationPresent;
             public double RuntimeScaling;
+            public string Script;
         }
 
         public struct WaveformTimingConfiguration
@@ -102,7 +103,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.DutAverageInputPower_dBm);
 
             rfsgHandle.FrequencyReference.Source = RfsgFrequencyReferenceSource.FromString(instrConfig.ReferenceClockSource);
-            
+
             if (instrConfig.ShareLOSGToSA)
             {
                 rfsgHandle.RF.LocalOscillator.LOOutEnabled = true;
@@ -215,38 +216,35 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
 
-		public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
-		{
+        public static Waveform ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string markerEventExportTerminal = "PXI_Trig0")
+        {
             //Configure the trigger to be generated on the first sample of each waveform generation,
             //denoted in the script below as "marker0"
-			rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(waveformStartTriggerExport);
+            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(markerEventExportTerminal);
 
             //A software trigger is configured that is used in the script below to control generation of
             //the script. This ensures that a complete packet is always generated before aborting, and
             //allows all generation functions to share a single abort function.
             rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
 
-            string script = $@"script REPEAT{waveform.WaveformName}
+            // Create continuous generation script that is unique to the waveform
+            waveform.Script = $@"script REPEAT{waveform.WaveformName}
                                     repeat until ScriptTrigger0
                                         generate {waveform.WaveformName} marker0(0)
                                     end repeat
                                 end script";
 
-            //Get the instrument handle to utilize with the RFSGPlayback library
-            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+            // Configure the instrument to generate this waveform
+            ConfigureWaveformToGenerate(rfsgHandle, waveform);
 
-            //Download the newly created script for generation when "Initiate" is called
-            NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, script);
+            // Return updated waveform struct to caller
+            return waveform;
         }
 
-        public static void ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
+        public static Waveform ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
-            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
-
-            rfsgHandle.Arb.GenerationMode = RfsgWaveformGenerationMode.Script;
-
-            string scriptName = String.Format("{0}{1}", waveform.WaveformName, waveTiming.DutyCycle_Percent);
+            string scriptName = string.Format("{0}{1}", waveform.WaveformName, waveTiming.DutyCycle_Percent);
 
             if (waveTiming.DutyCycle_Percent <= 0)
             {
@@ -338,7 +336,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
             #endregion
 
             //Download the generation script to the generator for later initiation
-            NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, sb.ToString());
+            waveform.Script = sb.ToString();
+            ConfigureWaveformToGenerate(rfsgHandle, waveform);
 
             //Configure the triggering for PA enable if selected
             if (paenConfig.PAEnableMode != PAENMode.Disabled)
@@ -354,8 +353,22 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             //Configure the trigger to be generated on the first sample of each waveform generation,
             //denoted in the script below as "marker0"
-            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = 
+            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal =
                 RfsgMarkerEventExportedOutputTerminal.FromString(waveTiming.BurstStartTriggerExport);
+
+            // Return updated waveform struct to caller
+            return waveform;
+        }
+
+        public static void ConfigureWaveformToGenerate(NIRfsg rfsgHandle, Waveform waveform)
+        {
+            if (string.IsNullOrEmpty(waveform.Script)) // default to continuous if no script in waveform
+                ConfigureContinuousGeneration(rfsgHandle, waveform);
+            else
+            { 
+                IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+                NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, waveform.Script);
+            }
         }
 
         public static Waveform GetWaveformParametersByName(NIRfsg rfsgHandle, string waveformName)
