@@ -54,7 +54,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\..\Public\Documents\National Instruments\NI-ETSync\DotNET Wrappers\CS\niETUtil.cs">
+    <Compile Include="..\..\..\..\..\..\Public\Documents\National Instruments\NI-ETSync\DotNET Wrappers\CS\niETUtil.cs">
       <Link>niETUtil.cs</Link>
     </Compile>
     <Compile Include="EnvelopeTracking.cs" />
