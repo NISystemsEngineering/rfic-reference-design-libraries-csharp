@@ -36,6 +36,6 @@ Invoke-Expression $command
 
 Write-Host "`nEnsure that all classes are implemented as static classes"
 $command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -RecurseDirectory -SearchTextOrPattern 'public\s+(.+)\s+class'" +
-    " -ValidMatchValues 'static' -FilePattern ""*.cs"" -Verbose -ExcludeFilePattern 'Tests','obj','Assembly','Solution'"
+    " -ValidMatchValues 'static' -FilePattern ""*.cs"" -Verbose -ExcludeFilePattern 'Tests','Common','obj','Assembly','Solution'"
 
 Invoke-Expression $command
