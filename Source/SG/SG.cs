@@ -235,7 +235,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                                 end script";
 
             // Configure the instrument to generate this waveform
-            ConfigureWaveformToGenerate(rfsgHandle, waveform);
+            ApplyWaveformAttributes(rfsgHandle, waveform);
 
             // Return updated waveform struct to caller
             return waveform;
@@ -337,7 +337,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             //Download the generation script to the generator for later initiation
             waveform.Script = sb.ToString();
-            ConfigureWaveformToGenerate(rfsgHandle, waveform);
+            ApplyWaveformAttributes(rfsgHandle, waveform);
 
             //Configure the triggering for PA enable if selected
             if (paenConfig.PAEnableMode != PAENMode.Disabled)
@@ -360,7 +360,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             return waveform;
         }
 
-        public static void ConfigureWaveformToGenerate(NIRfsg rfsgHandle, Waveform waveform)
+        public static void ApplyWaveformAttributes(NIRfsg rfsgHandle, Waveform waveform)
         {
             if (string.IsNullOrEmpty(waveform.Script)) // default to continuous if no script in waveform
                 ConfigureContinuousGeneration(rfsgHandle, waveform);
