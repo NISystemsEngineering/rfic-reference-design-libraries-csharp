@@ -148,7 +148,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 out lutResults.PostDpdWaveform.PAPR_dB, out lutResults.PowerOffset_dB);
             DownloadWaveform(rfsgSession, lutResults.PostDpdWaveform); // implicit call to rfsg abort
             rfsgSession.RF.PowerLevel = rfsgSession.RF.PowerLevel + lutResults.PowerOffset_dB;
-            ConfigureWaveformToGenerate(rfsgSession, lutResults.PostDpdWaveform);
+            ApplyWaveformAttributes(rfsgSession, lutResults.PostDpdWaveform);
             specAn.Dpd.Results.FetchLookupTable(selectorString, 10.0, ref lutResults.InputPowers_dBm, ref lutResults.ComplexGains_dB);
             
             if (preDpdGenerationStatus == RfsgGenerationStatus.InProgress)
@@ -183,7 +183,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                     out mPResults.PostDpdWaveform.PAPR_dB, out mPResults.PowerOffset_dB);
                 DownloadWaveform(rfsgSession, mPResults.PostDpdWaveform); // implicit abort
                 rfsgSession.RF.PowerLevel = rfsgSession.RF.PowerLevel + mPResults.PowerOffset_dB;
-                ConfigureWaveformToGenerate(rfsgSession, mPResults.PostDpdWaveform);
+                ApplyWaveformAttributes(rfsgSession, mPResults.PostDpdWaveform);
                 specAn.Dpd.Results.FetchDpdPolynomial(selectorString, 10.0, ref mPResults.DpdPolynomial);
             }
 
