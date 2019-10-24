@@ -101,8 +101,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     instrHandle.SetDownconverterFrequencyOffset("", instrConfig.LOOffsetConfiguration.Offset_Hz);
                     break;
                 default:
+                    instrHandle.ResetAttribute("", RFmxInstrMXPropertyId.LOLeakageAvoidanceEnabled);
                     instrHandle.ResetAttribute("", RFmxInstrMXPropertyId.DownconverterFrequencyOffset);
-                    instrHandle.SetLOLeakageAvoidanceEnabled("", RFmxInstrMXLOLeakageAvoidanceEnabled.True);
                     break;
             }
         }
