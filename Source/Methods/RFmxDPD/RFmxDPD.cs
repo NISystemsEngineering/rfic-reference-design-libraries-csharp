@@ -22,7 +22,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 {
                     MeasurementInterval_s = 100e-6,
                     SignalType = RFmxSpecAnMXDpdSignalType.Modulated,
-                    DutAverageInputPower_dBm = -20,
+                    DutAverageInputPower_dBm = -20.0,
                     PreDpdCfrEnabled = RFmxSpecAnMXDpdPreDpdCfrEnabled.False,
                     ApplyDpdCfrEnabled = RFmxSpecAnMXDpdApplyDpdCfrEnabled.False,
                     SynchronizationMethod = RFmxSpecAnMXDpdSynchronizationMethod.Direct
@@ -161,11 +161,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             Waveform referenceWaveform, string selectorString = "")
         {
             //Instantiate new waveform with reference waveform properties
-            MemoryPolynomialResults mPResults = new MemoryPolynomialResults()
+            MemoryPolynomialResults mpResults = new MemoryPolynomialResults()
             {
                 PostDpdWaveform = referenceWaveform
             };
-            mPResults.PostDpdWaveform.WaveformName = referenceWaveform.WaveformName + "postMpDpd";
+            mpResults.PostDpdWaveform.WaveformName = referenceWaveform.WaveformName + "postMpDpd";
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
 
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
@@ -175,22 +175,23 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 mpConfig.NumberOfIterations = 1;
             for (int i = 0; i < mpConfig.NumberOfIterations; i++)
             {
-                specAn.Dpd.Configuration.ConfigurePreviousDpdPolynomial(selectorString, mPResults.DpdPolynomial);
+                specAn.Dpd.Configuration.ConfigurePreviousDpdPolynomial(selectorString, mpResults.DpdPolynomial);
                 rfsgSession.Initiate();
                 specAn.Initiate(selectorString, "");
                 //waveform data and PAPR are overwritten in post DPD waveform
-                specAn.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, referenceWaveform.WaveformData, idlePresent, 10.0, ref mPResults.PostDpdWaveform.WaveformData,
-                    out mPResults.PostDpdWaveform.PAPR_dB, out mPResults.PowerOffset_dB);
-                DownloadWaveform(rfsgSession, mPResults.PostDpdWaveform); // implicit abort
-                rfsgSession.RF.PowerLevel = rfsgSession.RF.PowerLevel + mPResults.PowerOffset_dB;
-                ApplyWaveformAttributes(rfsgSession, mPResults.PostDpdWaveform);
-                specAn.Dpd.Results.FetchDpdPolynomial(selectorString, 10.0, ref mPResults.DpdPolynomial);
+                specAn.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, referenceWaveform.WaveformData, idlePresent, 10.0, ref mpResults.PostDpdWaveform.WaveformData,
+                    out mpResults.PostDpdWaveform.PAPR_dB, out double powerOffset);
+                DownloadWaveform(rfsgSession, mpResults.PostDpdWaveform); // implicit abort
+                rfsgSession.RF.PowerLevel = rfsgSession.RF.PowerLevel + powerOffset; // apply power offset to running rfsg offset
+                mpResults.PowerOffset_dB += powerOffset; // accumulate total power offset over all iterations
+                ApplyWaveformAttributes(rfsgSession, mpResults.PostDpdWaveform);
+                specAn.Dpd.Results.FetchDpdPolynomial(selectorString, 10.0, ref mpResults.DpdPolynomial);
             }
 
             if (preDpdGenerationStatus == RfsgGenerationStatus.InProgress)
                 rfsgSession.Initiate(); // restart generation if it was running on function call
 
-            return mPResults;
+            return mpResults;
         }
         #endregion
     }
