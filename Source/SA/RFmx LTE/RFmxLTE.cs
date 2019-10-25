@@ -1,6 +1,5 @@
 ﻿using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.RFmx.LteMX;
-using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
@@ -162,8 +161,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double LowerRelativePower_dB;
             public double UpperAbsolutePower_dBm;
             public double UpperRelativePower_dB;
-            public double OffsetFrequency_Hz;
-            public double OffsetIntegrationBandwidth_Hz;
+            public double Frequency_Hz;
+            public double IntegrationBandwidth_Hz;
         }
 
         public struct AcpComponentCarrierResults
@@ -246,17 +245,17 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             results.OffsetResults = new AcpOffsetResults[lowerAbsolutePower.Length];
             for (int i = 0; i < lowerAbsolutePower.Length; i++)
             {
-                string signalString = Regex.Match(selectorString, "signal::[^/]*").Value; // get the signal string
-                lte.Acp.Configuration.GetOffsetFrequency(signalString, out double offsetFrequency);
-                lte.Acp.Configuration.GetOffsetIntegrationBandwidth(signalString, out double offsetIbw);
+                string offsetString = RFmxLteMX.BuildOffsetString(selectorString,i); // get the signal string
+                lte.Acp.Configuration.GetOffsetFrequency(offsetString, out double offsetFrequency);
+                lte.Acp.Configuration.GetOffsetIntegrationBandwidth(offsetString, out double offsetIbw);
                 results.OffsetResults[i] = new AcpOffsetResults()
                 {
                     LowerRelativePower_dB = lowerRelativePower[i],
                     UpperRelativePower_dB = upperRelativePower[i],
                     LowerAbsolutePower_dBm = lowerAbsolutePower[i],
                     UpperAbsolutePower_dBm = upperAbsolutePower[i],
-                    OffsetFrequency_Hz = offsetFrequency,
-                    OffsetIntegrationBandwidth_Hz = offsetIbw
+                    Frequency_Hz = offsetFrequency,
+                    IntegrationBandwidth_Hz = offsetIbw
                 };
             }
             double[] absolutePower = null;

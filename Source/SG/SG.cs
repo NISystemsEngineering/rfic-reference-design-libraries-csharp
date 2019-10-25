@@ -85,6 +85,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public int[] BurstStopLocations;
             public bool IdleDurationPresent;
             public double RuntimeScaling;
+            public string Script;
         }
 
         public struct WaveformTimingConfiguration
@@ -208,8 +209,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             waveform.WaveformName = waveformName;
             NIRfsgPlayback.ReadWaveformFromFileComplex(filePath, ref waveform.WaveformData);
-            NIRfsgPlayback.ReadSignalBandwidthFromFile(filePath, 0, out waveform.SignalBandwidth_Hz);
-
             NIRfsgPlayback.ReadWaveformFileVersionFromFile(filePath, out string waveformVersion);
 
             if (waveformVersion == "1.0.0")
@@ -234,22 +233,18 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
 
             NIRfsgPlayback.ReadSampleRateFromFile(filePath, 0, out waveform.SampleRate);
+            NIRfsgPlayback.ReadSignalBandwidthFromFile(filePath, 0, out waveform.SignalBandwidth_Hz);
+            if (waveform.SignalBandwidth_Hz == 0.0)
+                waveform.SignalBandwidth_Hz = 0.8 * waveform.SampleRate;
 
             NIRfsgPlayback.ReadBurstStartLocationsFromFile(filePath, 0, ref waveform.BurstStartLocations);
             NIRfsgPlayback.ReadBurstStopLocationsFromFile(filePath, 0, ref waveform.BurstStopLocations);
-
             //Statement reads: if NOT BurstStartLocations > 0 AND expression is not null (? operand)
             //In other words, manually set BurstStartLocations when the length is 0 or less or array is null
             if (!(waveform.BurstStartLocations?.Length > 0))
-            {
-                //Set burst start to the first sample(0)
-                waveform.BurstStartLocations = new int[1] { 0 };
-            }
+                waveform.BurstStartLocations = new int[1] { 0 }; //Set burst start to the first sample(0)
             if (!(waveform.BurstStopLocations?.Length > 0))
-            {
-                //Set burst stop to the last sample (number of samples minus one)
-                waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 };
-            }
+                waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 }; //Set burst stop to the last sample (number of samples minus one)
 
             // calculating IdleDurationPresent like this also accounts for tools like wlan sfp that put in burst start and stop locations even if there is no idle time in the waveform
             waveform.IdleDurationPresent = waveform.BurstStopLocations.First() - waveform.BurstStartLocations.First() < waveform.WaveformData.SampleCount - 1;
@@ -269,10 +264,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
             catch (Exception ex)
             {
-                if (ex is Ivi.Driver.OutOfRangeException || ex is Ivi.Driver.IviCDriverException)
-                {
-                    //Intentionally ignore this exception; clearing the waveform failed because it doesn't exist
-                }
+                if (ex is Ivi.Driver.OutOfRangeException || ex is Ivi.Driver.IviCDriverException) { } //Intentionally ignore this exception; clearing the waveform failed because it doesn't exist
                 else
                     throw;
             }
@@ -296,39 +288,35 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
 
-        public static void ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string waveformStartTriggerExport = "PXI_Trig0")
+        public static Waveform ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string markerEventExportTerminal = "PXI_Trig0")
         {
             //Configure the trigger to be generated on the first sample of each waveform generation,
             //denoted in the script below as "marker0"
-            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(waveformStartTriggerExport);
+            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(markerEventExportTerminal);
 
             //A software trigger is configured that is used in the script below to control generation of
             //the script. This ensures that a complete packet is always generated before aborting, and
             //allows all generation functions to share a single abort function.
             rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
 
-            string script = $@"script REPEAT{waveform.WaveformName}
+            // Create continuous generation script that is unique to the waveform
+            waveform.Script = $@"script REPEAT{waveform.WaveformName}
                                     repeat until ScriptTrigger0
                                         generate {waveform.WaveformName} marker0(0)
                                     end repeat
                                 end script";
 
-            //Get the instrument handle to utilize with the RFSGPlayback library
-            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+            // Configure the instrument to generate this waveform
+            ApplyWaveformAttributes(rfsgHandle, waveform);
 
-            //Download the newly created script for generation when "Initiate" is called
-            NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, script);
-            rfsgHandle.Arb.SignalBandwidth = waveform.SignalBandwidth_Hz; // has to be manually set since we've disabled it in rfsgpbl
+            // Return updated waveform struct to caller
+            return waveform;
         }
 
-        public static void ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
+        public static Waveform ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
-            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
-
-            rfsgHandle.Arb.GenerationMode = RfsgWaveformGenerationMode.Script;
-
-            string scriptName = String.Format("{0}{1}", waveform.WaveformName, waveTiming.DutyCycle_Percent);
+            string scriptName = string.Format("{0}{1}", waveform.WaveformName, waveTiming.DutyCycle_Percent);
 
             if (waveTiming.DutyCycle_Percent <= 0)
             {
@@ -420,8 +408,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
             #endregion
 
             //Download the generation script to the generator for later initiation
-            NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, sb.ToString());
-            rfsgHandle.Arb.SignalBandwidth = waveform.SignalBandwidth_Hz; // has to be manually set since we've disabled it in rfsgpbl
+            waveform.Script = sb.ToString();
+            ApplyWaveformAttributes(rfsgHandle, waveform);
 
             //Configure the triggering for PA enable if selected
             if (paenConfig.PAEnableMode != PAENMode.Disabled)
@@ -439,6 +427,20 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //denoted in the script below as "marker0"
             rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal =
                 RfsgMarkerEventExportedOutputTerminal.FromString(waveTiming.BurstStartTriggerExport);
+
+            // Return updated waveform struct to caller
+            return waveform;
+        }
+
+        public static void ApplyWaveformAttributes(NIRfsg rfsgHandle, Waveform waveform)
+        {
+            if (string.IsNullOrEmpty(waveform.Script)) // default to continuous if no script in waveform
+                ConfigureContinuousGeneration(rfsgHandle, waveform);
+            else
+            { 
+                IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+                NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, waveform.Script);
+            }
         }
 
         public static Waveform GetWaveformParametersByName(NIRfsg rfsgHandle, string waveformName)
