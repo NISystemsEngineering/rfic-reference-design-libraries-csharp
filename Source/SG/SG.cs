@@ -31,7 +31,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     SelectedPorts = "",
                     ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
                     CarrierFrequency_Hz = 1e9,
-                    DutAverageInputPower_dBm = 0,
+                    DutAverageInputPower_dBm = -10,
                     ExternalAttenuation_dBm = 0,
                     ShareLOSGToSA = true,
                 };
@@ -130,8 +130,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             waveform.WaveformName = waveformName;
             NIRfsgPlayback.ReadWaveformFromFileComplex(filePath, ref waveform.WaveformData);
-            NIRfsgPlayback.ReadSignalBandwidthFromFile(filePath, 0, out waveform.SignalBandwidth_Hz);
-
             NIRfsgPlayback.ReadWaveformFileVersionFromFile(filePath, out string waveformVersion);
 
             if (waveformVersion == "1.0.0")
@@ -156,22 +154,18 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
 
             NIRfsgPlayback.ReadSampleRateFromFile(filePath, 0, out waveform.SampleRate);
+            NIRfsgPlayback.ReadSignalBandwidthFromFile(filePath, 0, out waveform.SignalBandwidth_Hz);
+            if (waveform.SignalBandwidth_Hz == 0.0)
+                waveform.SignalBandwidth_Hz = 0.8 * waveform.SampleRate;
 
             NIRfsgPlayback.ReadBurstStartLocationsFromFile(filePath, 0, ref waveform.BurstStartLocations);
             NIRfsgPlayback.ReadBurstStopLocationsFromFile(filePath, 0, ref waveform.BurstStopLocations);
-
             //Statement reads: if NOT BurstStartLocations > 0 AND expression is not null (? operand)
             //In other words, manually set BurstStartLocations when the length is 0 or less or array is null
             if (!(waveform.BurstStartLocations?.Length > 0))
-            {
-                //Set burst start to the first sample(0)
-                waveform.BurstStartLocations = new int[1] { 0 };
-            }
+                waveform.BurstStartLocations = new int[1] { 0 }; //Set burst start to the first sample(0)
             if (!(waveform.BurstStopLocations?.Length > 0))
-            {
-                //Set burst stop to the last sample (number of samples minus one)
-                waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 };
-            }
+                waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 }; //Set burst stop to the last sample (number of samples minus one)
 
             // calculating IdleDurationPresent like this also accounts for tools like wlan sfp that put in burst start and stop locations even if there is no idle time in the waveform
             waveform.IdleDurationPresent = waveform.BurstStopLocations.First() - waveform.BurstStartLocations.First() < waveform.WaveformData.SampleCount - 1;
@@ -192,10 +186,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
             catch (Exception ex)
             {
-                if (ex is Ivi.Driver.OutOfRangeException || ex is Ivi.Driver.IviCDriverException)
-                {
-                    //Intentionally ignore this exception; clearing the waveform failed because it doesn't exist
-                }
+                if (ex is Ivi.Driver.OutOfRangeException || ex is Ivi.Driver.IviCDriverException) { } //Intentionally ignore this exception; clearing the waveform failed because it doesn't exist
                 else
                     throw;
             }
@@ -209,10 +200,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformBurstStartLocations(rfsgPtr, waveform.WaveformName, waveform.BurstStartLocations);
             NIRfsgPlayback.StoreWaveformBurstStopLocations(rfsgPtr, waveform.WaveformName, waveform.BurstStopLocations);
             NIRfsgPlayback.StoreWaveformSampleRate(rfsgPtr, waveform.WaveformName, waveform.SampleRate);
+            NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, waveform.RuntimeScaling);
+            NIRfsgPlayback.StoreWaveformSize(rfsgPtr, waveform.WaveformName, waveform.WaveformData.SampleCount);
 
             //Manually configure additional settings
             NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled);
-            NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, waveform.RuntimeScaling);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
 
