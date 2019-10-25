@@ -440,6 +440,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             { 
                 IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
                 NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, waveform.Script);
+                rfsgHandle.Arb.SignalBandwidth = waveform.SignalBandwidth_Hz;
             }
         }
 
