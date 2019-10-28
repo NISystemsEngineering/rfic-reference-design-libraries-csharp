@@ -11,8 +11,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         {
             public double MeasurementInterval_s;
             public RFmxSpecAnMXDpdSignalType SignalType;
-            public RFmxSpecAnMXDpdPreDpdCfrEnabled PreDpdCfrEnabled;
-            public RFmxSpecAnMXDpdApplyDpdCfrEnabled ApplyDpdCfrEnabled;
             public RFmxSpecAnMXDpdSynchronizationMethod SynchronizationMethod;
             public double DutAverageInputPower_dBm;
 
@@ -23,8 +21,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                     MeasurementInterval_s = 100e-6,
                     SignalType = RFmxSpecAnMXDpdSignalType.Modulated,
                     DutAverageInputPower_dBm = -20.0,
-                    PreDpdCfrEnabled = RFmxSpecAnMXDpdPreDpdCfrEnabled.False,
-                    ApplyDpdCfrEnabled = RFmxSpecAnMXDpdApplyDpdCfrEnabled.False,
                     SynchronizationMethod = RFmxSpecAnMXDpdSynchronizationMethod.Direct
                 };
             }
@@ -56,7 +52,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         public struct MemoryPolynomialConfiguration
         {
             public RFmxSpecAnMXDpdApplyDpdMemoryModelCorrectionType CorrectionType;
-            public RFmxSpecAnMXDpdIterativeDpdEnabled IterativeDpdEnabled;
             public int NumberOfIterations;
             public int Order, Depth, LeadOrder, LagOrder, LeadMemoryDepth, LagMemoryDepth, MaximumLead, MaximumLag;
 
@@ -65,7 +60,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 return new MemoryPolynomialConfiguration
                 {
                     CorrectionType = RFmxSpecAnMXDpdApplyDpdMemoryModelCorrectionType.MagnitudeAndPhase,
-                    IterativeDpdEnabled = RFmxSpecAnMXDpdIterativeDpdEnabled.False,
                     NumberOfIterations = 3,
                     Order = 3,
                     Depth = 2,
@@ -122,7 +116,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             specAn.Dpd.Configuration.ConfigureMemoryPolynomial(selectorString, mpConfig.Order, mpConfig.Depth);
             specAn.Dpd.Configuration.ConfigureGeneralizedMemoryPolynomialCrossTerms(selectorString, mpConfig.LeadOrder,
                 mpConfig.LagOrder, mpConfig.LeadMemoryDepth, mpConfig.LagMemoryDepth, mpConfig.MaximumLead, mpConfig.MaximumLag);
-            specAn.Dpd.Configuration.ConfigureIterativeDpdEnabled(selectorString, mpConfig.IterativeDpdEnabled);
+            RFmxSpecAnMXDpdIterativeDpdEnabled iterativeDpdEnabled = mpConfig.NumberOfIterations < 1 ? RFmxSpecAnMXDpdIterativeDpdEnabled.True : RFmxSpecAnMXDpdIterativeDpdEnabled.False;
+            specAn.Dpd.Configuration.ConfigureIterativeDpdEnabled(selectorString, iterativeDpdEnabled);
             specAn.Dpd.ApplyDpd.ConfigureMemoryModelCorrectionType(selectorString, mpConfig.CorrectionType);
         }
         #endregion
@@ -171,8 +166,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
             rfsgSession.Abort(); // abort so we don't mess with the loop logic
 
-            if (mpConfig.IterativeDpdEnabled == RFmxSpecAnMXDpdIterativeDpdEnabled.False)
-                mpConfig.NumberOfIterations = 1;
             for (int i = 0; i < mpConfig.NumberOfIterations; i++)
             {
                 specAn.Dpd.Configuration.ConfigurePreviousDpdPolynomial(selectorString, mpResults.DpdPolynomial);
