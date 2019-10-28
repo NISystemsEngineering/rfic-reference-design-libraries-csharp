@@ -131,7 +131,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 PostDpdWaveform = referenceWaveform,
             };
             lutResults.PostDpdWaveform.WaveformName = referenceWaveform.WaveformName + "postLutDpd";
-            lutResults.PostDpdWaveform.Script = lutResults.PostDpdWaveform.Script.Replace(referenceWaveform.WaveformName, lutResults.PostDpdWaveform.WaveformName);
+            lutResults.PostDpdWaveform.WaveformData = referenceWaveform.WaveformData.Clone(); // clone waveform so RFmx can't act on reference waveform
+            lutResults.PostDpdWaveform.Script = lutResults.PostDpdWaveform.Script?.Replace(referenceWaveform.WaveformName, lutResults.PostDpdWaveform.WaveformName);
             
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
             if (preDpdGenerationStatus == RfsgGenerationStatus.Complete)
@@ -162,7 +163,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 PostDpdWaveform = referenceWaveform
             };
             mpResults.PostDpdWaveform.WaveformName = referenceWaveform.WaveformName + "postMpDpd";
-            mpResults.PostDpdWaveform.Script = mpResults.PostDpdWaveform.Script.Replace(referenceWaveform.WaveformName, mpResults.PostDpdWaveform.WaveformName);
+            mpResults.PostDpdWaveform.WaveformData = referenceWaveform.WaveformData.Clone(); // clone waveform so RFmx can't act on reference waveform
+            mpResults.PostDpdWaveform.Script = mpResults.PostDpdWaveform.Script?.Replace(referenceWaveform.WaveformName, mpResults.PostDpdWaveform.WaveformName);
             
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
 
