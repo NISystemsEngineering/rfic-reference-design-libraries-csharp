@@ -131,13 +131,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 PostDpdWaveform = referenceWaveform,
             };
             lutResults.PostDpdWaveform.WaveformName = referenceWaveform.WaveformName + "postLutDpd";
-            RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
+            lutResults.PostDpdWaveform.Script = lutResults.PostDpdWaveform.Script.Replace(referenceWaveform.WaveformName, lutResults.PostDpdWaveform.WaveformName);
             
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
             if (preDpdGenerationStatus == RfsgGenerationStatus.Complete)
                 rfsgSession.Initiate(); // initiate if not already generating
 
             specAn.Initiate(selectorString, "");
+            RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
             //waveform data and PAPR are overwritten in post DPD waveform
             specAn.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, referenceWaveform.WaveformData, idlePresent, 10.0, ref lutResults.PostDpdWaveform.WaveformData,
                 out lutResults.PostDpdWaveform.PAPR_dB, out lutResults.PowerOffset_dB);
@@ -161,6 +162,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 PostDpdWaveform = referenceWaveform
             };
             mpResults.PostDpdWaveform.WaveformName = referenceWaveform.WaveformName + "postMpDpd";
+            mpResults.PostDpdWaveform.Script = mpResults.PostDpdWaveform.Script.Replace(referenceWaveform.WaveformName, mpResults.PostDpdWaveform.WaveformName);
+            
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
 
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
