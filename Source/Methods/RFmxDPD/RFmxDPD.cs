@@ -137,9 +137,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
             if (preDpdGenerationStatus == RfsgGenerationStatus.Complete)
                 rfsgSession.Initiate(); // initiate if not already generating
-
+            
             specAn.Initiate(selectorString, "");
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
+            specAn.WaitForMeasurementComplete(selectorString, 10.0); // wait for LUT creation to finish
             //waveform data and PAPR are overwritten in post DPD waveform
             specAn.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, referenceWaveform.WaveformData, idlePresent, 10.0, ref lutResults.PostDpdWaveform.WaveformData,
                 out lutResults.PostDpdWaveform.PAPR_dB, out lutResults.PowerOffset_dB);
@@ -176,6 +177,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 specAn.Dpd.Configuration.ConfigurePreviousDpdPolynomial(selectorString, mpResults.DpdPolynomial);
                 rfsgSession.Initiate();
                 specAn.Initiate(selectorString, "");
+                specAn.WaitForMeasurementComplete(selectorString, 10.0); // wait for polynomial coefficients to be calculated
                 //waveform data and PAPR are overwritten in post DPD waveform
                 specAn.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, referenceWaveform.WaveformData, idlePresent, 10.0, ref mpResults.PostDpdWaveform.WaveformData,
                     out mpResults.PostDpdWaveform.PAPR_dB, out double powerOffset);
