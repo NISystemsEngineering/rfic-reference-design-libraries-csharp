@@ -100,7 +100,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         {
             RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent idlePresent = waveform.IdleDurationPresent ? RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.False;
             specAnSignal.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Dpd, true);
-            specAnSignal.Dpd.Configuration.ConfigureReferenceWaveform(selectorString, waveform.WaveformData, idlePresent, commonConfig.SignalType);
+            specAnSignal.Dpd.Configuration.ConfigureReferenceWaveform(selectorString, waveform.Data, idlePresent, commonConfig.SignalType);
             specAnSignal.Dpd.Configuration.ConfigureDutAverageInputPower(selectorString, commonConfig.DutAverageInputPower_dBm);
             specAnSignal.Dpd.Configuration.ConfigureMeasurementInterval(selectorString, commonConfig.MeasurementInterval_s);
             specAnSignal.Dpd.Configuration.ConfigureMeasurementSampleRate(selectorString, RFmxSpecAnMXDpdMeasurementSampleRateMode.ReferenceWaveform, waveform.SampleRate);
@@ -137,7 +137,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = waveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
             specAnSignal.Initiate("", selectorString);
             //waveform data and PAPR are overwritten in post DPD waveform
-            specAnSignal.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, waveform.WaveformData, idlePresent, timeout_s, ref lutResults.PostDpdWaveform.WaveformData,
+            specAnSignal.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, waveform.Data, idlePresent, timeout_s, ref lutResults.PostDpdWaveform.Data,
                 out lutResults.PostDpdWaveform.PAPR_dB, out lutResults.PowerOffset_dB);
             SG.DownloadWaveform(rfsgSession, lutResults.PostDpdWaveform);
             rfsgSession.RF.PowerLevel = rfsgSession.RF.PowerLevel + lutResults.PowerOffset_dB;
@@ -161,7 +161,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 specAnSignal.Dpd.Configuration.ConfigurePreviousDpdPolynomial(selectorString, mPResults.DpdPolynomial);
                 specAnSignal.Initiate("", selectorString);
                 //waveform data and PAPR are overwritten in post DPD waveform
-                specAnSignal.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, waveform.WaveformData, idlePresent, timeout_s, ref mPResults.PostDpdWaveform.WaveformData,
+                specAnSignal.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, waveform.Data, idlePresent, timeout_s, ref mPResults.PostDpdWaveform.Data,
                     out mPResults.PostDpdWaveform.PAPR_dB, out mPResults.PowerOffset_dB);
                 SG.DownloadWaveform(rfsgSession, mPResults.PostDpdWaveform);
                 rfsgSession.RF.PowerLevel = rfsgSession.RF.PowerLevel + mPResults.PowerOffset_dB;

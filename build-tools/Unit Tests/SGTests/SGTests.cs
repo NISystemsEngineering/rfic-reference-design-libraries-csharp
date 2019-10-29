@@ -78,7 +78,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                double fs = 1/ waveform.WaveformData.PrecisionTiming.SampleInterval.FractionalSeconds;
+                double fs = 1/ waveform.Data.PrecisionTiming.SampleInterval.FractionalSeconds;
                 waveform.SampleRate.Should().BeApproximately(fs, .001, $"of loading file \"{fileName}\"");
             });
         }
@@ -87,7 +87,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                waveform.WaveformData.Samples.Count.Should().NotBe(0, $"of loading file \"{fileName}\"");
+                waveform.Data.Samples.Count.Should().NotBe(0, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -119,7 +119,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                waveform.WaveformData.PrecisionTiming.SampleInterval.FractionalSeconds
+                waveform.Data.PrecisionTiming.SampleInterval.FractionalSeconds
                 .Should().BeGreaterThan(0, $"of loading file \"{fileName}\"");
             });
         }
@@ -144,11 +144,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                System.IntPtr rfsgHandle = sim.DangerousGetInstrumentHandle();
-                NIRfsgPlayback.DownloadUserWaveform(rfsgHandle, waveform.WaveformName, 
-                    waveform.WaveformData, true);
+                System.IntPtr rfsgHandle = sim.GetInstrumentHandle().DangerousGetHandle();
+                NIRfsgPlayback.DownloadUserWaveform(rfsgHandle, waveform.Name, 
+                    waveform.Data, true);
                 NIRfsgPlayback.RetrieveWaveformPapr(rfsgHandle,
-                    waveform.WaveformName, out double calcPapr);
+                    waveform.Name, out double calcPapr);
                 waveform.PAPR_dB.Should().BeApproximately(calcPapr, 0.1,
                     $"of loading file \"{fileName}\"");
             });
@@ -159,7 +159,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
                 NIRfsgPlayback.ReadWaveformSizeFromFile(filePath, 0, out int size);
-                waveform.WaveformData.SampleCount.Should().Be(size, $"of loading file \"{fileName}\"");
+                waveform.Data.SampleCount.Should().Be(size, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -169,12 +169,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
                 SG.DownloadWaveform(sim, waveform);
-                SG.Waveform newWaveform = SG.GetWaveformParametersByName(sim, waveform.WaveformName);
+                SG.Waveform newWaveform = SG.GetWaveformParametersByName(sim, waveform.Name);
 
                 newWaveform.Should().BeEquivalentTo(waveform, options =>
                 {
                     //Actual waveform data is not returned. Hence, exclude it from comparison
-                    options.Excluding(w => w.WaveformData);
+                    options.Excluding(w => w.Data);
                     //Ensure each member is compared; otherwise, it will just compare the two structs as whole values
                     options.ComparingByMembers<SG.Waveform>();
                     return options;

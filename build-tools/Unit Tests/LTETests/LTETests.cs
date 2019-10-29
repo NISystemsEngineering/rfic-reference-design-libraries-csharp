@@ -33,16 +33,16 @@ namespace LTETests
 
             Waveform wfm = LoadWaveformFromTDMS(@"Support Files\LTE_TDD_2.0.tdms");
 
-            Buffer<ComplexSingle> readBuffer = wfm.WaveformData.GetBuffer(true);
-            WritableBuffer<ComplexSingle> writeBuffer = wfm.WaveformData.GetWritableBuffer();
+            Buffer<ComplexSingle> readBuffer = wfm.Data.GetBuffer(true);
+            WritableBuffer<ComplexSingle> writeBuffer = wfm.Data.GetWritableBuffer();
             
             int sampleOffset = (int)Math.Round(pretriggerTime * wfm.SampleRate);
             for (int i = 0; i < readBuffer.Size; i++)
                 writeBuffer[i] = readBuffer[(i - sampleOffset + readBuffer.Size) % readBuffer.Size];
-            wfm.WaveformData.PrecisionTiming = PrecisionWaveformTiming.CreateWithRegularInterval(
-                wfm.WaveformData.PrecisionTiming.SampleInterval, timeOffset);
+            wfm.Data.PrecisionTiming = PrecisionWaveformTiming.CreateWithRegularInterval(
+                wfm.Data.PrecisionTiming.SampleInterval, timeOffset);
 
-            lte.AnalyzeIQ("", "", wfm.WaveformData, true, out _);
+            lte.AnalyzeIQ("", "", wfm.Data, true, out _);
             ModAccResults modAccResults = FetchModAcc(lte);
 
             instr.Close();
