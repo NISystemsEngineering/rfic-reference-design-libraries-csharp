@@ -27,7 +27,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             public LocalOscillatorSharingMode LOSharingMode;
             public LocalOscillatorRoutingConfiguration[] LORoutingConfigurations;
-            public LocalOscillatorFrequencyOffsetConfiguration LOOffsetConfiguration;
+            public double LOOffset_Hz;
 
             public static InstrumentConfiguration GetDefault()
             {
@@ -40,7 +40,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     ExternalAttenuation_dBm = 0,
                     LOSharingMode = LocalOscillatorSharingMode.Automatic,
                     LORoutingConfigurations = new LocalOscillatorRoutingConfiguration[] { LocalOscillatorRoutingConfiguration.GetDefault() },
-                    LOOffsetConfiguration = LocalOscillatorFrequencyOffsetConfiguration.GetDefault()
+                    LOOffset_Hz = 0.0
                 };
             }
 
@@ -58,16 +58,12 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 else if (Regex.IsMatch(instrumentModel, "NI PXIe-5831"))
                 {   // these instruments have two configurable LOs
                     instrConfig.SelectedPorts = "rf0/port0";
-                    instrConfig.CarrierFrequency_Hz = 22.5e9;
+                    instrConfig.CarrierFrequency_Hz = 28e9;
                     LocalOscillatorRoutingConfiguration lo1RoutingConfig = LocalOscillatorRoutingConfiguration.GetDefault();
                     lo1RoutingConfig.ChannelName = "LO1";
                     LocalOscillatorRoutingConfiguration lo2RoutingConfig = LocalOscillatorRoutingConfiguration.GetDefault();
                     lo2RoutingConfig.ChannelName = "LO2";
                     instrConfig.LORoutingConfigurations = new LocalOscillatorRoutingConfiguration[] { lo1RoutingConfig, lo2RoutingConfig };
-                }
-                else if (Regex.IsMatch(instrumentModel, "NI PXIe-5(82.|645R)")) // matches on any baseband instrument without an LO
-                {
-                    instrConfig.LORoutingConfigurations = new LocalOscillatorRoutingConfiguration[0]; // baseband instruments have no LOs
                 }
                 return instrConfig;
             }
@@ -86,6 +82,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public bool IdleDurationPresent;
             public double RuntimeScaling;
             public string Script;
+            public LocalOscillatorFrequencyOffsetMode LOOffsetMode;
         }
 
         public struct WaveformTimingConfiguration
@@ -140,9 +137,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             string instrumentModel = rfsgHandle.Identity.InstrumentModel;
 
-            if (Regex.IsMatch(instrumentModel, "NI PXIe-5(82.|645R)")) // matches on any baseband instrument without an LO
-                return; // return early since the instrument doesn't have any LOs that can be configured
-
             // Set global automatic lo sharing property in rfsgpbl
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
             switch (instrConfig.LOSharingMode)
@@ -183,18 +177,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 }
             }
 
-            switch (instrConfig.LOOffsetConfiguration.Mode)
-            {
-                case LocalOscillatorFrequencyOffsetMode.NoOffset:
-                    rfsgHandle.RF.Upconverter.FrequencyOffset = 0.0;
-                    break;
-                case LocalOscillatorFrequencyOffsetMode.UserDefined:
-                    rfsgHandle.RF.Upconverter.FrequencyOffset = instrConfig.LOOffsetConfiguration.Offset_Hz;
-                    break;
-                default: // default to automatic case
-                    rfsgHandle.Utility.ResetAttribute(typeof(RfsgUpconverter).GetProperty("FrequencyOffset")); // LO offset will automatically be set based on signal bandwidth property set by rfsgpbl
-                    break;
-            }
+            rfsgHandle.RF.Upconverter.FrequencyOffset = instrConfig.LOOffset_Hz;
         }
 
         public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "")
@@ -251,6 +234,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
+            waveform.LOOffsetMode = LocalOscillatorFrequencyOffsetMode.Automatic;
             return waveform;
         }
 
@@ -282,12 +266,24 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformSampleRate(rfsgPtr, waveform.WaveformName, waveform.SampleRate);
             NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, waveform.RuntimeScaling);
             NIRfsgPlayback.StoreWaveformSize(rfsgPtr, waveform.WaveformName, waveform.WaveformData.SampleCount); // this has to be stored in case the user queries for this information later
+            
+            switch (waveform.LOOffsetMode)
+            {
+                case LocalOscillatorFrequencyOffsetMode.NoOffset:
+                    NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.NoOffset);
+                    break;
+                case LocalOscillatorFrequencyOffsetMode.UserDefined:
+                    NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled);
+                    break;
+                default: // default to automatic case
+                    NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Auto);
+                    break;
+            }
 
             //Manually configure additional settings
-            NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled); // configured at instrument level, not waveform level
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
-
+        
         public static Waveform ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string markerEventExportTerminal = "PXI_Trig0")
         {
             //Configure the trigger to be generated on the first sample of each waveform generation,
@@ -440,7 +436,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
             { 
                 IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
                 NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, waveform.Script);
-                rfsgHandle.Arb.SignalBandwidth = waveform.SignalBandwidth_Hz;
             }
         }
 
@@ -461,6 +456,20 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.RetrieveWaveformSize(rfsgPtr, waveformName, out int waveformSize);
             waveform.IdleDurationPresent = waveform.BurstStopLocations.First() - waveform.BurstStartLocations.First() < waveformSize - 1;
             NIRfsgPlayback.RetrieveWaveformRuntimeScaling(rfsgPtr, waveformName, out waveform.RuntimeScaling);
+
+            NIRfsgPlayback.RetrieveWaveformLOOffsetMode(rfsgPtr, waveformName, out NIRfsgPlaybackLOOffsetMode loOffsetMode);
+            switch (loOffsetMode)
+            {
+                case NIRfsgPlaybackLOOffsetMode.NoOffset:
+                    waveform.LOOffsetMode = LocalOscillatorFrequencyOffsetMode.NoOffset;
+                    break;
+                case NIRfsgPlaybackLOOffsetMode.Disabled:
+                    waveform.LOOffsetMode = LocalOscillatorFrequencyOffsetMode.UserDefined;
+                    break;
+                default:
+                    waveform.LOOffsetMode = LocalOscillatorFrequencyOffsetMode.Automatic;
+                    break;
+            }
 
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 

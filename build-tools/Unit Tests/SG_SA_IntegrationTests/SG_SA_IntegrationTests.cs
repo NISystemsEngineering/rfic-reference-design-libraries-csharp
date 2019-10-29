@@ -430,7 +430,7 @@ namespace SG_SA_IntegrationTests
             SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
             RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault(instr);
 
-            sgConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.NoOffset;
+            lteTdd10Waveform.LOOffsetMode = LocalOscillatorFrequencyOffsetMode.NoOffset;
             instrConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.NoOffset;
 
             ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
@@ -483,8 +483,8 @@ namespace SG_SA_IntegrationTests
 
             instrConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.UserDefined;
             instrConfig.LOOffsetConfiguration.Offset_Hz = 27.5e6;
-            sgConfig.LOOffsetConfiguration.Mode = LocalOscillatorFrequencyOffsetMode.UserDefined;
-            sgConfig.LOOffsetConfiguration.Offset_Hz = 27.5e6;
+            lteTdd10Waveform.LOOffsetMode = LocalOscillatorFrequencyOffsetMode.UserDefined;
+            sgConfig.LOOffset_Hz = 27.5e6;
 
             ConfigureInstrument(rfsg, instr, sgConfig, instrConfig);
 
@@ -498,7 +498,7 @@ namespace SG_SA_IntegrationTests
                 rfmxDownconverterFrequencyOffset.Should().BeApproximately(instrConfig.LOOffsetConfiguration.Offset_Hz, rfmxLoFrequencyStepSize / 2);
 
                 double rfsgUpconverterFrequencyStepSize = rfsg.RF.LocalOscillator.FrequencyStepSize;
-                rfsg.RF.Upconverter.FrequencyOffset.Should().BeApproximately(sgConfig.LOOffsetConfiguration.Offset_Hz, rfsgUpconverterFrequencyStepSize / 2);
+                rfsg.RF.Upconverter.FrequencyOffset.Should().BeApproximately(sgConfig.LOOffset_Hz, rfsgUpconverterFrequencyStepSize / 2);
             }
         }
 
