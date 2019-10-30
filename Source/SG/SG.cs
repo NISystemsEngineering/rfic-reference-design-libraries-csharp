@@ -23,7 +23,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double CarrierFrequency_Hz;
             public double DutAverageInputPower_dBm;
             public double ExternalAttenuation_dBm;
-            public bool ShareLOSGToSA;
+            public LocalOscillatorSharingMode LOSharingMode;
+
             public static InstrumentConfiguration GetDefault()
             {
                 return new InstrumentConfiguration()
@@ -31,9 +32,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     SelectedPorts = "",
                     ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
                     CarrierFrequency_Hz = 1e9,
-                    DutAverageInputPower_dBm = -10,
-                    ExternalAttenuation_dBm = 0,
-                    ShareLOSGToSA = true,
+                    DutAverageInputPower_dBm = -10.0,
+                    ExternalAttenuation_dBm = 0.0,
+                    LOSharingMode = LocalOscillatorSharingMode.Automatic
                 };
             }
         }
@@ -63,7 +64,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 return new WaveformTimingConfiguration()
                 {
-                    DutyCycle_Percent = 50,
+                    DutyCycle_Percent = 50.0,
                     PreBurstTime_s = 1e-6,
                     PostBurstTime_s = 1e-6,
                     BurstStartTriggerExport = "PXI_Trig0"
@@ -104,18 +105,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             rfsgHandle.FrequencyReference.Source = RfsgFrequencyReferenceSource.FromString(instrConfig.ReferenceClockSource);
 
-            if (instrConfig.ShareLOSGToSA)
-            {
-                rfsgHandle.RF.LocalOscillator.LOOutEnabled = true;
-                rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
-            }
+            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+            if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.None)
+                NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Disabled);
             else
-            {
-                rfsgHandle.RF.LocalOscillator.LOOutEnabled = false;
-                // Return to the default value, in case in future modifications the above case changes
-                // this to something other than the default
-                rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
-            }
+                NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Enabled);
         }
 
         public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "")
@@ -204,7 +198,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformSize(rfsgPtr, waveform.WaveformName, waveform.WaveformData.SampleCount);
 
             //Manually configure additional settings
-            NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled);
+            NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Auto);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
 
@@ -240,7 +234,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             if (waveTiming.DutyCycle_Percent <= 0)
             {
-                throw new System.ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
+                throw new ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
             }
 
             //Calculate various timining information
