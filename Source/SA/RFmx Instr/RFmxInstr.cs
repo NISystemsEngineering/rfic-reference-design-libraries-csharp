@@ -15,6 +15,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 return new InstrumentConfiguration
                 {
                     LOSharingMode = LocalOscillatorSharingMode.Automatic,
+                    LOOffsetMode = LocalOscillatorFrequencyOffsetMode.Automatic
                 };
             }
         }
