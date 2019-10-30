@@ -172,6 +172,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
             rfsgSession.Abort(); // abort so we don't mess with the loop logic
 
+            double desiredPowerLevel = rfsgSession.RF.PowerLevel; // cache desired power level
+
             for (int i = 0; i < mpConfig.NumberOfIterations; i++)
             {
                 specAn.Dpd.Configuration.ConfigurePreviousDpdPolynomial(selectorString, mpResults.DpdPolynomial);
@@ -180,10 +182,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 specAn.WaitForMeasurementComplete(selectorString, 10.0); // wait for polynomial coefficients to be calculated
                 //waveform data and PAPR are overwritten in post DPD waveform
                 specAn.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, referenceWaveform.WaveformData, idlePresent, 10.0, ref mpResults.PostDpdWaveform.WaveformData,
-                    out mpResults.PostDpdWaveform.PAPR_dB, out double powerOffset);
+                    out mpResults.PostDpdWaveform.PAPR_dB, out mpResults.PowerOffset_dB);
                 DownloadWaveform(rfsgSession, mpResults.PostDpdWaveform); // implicit abort
-                rfsgSession.RF.PowerLevel = rfsgSession.RF.PowerLevel + powerOffset; // apply power offset to running rfsg offset
-                mpResults.PowerOffset_dB += powerOffset; // accumulate total power offset over all iterations
+                rfsgSession.RF.PowerLevel = desiredPowerLevel + mpResults.PowerOffset_dB; // apply power offset to desired rfsg power level
                 ApplyWaveformAttributes(rfsgSession, mpResults.PostDpdWaveform);
                 specAn.Dpd.Results.FetchDpdPolynomial(selectorString, 10.0, ref mpResults.DpdPolynomial);
             }
