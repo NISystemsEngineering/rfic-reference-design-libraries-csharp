@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
@@ -36,6 +37,23 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     ExternalAttenuation_dBm = 0.0,
                     LOSharingMode = LocalOscillatorSharingMode.Automatic
                 };
+            }
+
+            public static InstrumentConfiguration GetDefault(NIRfsg rfsg)
+            {
+                InstrumentConfiguration instrConfig = GetDefault();
+                string instrumentModel = rfsg.Identity.InstrumentModel;
+                if (Regex.IsMatch(instrumentModel, "NI PXIe-5830"))
+                {
+                    instrConfig.SelectedPorts = "if0";
+                    instrConfig.CarrierFrequency_Hz = 6.5e9;
+                }
+                else if (Regex.IsMatch(instrumentModel, "NI PXIe-5831"))
+                {
+                    instrConfig.SelectedPorts = "rf0/port0";
+                    instrConfig.CarrierFrequency_Hz = 28e9;
+                }
+                return instrConfig;
             }
         }
 

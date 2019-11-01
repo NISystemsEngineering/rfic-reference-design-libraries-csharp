@@ -77,7 +77,7 @@ namespace SG_SA_IntegrationTests
                 lteCommonConfig.SelectedPorts = "if1";
                 lteCommonConfig.CenterFrequency_Hz = 6.5e9;
             }
-            else if (Regex.IsMatch(rfsg.Identity.InstrumentModel, "NI PXIe-5831"))
+            else if (Regex.IsMatch(instrumentModel, "NI PXIe-5831"))
             {
                 lteCommonConfig.SelectedPorts = "rf1/port0";
                 lteCommonConfig.CenterFrequency_Hz = 28e9;
@@ -93,7 +93,7 @@ namespace SG_SA_IntegrationTests
 
         private void ApplyAutomaticLOConfiguration(NIRfsg rfsg, RFmxInstrMX instr)
         {
-            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault();
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
             SG.ConfigureInstrument(rfsg, sgConfig);
 
             RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault();
