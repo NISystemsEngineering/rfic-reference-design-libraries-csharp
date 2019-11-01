@@ -8,14 +8,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public struct InstrumentConfiguration
         {
             public LocalOscillatorSharingMode LOSharingMode;
-            public LocalOscillatorFrequencyOffsetMode LOOffsetMode;
 
             public static InstrumentConfiguration GetDefault()
             {
                 return new InstrumentConfiguration
                 {
                     LOSharingMode = LocalOscillatorSharingMode.Automatic,
-                    LOOffsetMode = LocalOscillatorFrequencyOffsetMode.Automatic
                 };
             }
         }
@@ -28,11 +26,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 instrHandle.ConfigureAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Disabled);
             else
                 instrHandle.ConfigureAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Enabled);
-
-            if (instrConfig.LOOffsetMode == LocalOscillatorFrequencyOffsetMode.NoOffset)
-                instrHandle.SetLOLeakageAvoidanceEnabled("", RFmxInstrMXLOLeakageAvoidanceEnabled.False);
-            else
-                instrHandle.ResetAttribute("", RFmxInstrMXPropertyId.LOLeakageAvoidanceEnabled);
+                // Configure automatic LO offsetting
+                instrHandle.SetLOLeakageAvoidanceEnabled("", RFmxInstrMXLOLeakageAvoidanceEnabled.True);
         }
         #endregion
     }

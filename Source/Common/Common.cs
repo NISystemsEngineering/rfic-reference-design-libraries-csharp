@@ -5,10 +5,4 @@
         Automatic,
         None
     }
-
-    public enum LocalOscillatorFrequencyOffsetMode
-    {
-        Automatic,
-        NoOffset
-    }
 }
