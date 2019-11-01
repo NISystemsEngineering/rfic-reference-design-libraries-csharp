@@ -127,14 +127,23 @@ namespace NationalInstruments.ReferenceDesignLibraries
             if (Regex.IsMatch(rfsgHandle.Identity.InstrumentModel, "NI PXIe-58[34].")) // Matches 583x and 584x VST families
             {
                 IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
-            if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.None)
+                NIRfsgPlayback.RetrieveAutomaticSGSASharedLO(rfsgPtr, "", out RfsgPlaybackAutomaticSGSASharedLO currentMode);
+                if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.None && currentMode != RfsgPlaybackAutomaticSGSASharedLO.Disabled)
+                {
+                    //Setting this property resets other settings, which can create issues. Hence, it is only set if the value
+                    //is different than the current mode.
                     NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Disabled);
-            else
+                }
+                else if (currentMode != RfsgPlaybackAutomaticSGSASharedLO.Enabled)
+                {
+                    //Setting this property resets other settings, which can create issues. Hence, it is only set if the value
+                    //is different than the current mode.
                     NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Enabled);
                 }
             }
             //Do nothing; any configuration for LOs with standalone VSGs should be configured manually. 
             //Baseband instruments don't have LOs. Unsupported VSTs must be configured manually.
+        }
 
         public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "")
         {
