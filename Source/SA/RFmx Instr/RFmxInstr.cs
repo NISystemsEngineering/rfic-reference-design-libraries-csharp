@@ -1,4 +1,5 @@
 ﻿using NationalInstruments.RFmx.InstrMX;
+using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
@@ -22,12 +23,17 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region Instrument Configurations
         public static void ConfigureInstrument(RFmxInstrMX instrHandle, InstrumentConfiguration instrConfig)
         {
-            if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.None)
-                instrHandle.ConfigureAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Disabled);
-            else
-                instrHandle.ConfigureAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Enabled);
+            instrHandle.GetInstrumentModel("", out string model);
+            // Only configure LO settings on supported VSTs
+            if (Regex.IsMatch(model, "NI PXIe-58[34].")) // Matches 583x and 584x VST families
+            {
+                if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.None)
+                    instrHandle.ConfigureAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Disabled);
+                else
+                    instrHandle.ConfigureAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Enabled);
                 // Configure automatic LO offsetting
                 instrHandle.SetLOLeakageAvoidanceEnabled("", RFmxInstrMXLOLeakageAvoidanceEnabled.True);
+            }
         }
         #endregion
     }
