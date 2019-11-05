@@ -30,9 +30,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.None)
                     instrHandle.ConfigureAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Disabled);
                 else
+                {
                     instrHandle.ConfigureAutomaticSGSASharedLO("", RFmxInstrMXAutomaticSGSASharedLO.Enabled);
-                // Configure automatic LO offsetting
-                instrHandle.SetLOLeakageAvoidanceEnabled("", RFmxInstrMXLOLeakageAvoidanceEnabled.True);
+                    // Configure automatic LO offsetting
+                    instrHandle.SetLOLeakageAvoidanceEnabled("", RFmxInstrMXLOLeakageAvoidanceEnabled.True);
+                    instrHandle.ResetAttribute("", RFmxInstrMXPropertyId.DownconverterFrequencyOffset);
+                }
             }
         }
         #endregion
