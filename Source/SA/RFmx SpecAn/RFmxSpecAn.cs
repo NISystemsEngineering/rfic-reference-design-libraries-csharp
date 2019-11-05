@@ -1,6 +1,5 @@
 ﻿using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.RFmx.SpecAnMX;
-using static NationalInstruments.ReferenceDesignLibraries.SG;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
