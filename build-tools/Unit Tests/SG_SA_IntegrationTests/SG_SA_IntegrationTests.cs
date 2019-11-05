@@ -102,24 +102,12 @@ namespace SG_SA_IntegrationTests
 
         private void ApplyNoLOSharingConfiguration(NIRfsg rfsg, RFmxInstrMX instr)
         {
-            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault();
+            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault(rfsg);
             sgConfig.LOSharingMode = LocalOscillatorSharingMode.None;
             SG.ConfigureInstrument(rfsg, sgConfig);
 
             RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault();
             instrConfig.LOSharingMode = LocalOscillatorSharingMode.None;
-            RFmxInstr.ConfigureInstrument(instr, instrConfig);
-        }
-
-        private void ApplyNoLOOffsetConfiguration(NIRfsg rfsg, RFmxInstrMX instr)
-        {
-            SG.InstrumentConfiguration sgConfig = SG.InstrumentConfiguration.GetDefault();
-            sgConfig.LOSharingMode = LocalOscillatorSharingMode.None;
-            SG.ConfigureInstrument(rfsg, sgConfig);
-
-            RFmxInstr.InstrumentConfiguration instrConfig = RFmxInstr.InstrumentConfiguration.GetDefault();
-            instrConfig.LOSharingMode = LocalOscillatorSharingMode.None;
-            instrConfig.LOOffsetMode = LocalOscillatorFrequencyOffsetMode.NoOffset;
             RFmxInstr.ConfigureInstrument(instr, instrConfig);
         }
 
@@ -318,49 +306,6 @@ namespace SG_SA_IntegrationTests
 
                 double rfsgUpconverterFrequencyStepSize = rfsg.RF.LocalOscillator.FrequencyStepSize;
                 rfsg.RF.Upconverter.FrequencyOffset.Should().NotBeInRange(-rfsgUpconverterFrequencyStepSize / 2, rfsgUpconverterFrequencyStepSize / 2);
-            }
-
-            CloseTransceiverSessions(rfsg, instr);
-        }
-
-        [TestMethod()]
-        public void Test5830SANoLOOffset()
-        {
-            TestSANoLOOffset("NI PXIe-3621");
-        }
-
-        [TestMethod()]
-        public void Test5831SANoLOOffset()
-        {
-            TestSANoLOOffset("NI PXIe-3622");
-        }
-
-        [TestMethod()]
-        public void Test5840SANoLOOffset()
-        {
-            TestSANoLOOffset("NI PXIe-5840");
-        }
-
-        [TestMethod()]
-        public void Test5841SANoLOOffset()
-        {
-            TestSANoLOOffset("NI PXIe-5841");
-        }
-
-        public void TestSANoLOOffset(string model)
-        {
-            FindAndOpenTransceiverSessionsWithAssertion(model, out NIRfsg rfsg, out RFmxInstrMX instr);
-            ApplyNoLOOffsetConfiguration(rfsg, instr);
-            CommitTestConfiguration(rfsg, instr);
-
-            using (new AssertionScope())
-            {
-                instr.GetLOLeakageAvoidanceEnabled("", out RFmxInstrMXLOLeakageAvoidanceEnabled rfmxLOLeakageAvoidanceEnabled);
-                rfmxLOLeakageAvoidanceEnabled.Should().Be(RFmxInstrMXLOLeakageAvoidanceEnabled.False);
-
-                instr.GetDownconverterFrequencyOffset("", out double rfmxDownconverterFrequencyOffset);
-                instr.GetLOFrequencyStepSize("", out double rfmxLoFrequencyStepSize);
-                rfmxDownconverterFrequencyOffset.Should().BeInRange(-rfmxLoFrequencyStepSize / 2, rfmxLoFrequencyStepSize / 2);
             }
 
             CloseTransceiverSessions(rfsg, instr);
