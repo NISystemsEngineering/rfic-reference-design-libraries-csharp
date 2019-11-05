@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("RFmx SpecAn")]
+[assembly: AssemblyTitle("RFmx Instr")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("RFmx SpecAn")]
+[assembly: AssemblyProduct("RFmx Instr")]
 
 [assembly: AssemblyFileVersion("2.0.0.0")]
 // Setting ComVisible to false makes the types in this assembly not visible
