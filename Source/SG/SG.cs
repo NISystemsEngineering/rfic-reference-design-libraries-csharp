@@ -134,7 +134,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     //is different than the current mode.
                     NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Disabled);
                 }
-                else if (currentMode != RfsgPlaybackAutomaticSGSASharedLO.Enabled)
+                else if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.Automatic && currentMode != RfsgPlaybackAutomaticSGSASharedLO.Enabled)
                 {
                     //Setting this property resets other settings, which can create issues. Hence, it is only set if the value
                     //is different than the current mode.
