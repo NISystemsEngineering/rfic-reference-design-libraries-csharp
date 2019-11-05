@@ -55,6 +55,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\Common\Common.csproj">
+      <Project>{8e7d5092-b685-4ad3-9da3-7c53e56f0f32}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Source\SA\RFmx WLAN\RFmxWLAN.csproj">
       <Project>{9e8f4d28-ac1d-4a06-8c62-fc96097890b9}</Project>
       <Name>RFmxWLAN</Name>
