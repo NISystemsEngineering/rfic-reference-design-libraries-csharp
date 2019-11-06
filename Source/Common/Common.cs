@@ -22,9 +22,4 @@ namespace NationalInstruments.ReferenceDesignLibraries
         None
     }
 
-    public enum LocalOscillatorFrequencyOffsetMode
-    {
-        Automatic,
-        NoOffset
-    }
 }
