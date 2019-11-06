@@ -13,7 +13,7 @@ namespace SG_SA_IntegrationTests
     [TestClass]
     public class SG_SA_IntegrationTests
     {
-        static SG.Waveform lteTdd10Waveform;
+        static Waveform lteTdd10Waveform;
 
         [ClassInitialize]
         public static void TestFixtureSetup(TestContext context)
