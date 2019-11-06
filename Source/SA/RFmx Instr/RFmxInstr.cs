@@ -9,12 +9,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public struct InstrumentConfiguration
         {
             public LocalOscillatorSharingMode LOSharingMode;
-
+            public string FrequencyReferenceSource;
             public static InstrumentConfiguration GetDefault()
             {
                 return new InstrumentConfiguration
                 {
                     LOSharingMode = LocalOscillatorSharingMode.Automatic,
+                    FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock
                 };
             }
         }
@@ -23,6 +24,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region Instrument Configurations
         public static void ConfigureInstrument(RFmxInstrMX instrHandle, InstrumentConfiguration instrConfig)
         {
+            instrHandle.SetFrequencyReferenceSource("", instrConfig.FrequencyReferenceSource);
             instrHandle.GetInstrumentModel("", out string model);
             // Only configure LO settings on supported VSTs
             if (Regex.IsMatch(model, "NI PXIe-58[34].")) // Matches 583x and 584x VST families

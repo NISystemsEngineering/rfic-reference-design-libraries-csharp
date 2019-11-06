@@ -12,7 +12,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double CenterFrequency_Hz;
             public double ReferenceLevel_dBm;
             public double ExternalAttenuation_dB;
-            public string FrequencyReferenceSource;
             public bool EnableTrigger;
             public string DigitalEdgeSource;
             public RFmxLteMXDigitalEdgeTriggerEdge DigitalEdgeType;
@@ -26,7 +25,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     CenterFrequency_Hz = 3.5e9,
                     ReferenceLevel_dBm = 0.0,
                     ExternalAttenuation_dB = 0.0,
-                    FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
                     EnableTrigger = true,
                     DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
                     DigitalEdgeType = RFmxLteMXDigitalEdgeTriggerEdge.Rising,
@@ -179,9 +177,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxInstrMX instr, RFmxLteMX lte, CommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxLteMX lte, CommonConfiguration commonConfig, string selectorString = "")
         {
-            instr.ConfigureFrequencyReference(selectorString, commonConfig.FrequencyReferenceSource, 10e6);
             lte.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             lte.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
             lte.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
