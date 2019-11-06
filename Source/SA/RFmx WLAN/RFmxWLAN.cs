@@ -18,7 +18,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public bool AutoLevelEnabled;
             public double AutoLevelMeasurementInterval_s;
             public double ExternalAttenuation_dB;
-            public string FrequencyReferenceSource;
             public string DigitalEdgeSource;
             public RFmxWlanMXDigitalEdgeTriggerEdge DigitalTriggerEdge;
             public double TriggerDelay_s;
@@ -33,7 +32,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     AutoLevelEnabled = false,
                     AutoLevelMeasurementInterval_s = 10e-3,
                     ExternalAttenuation_dB = 0,
-                    FrequencyReferenceSource = RFmxInstrMXConstants.PxiClock,
                     DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
                     DigitalTriggerEdge = RFmxWlanMXDigitalEdgeTriggerEdge.Rising,
                     TriggerDelay_s = 0,
@@ -200,9 +198,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
-            sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
             wlanSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalTriggerEdge, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
