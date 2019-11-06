@@ -10,36 +10,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         //Structs were chosen over a basic class due to the ease of viewing function inputs inside of TestStand (avoiding encapsulation)
         //This has the downside of requiring two steps to initialize the struct to the default values
         #region Type_Definitionss
-        public struct CommonConfiguration
-        {
-            public string SelectedPorts;
-            public double CenterFrequency_Hz;
-            public double ReferenceLevel_dBm;
-            public bool AutoLevelEnabled;
-            public double AutoLevelMeasurementInterval_s;
-            public double ExternalAttenuation_dB;
-            public string DigitalEdgeSource;
-            public RFmxWlanMXDigitalEdgeTriggerEdge DigitalTriggerEdge;
-            public double TriggerDelay_s;
-            public bool EnableTrigger;
-            public static CommonConfiguration GetDefault()
-            {
-                return new CommonConfiguration
-                {
-                    SelectedPorts = "",
-                    CenterFrequency_Hz = 1e9,
-                    ReferenceLevel_dBm = 0,
-                    AutoLevelEnabled = false,
-                    AutoLevelMeasurementInterval_s = 10e-3,
-                    ExternalAttenuation_dB = 0,
-                    DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
-                    DigitalTriggerEdge = RFmxWlanMXDigitalEdgeTriggerEdge.Rising,
-                    TriggerDelay_s = 0,
-                    EnableTrigger = true,
-                };
-            }
-        }
-
         public struct SignalConfiguration
         {
             public bool AutoDetectSignal;
@@ -198,16 +168,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxWlanMX wlanSignal, SACommonConfiguration commonConfig, string selectorString = "")
         {
             wlanSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
-            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalTriggerEdge, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
+            wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
-
+            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxWlanMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             if (commonConfig.AutoLevelEnabled) wlanSignal.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s);
-            else wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
-
         }
         #endregion
         #region Measurement Configuration
