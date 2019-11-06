@@ -6,6 +6,7 @@ using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.RFmx.LteMX;
 using NationalInstruments.DataInfrastructure;
 using NationalInstruments;
+using NationalInstruments.ReferenceDesignLibraries;
 
 namespace LTETests
 {

@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxLTE", "..\..\Source\SA\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scope", "..\..\Source\Scope\Scope.csproj", "{7659CA3A-45D7-4A1C-8253-98615F119CF3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "..\..\Source\Common\Common.csproj", "{8E7D5092-B685-4AD3-9DA3-7C53E56F0F32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{7659CA3A-45D7-4A1C-8253-98615F119CF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7659CA3A-45D7-4A1C-8253-98615F119CF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7659CA3A-45D7-4A1C-8253-98615F119CF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E7D5092-B685-4AD3-9DA3-7C53E56F0F32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E7D5092-B685-4AD3-9DA3-7C53E56F0F32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E7D5092-B685-4AD3-9DA3-7C53E56F0F32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E7D5092-B685-4AD3-9DA3-7C53E56F0F32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
