@@ -65,7 +65,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             public double AveragePowerMean_dBm;
             public double PeakPowerMaximum_dBm;
-            public AnalogWaveform<float> PowerVsTime;
         }
         public struct OFDMModAccConfiguration
         {
@@ -93,8 +92,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public struct OFDMModAccResults
         {
-            public AnalogWaveform<float> EVMperSymbolTrace;
-            public ComplexSingle[] DataConstellation;
             public double CompositeRMSEVMMean_dB;
             public double CompositeDataRMSEVMMean_dB;
             public double CompositePilotRMSEVMMean_dB;
@@ -311,7 +308,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             TxPResults txpResults = new TxPResults();
 
-            wlanSignal.Txp.Results.FetchPowerTrace(selectorString, 10, ref txpResults.PowerVsTime);
             wlanSignal.Txp.Results.FetchMeasurement(selectorString, 10, out txpResults.AveragePowerMean_dBm, out txpResults.PeakPowerMaximum_dBm);
 
             return txpResults;
@@ -320,8 +316,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public static OFDMModAccResults FetchOFDMModAcc(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             OFDMModAccResults modAccResults = new OFDMModAccResults();
-            wlanSignal.OfdmModAcc.Results.FetchChainRmsEvmPerSymbolMeanTrace(selectorString, 10, ref modAccResults.EVMperSymbolTrace);
-            wlanSignal.OfdmModAcc.Results.FetchDataConstellationTrace(selectorString, 10, ref modAccResults.DataConstellation);
             wlanSignal.OfdmModAcc.Results.FetchCompositeRmsEvm(selectorString, 10, out modAccResults.CompositeRMSEVMMean_dB,
                 out modAccResults.CompositeDataRMSEVMMean_dB, out modAccResults.CompositePilotRMSEVMMean_dB);
             wlanSignal.OfdmModAcc.Results.FetchNumberOfSymbolsUsed(selectorString, 10, out modAccResults.NumberOfSymbolsUsed);
