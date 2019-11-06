@@ -6,37 +6,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
     public static class RFmxNR
     {
         #region Type Definitions
-        public struct CommonConfiguration
-        {
-            public string SelectedPorts;
-            public double CenterFrequency_Hz;
-            public double ReferenceLevel_dBm;
-            public double ExternalAttenuation_dB;
-            public bool EnableTrigger;
-            public string DigitalEdgeSource;
-            public RFmxNRMXDigitalEdgeTriggerEdge DigitalEdgeType;
-            public double TriggerDelay_s;
-            public bool AutoLevelEnabled;
-            public double AutoLevelMeasurementInterval_s;
-
-            public static CommonConfiguration GetDefault()
-            {
-                return new CommonConfiguration
-                {
-                    SelectedPorts = "",
-                    CenterFrequency_Hz = 3.5e9,
-                    ReferenceLevel_dBm = 0.0,
-                    ExternalAttenuation_dB = 0.0,
-                    EnableTrigger = true,
-                    DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
-                    DigitalEdgeType = RFmxNRMXDigitalEdgeTriggerEdge.Rising,
-                    TriggerDelay_s = 0.0,
-                    AutoLevelEnabled = false,
-                    AutoLevelMeasurementInterval_s = 10e-3
-                };
-            }
-        }
-
         public struct ComponentCarrierConfiguration
         {
             public double Bandwidth_Hz;
@@ -229,17 +198,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxNRMX nr, CommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxNRMX nr, SACommonConfiguration commonConfig, string selectorString = "")
         {
             nr.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
+            nr.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
             nr.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             nr.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
-            nr.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            nr.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxNRMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
 
             if (commonConfig.AutoLevelEnabled)
                 nr.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s, out _);
-            else
-                nr.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
         }
         #endregion
 

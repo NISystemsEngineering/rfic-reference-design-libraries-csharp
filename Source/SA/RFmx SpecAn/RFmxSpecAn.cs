@@ -6,38 +6,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
     public static class RFmxSpecAn
     {
         #region Type Definitions
-        public struct CommonConfiguration
-        {
-            public string SelectedPorts;
-            public double CenterFrequency_Hz;
-            public double ReferenceLevel_dBm;
-            public double ExternalAttenuation_dB;
-            public bool EnableTrigger;
-            public string DigitalEdgeSource;
-            public RFmxSpecAnMXDigitalEdgeTriggerEdge DigitalEdgeType;
-            public double TriggerDelay_s;
-            public bool AutoLevelEnabled;
-            public double AutoLevelMeasurementInterval_s;
-            public double AutoLevelBandwidth_Hz;
-            public static CommonConfiguration GetDefault()
-            {
-                return new CommonConfiguration
-                {
-                    SelectedPorts = "",
-                    CenterFrequency_Hz = 1e9,
-                    ReferenceLevel_dBm = 0,
-                    ExternalAttenuation_dB = 0,
-                    EnableTrigger = true,
-                    DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
-                    DigitalEdgeType = RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising,
-                    TriggerDelay_s = 0,
-                    AutoLevelEnabled = false,
-                    AutoLevelMeasurementInterval_s = 10e-3,
-                    AutoLevelBandwidth_Hz = 20e6
-                };
-            }
-        }
-
         public struct TxpConfiguration
         {
             public double MeasurementInterval_s;
@@ -216,14 +184,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configurations
-        public static void ConfigureCommon(RFmxSpecAnMX specAnSignal, CommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxSpecAnMX specAnSignal, SACommonConfiguration commonConfig, string selectorString = "")
         {
             specAnSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
-            specAnSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
-            specAnSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
-            specAnSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
-            if (commonConfig.AutoLevelEnabled) specAnSignal.AutoLevel(selectorString, commonConfig.AutoLevelBandwidth_Hz, commonConfig.AutoLevelMeasurementInterval_s, out _);
-            else specAnSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
+            specAnSignal.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
+            specAnSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+
+            if (commonConfig.AutoLevelEnabled)
+                specAnSignal.AutoLevel(selectorString, commonConfig.AutoLevelBandwidth_Hz, commonConfig.AutoLevelMeasurementInterval_s, out _);
         }
 
         public static void ConfigureTxp(RFmxSpecAnMX specAn, TxpConfiguration txpConfig, string selectorString = "")

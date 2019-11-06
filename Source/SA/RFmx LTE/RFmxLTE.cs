@@ -6,33 +6,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
     public static class RFmxLTE
     {
         #region Type Definitions
-        public struct CommonConfiguration
-        {
-            public string SelectedPorts;
-            public double CenterFrequency_Hz;
-            public double ReferenceLevel_dBm;
-            public double ExternalAttenuation_dB;
-            public bool EnableTrigger;
-            public string DigitalEdgeSource;
-            public RFmxLteMXDigitalEdgeTriggerEdge DigitalEdgeType;
-            public double TriggerDelay_s;
-            
-            public static CommonConfiguration GetDefault()
-            {
-                return new CommonConfiguration
-                {
-                    SelectedPorts = "",
-                    CenterFrequency_Hz = 3.5e9,
-                    ReferenceLevel_dBm = 0.0,
-                    ExternalAttenuation_dB = 0.0,
-                    EnableTrigger = true,
-                    DigitalEdgeSource = RFmxInstrMXConstants.PxiTriggerLine0,
-                    DigitalEdgeType = RFmxLteMXDigitalEdgeTriggerEdge.Rising,
-                    TriggerDelay_s = 0.0
-                };
-            }
-        }
-
         public struct ComponentCarrierConfiguration
         {
             public double Bandwidth_Hz;
@@ -177,11 +150,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxLteMX lte, CommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxLteMX lte, SACommonConfiguration commonConfig, string selectorString = "")
         {
             lte.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             lte.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
-            lte.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalEdgeType, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            lte.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxLteMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            if (commonConfig.AutoLevelEnabled)
+                lte.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s, out double _);
         }
         #endregion
 
