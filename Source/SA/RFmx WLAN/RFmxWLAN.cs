@@ -23,8 +23,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxWlanMXDigitalEdgeTriggerEdge DigitalTriggerEdge;
             public double TriggerDelay_s;
             public bool EnableTrigger;
-            public string LOSource;
-            public double LOOffset;
             public static CommonConfiguration GetDefault()
             {
                 return new CommonConfiguration
@@ -40,8 +38,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     DigitalTriggerEdge = RFmxWlanMXDigitalEdgeTriggerEdge.Rising,
                     TriggerDelay_s = 0,
                     EnableTrigger = true,
-                    LOSource = RFmxInstrMXConstants.LOSourceLOIn,
-                    LOOffset = 0
                 };
             }
         }
@@ -206,13 +202,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region Instrument Configuration
         public static void ConfigureCommon(RFmxInstrMX sessionHandle, RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
-            string instrModel;
-
             sessionHandle.ConfigureFrequencyReference("", commonConfig.FrequencyReferenceSource, 10e6);
-            sessionHandle.GetInstrumentModel("", out instrModel);
-
-            sessionHandle.SetLOSource("", commonConfig.LOSource);
-            sessionHandle.SetDownconverterFrequencyOffset("", commonConfig.LOOffset);
             wlanSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalEdgeSource, commonConfig.DigitalTriggerEdge, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);

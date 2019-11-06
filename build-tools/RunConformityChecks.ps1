@@ -4,14 +4,14 @@
 Write-Host "Check for exclusion of referencd DLLs in builds directory"
 
 $command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -SearchTextOrPattern '<Private>(.+)</Private>' -FilePattern ""*.csproj""" +
-    "  -Verbose -ValidMatchValues ""False"" -RecurseDirectory -ExcludeFilePattern 'Tests'"
+    "  -Verbose -ValidMatchValues ""False"" -RecurseDirectory -ExcludeFilePattern 'Tests','Common'"
 
 Invoke-Expression $command
 
 Write-Host "Check for disabling of specific versions for references"
 
 $command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -SearchTextOrPattern '<SpecificVersion>(.+)</SpecificVersion>' -FilePattern ""*.csproj""" +
-    "  -Verbose -ValidMatchValues ""False"" -RecurseDirectory -ExcludeFilePattern 'Tests'"
+    "  -Verbose -ValidMatchValues ""False"" -RecurseDirectory -ExcludeFilePattern 'Tests','Common'"
 
 Invoke-Expression $command
 
@@ -36,6 +36,6 @@ Invoke-Expression $command
 
 Write-Host "`nEnsure that all classes are implemented as static classes"
 $command = ".\MatchFileText.ps1 -FileOrFolderPath ""..\Source\"" -RecurseDirectory -SearchTextOrPattern 'public\s+(.+)\s+class'" +
-    " -ValidMatchValues 'static' -FilePattern ""*.cs"" -Verbose -ExcludeFilePattern 'Tests','obj','Assembly','Solution'"
+    " -ValidMatchValues 'static' -FilePattern ""*.cs"" -Verbose -ExcludeFilePattern 'Tests','Common','obj','Assembly','Solution'"
 
 Invoke-Expression $command

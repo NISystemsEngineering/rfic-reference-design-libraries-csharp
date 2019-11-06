@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
@@ -23,7 +24,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double CarrierFrequency_Hz;
             public double DutAverageInputPower_dBm;
             public double ExternalAttenuation_dBm;
-            public bool ShareLOSGToSA;
+            public LocalOscillatorSharingMode LOSharingMode;
+
             public static InstrumentConfiguration GetDefault()
             {
                 return new InstrumentConfiguration()
@@ -31,10 +33,27 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     SelectedPorts = "",
                     ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
                     CarrierFrequency_Hz = 1e9,
-                    DutAverageInputPower_dBm = -10,
-                    ExternalAttenuation_dBm = 0,
-                    ShareLOSGToSA = true,
+                    DutAverageInputPower_dBm = -10.0,
+                    ExternalAttenuation_dBm = 0.0,
+                    LOSharingMode = LocalOscillatorSharingMode.Automatic
                 };
+            }
+
+            public static InstrumentConfiguration GetDefault(NIRfsg rfsg)
+            {
+                InstrumentConfiguration instrConfig = GetDefault();
+                string instrumentModel = rfsg.Identity.InstrumentModel;
+                if (Regex.IsMatch(instrumentModel, "NI PXIe-5830"))
+                {
+                    instrConfig.SelectedPorts = "if0";
+                    instrConfig.CarrierFrequency_Hz = 6.5e9;
+                }
+                else if (Regex.IsMatch(instrumentModel, "NI PXIe-5831"))
+                {
+                    instrConfig.SelectedPorts = "rf0/port0";
+                    instrConfig.CarrierFrequency_Hz = 28e9;
+                }
+                return instrConfig;
             }
         }
 
@@ -63,7 +82,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 return new WaveformTimingConfiguration()
                 {
-                    DutyCycle_Percent = 50,
+                    DutyCycle_Percent = 50.0,
                     PreBurstTime_s = 1e-6,
                     PostBurstTime_s = 1e-6,
                     BurstStartTriggerExport = "PXI_Trig0"
@@ -104,18 +123,26 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             rfsgHandle.FrequencyReference.Source = RfsgFrequencyReferenceSource.FromString(instrConfig.ReferenceClockSource);
 
-            if (instrConfig.ShareLOSGToSA)
+            // Only configure LO settings on supported VSTs
+            if (Regex.IsMatch(rfsgHandle.Identity.InstrumentModel, "NI PXIe-58[34].")) // Matches 583x and 584x VST families
             {
-                rfsgHandle.RF.LocalOscillator.LOOutEnabled = true;
-                rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
+                IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+                NIRfsgPlayback.RetrieveAutomaticSGSASharedLO(rfsgPtr, "", out RfsgPlaybackAutomaticSGSASharedLO currentMode);
+                if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.None && currentMode != RfsgPlaybackAutomaticSGSASharedLO.Disabled)
+                {
+                    //Setting this property resets other settings, which can create issues. Hence, it is only set if the value
+                    //is different than the current mode.
+                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Disabled);
+                }
+                else if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.Automatic && currentMode != RfsgPlaybackAutomaticSGSASharedLO.Enabled)
+                {
+                    //Setting this property resets other settings, which can create issues. Hence, it is only set if the value
+                    //is different than the current mode.
+                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Enabled);
+                }
             }
-            else
-            {
-                rfsgHandle.RF.LocalOscillator.LOOutEnabled = false;
-                // Return to the default value, in case in future modifications the above case changes
-                // this to something other than the default
-                rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
-            }
+            //Do nothing; any configuration for LOs with standalone VSGs should be configured manually. 
+            //Baseband instruments don't have LOs. Unsupported VSTs must be configured manually.
         }
 
         public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "")
@@ -204,7 +231,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformSize(rfsgPtr, waveform.WaveformName, waveform.WaveformData.SampleCount);
 
             //Manually configure additional settings
-            NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled);
+            NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Auto);
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
         }
 
@@ -240,7 +267,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             if (waveTiming.DutyCycle_Percent <= 0)
             {
-                throw new System.ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
+                throw new ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
             }
 
             //Calculate various timining information
