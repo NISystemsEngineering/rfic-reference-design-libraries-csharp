@@ -20,7 +20,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
     {
         static NIRfsg sim;
         static string[] files;
-        static SG.Waveform[] waveforms;
+        static Waveform[] waveforms;
         static IniData[] iniData;
         [ClassInitialize]
         public static void TestFixtureSetup(TestContext context)
@@ -28,7 +28,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             sim = new NIRfsg("sim", false, false, "Simulate=1,RangeCheck=0,DriverSetup=Model:5646R");
             //string path = Path.Combine(context.TestRunDirectory, @"Support Files");
             files = Directory.GetFiles("Support Files", "*.tdms");
-            waveforms = new SG.Waveform[files.Length];
+            waveforms = new Waveform[files.Length];
             iniData = new IniData[files.Length];
 
             FileIniDataParser parser = new FileIniDataParser();
@@ -47,11 +47,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
                 }
             }
         }
-        public delegate void TestAction(string fileName, SG.Waveform waveform, string filePath, IniData fileConfig);
+        public delegate void TestAction(string fileName, Waveform waveform, string filePath, IniData fileConfig);
         public void LoopFiles(TestAction action)
         {
             string fileName, filePath;
-            SG.Waveform waveform;
+            Waveform waveform;
             IniData fileConfig;
             using (new AssertionScope())
             {
@@ -78,7 +78,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                double fs = 1/ waveform.WaveformData.PrecisionTiming.SampleInterval.FractionalSeconds;
+                double fs = 1/ waveform.Data.PrecisionTiming.SampleInterval.FractionalSeconds;
                 waveform.SampleRate.Should().BeApproximately(fs, .001, $"of loading file \"{fileName}\"");
             });
         }
@@ -87,7 +87,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                waveform.WaveformData.Samples.Count.Should().NotBe(0, $"of loading file \"{fileName}\"");
+                waveform.Data.Samples.Count.Should().NotBe(0, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -119,7 +119,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                waveform.WaveformData.PrecisionTiming.SampleInterval.FractionalSeconds
+                waveform.Data.PrecisionTiming.SampleInterval.FractionalSeconds
                 .Should().BeGreaterThan(0, $"of loading file \"{fileName}\"");
             });
         }
@@ -144,11 +144,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
         {
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
-                System.IntPtr rfsgHandle = sim.DangerousGetInstrumentHandle();
-                NIRfsgPlayback.DownloadUserWaveform(rfsgHandle, waveform.WaveformName, 
-                    waveform.WaveformData, true);
+                System.IntPtr rfsgHandle = sim.GetInstrumentHandle().DangerousGetHandle();
+                NIRfsgPlayback.DownloadUserWaveform(rfsgHandle, waveform.Name, 
+                    waveform.Data, true);
                 NIRfsgPlayback.RetrieveWaveformPapr(rfsgHandle,
-                    waveform.WaveformName, out double calcPapr);
+                    waveform.Name, out double calcPapr);
                 waveform.PAPR_dB.Should().BeApproximately(calcPapr, 0.1,
                     $"of loading file \"{fileName}\"");
             });
@@ -159,7 +159,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
                 NIRfsgPlayback.ReadWaveformSizeFromFile(filePath, 0, out int size);
-                waveform.WaveformData.SampleCount.Should().Be(size, $"of loading file \"{fileName}\"");
+                waveform.Data.SampleCount.Should().Be(size, $"of loading file \"{fileName}\"");
             });
         }
         [TestMethod()]
@@ -169,14 +169,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.Tests
             LoopFiles((fileName, waveform, filePath, fileConfig) =>
             {
                 SG.DownloadWaveform(sim, waveform);
-                SG.Waveform newWaveform = SG.GetWaveformParametersByName(sim, waveform.WaveformName);
+                Waveform newWaveform = SG.GetWaveformParametersByName(sim, waveform.Name);
 
                 newWaveform.Should().BeEquivalentTo(waveform, options =>
                 {
                     //Actual waveform data is not returned. Hence, exclude it from comparison
-                    options.Excluding(w => w.WaveformData);
+                    options.Excluding(w => w.Data);
                     //Ensure each member is compared; otherwise, it will just compare the two structs as whole values
-                    options.ComparingByMembers<SG.Waveform>();
+                    options.ComparingByMembers<Waveform>();
                     return options;
                 }, $"of loading file \"{fileName}\"");
             });

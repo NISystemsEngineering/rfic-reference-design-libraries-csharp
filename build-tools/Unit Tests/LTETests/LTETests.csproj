@@ -62,6 +62,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\Common\Common.csproj">
+      <Project>{8e7d5092-b685-4ad3-9da3-7c53e56f0f32}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Source\SA\RFmx LTE\RFmxLTE.csproj">
       <Project>{1eb6f1ae-2eea-4dc8-8cdb-09b5fadf2236}</Project>
       <Name>RFmxLTE</Name>
