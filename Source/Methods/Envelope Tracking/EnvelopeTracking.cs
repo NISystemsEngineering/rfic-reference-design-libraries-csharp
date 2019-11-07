@@ -10,6 +10,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
 {
     public static class EnvelopeTracking
     {
+
+        #region Type Definitions
         public struct EnvelopeGeneratorConfiguration
         {
             public RfsgTerminalConfiguration TerminalConfiguration;
@@ -67,7 +69,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
 
-        public struct LookUpTableConfiguration
+        public struct LookUpTable
         {
             public float[] DutInputPower_dBm;
             public float[] SupplyVoltage_V;
@@ -87,20 +89,12 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 };
             }
         }
+        #endregion
 
-        public static void ConfigureEnvelopeGenerator(NIRfsg envVsg, EnvelopeGeneratorConfiguration envVsgConfig, TrackerConfiguration trackerConfig)
-        {
-            if (envVsgConfig.TerminalConfiguration == RfsgTerminalConfiguration.Differential)
-                envVsg.IQOutPort[""].LoadImpedance = trackerConfig.InputImpedance_Ohms == 50.0 ? 100.0 : trackerConfig.InputImpedance_Ohms;
-            else
-                envVsg.IQOutPort[""].LoadImpedance = trackerConfig.InputImpedance_Ohms;
-            envVsg.IQOutPort[""].TerminalConfiguration = envVsgConfig.TerminalConfiguration;
-            envVsg.IQOutPort[""].CommonModeOffset = trackerConfig.CommonModeOffset_V;
-        }
-
+        #region Envelope Creation
         public static Waveform CreateEnvelopeWaveform(Waveform referenceWaveform, DetroughConfiguration detroughConfig)
         {
-            Waveform envWfm = new Waveform()
+            Waveform envelopeWaveform = new Waveform()
             {
                 WaveformName = referenceWaveform.WaveformName + "Envelope",
                 WaveformData = referenceWaveform.WaveformData.Clone(),
@@ -108,15 +102,15 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 PAPR_dB = double.NaN, // unnecessary to calculate as it won't be used
                 BurstLength_s = double.NaN, // not applicable in ET
                 SampleRate = referenceWaveform.SampleRate,
-                // burst start and stop locations will be left as null
+                // burst start and stop locations will be left as null since they also will not be used
                 IdleDurationPresent = referenceWaveform.IdleDurationPresent, // can't null a bool, so copy from reference waveform
-                RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom
+                RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom to the waveform at runtime
                 Script = referenceWaveform.Script // we will copy the script but call replace on it in the following lines to change the waveform name
             };
-            envWfm.Script = envWfm.Script.Replace(referenceWaveform.WaveformName, envWfm.WaveformName); // this is better here since now we only have to add the suffix 
+            envelopeWaveform.Script = envelopeWaveform.Script.Replace(referenceWaveform.WaveformName, envelopeWaveform.WaveformName); // this is better here since now we only have to add the suffix once
+            WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.WaveformData.GetWritableBuffer();
 
             double[] iqMagnitudes = referenceWaveform.WaveformData.GetMagnitudeDataArray(false);
-            WritableBuffer<ComplexSingle> envWfmWriteBuffer = envWfm.WaveformData.GetWritableBuffer();
             double detroughRatio = detroughConfig.MinimumVoltage / detroughConfig.MaximumVoltage;
 
             // Waveforms are assumed to be normalized in range [0, 1], so no normalization will happen here
@@ -150,10 +144,75 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     }
                     break;
                 default:
-                    throw new InvalidOperationException("Detrough type not supported.\n");
+                    throw new ArgumentException("Detrough type not supported.\n");
             }
 
-            return envWfm;
+            return envelopeWaveform;
+        }
+
+        public static Waveform CreateEnvelopeWaveform(Waveform referenceWaveform, LookUpTable lookUpTable, double dutAverageInputPower)
+        {
+            ComplexSingle[] iq = referenceWaveform.WaveformData.GetRawData(); // get copy of iq samples
+            
+            /// power conversions needed to understand following scaling:
+            /// power_dBW = 20log(V) - 10log(R) - since R is 100 we get power_dBW = 20log(V) - 20
+            /// if we want to normalize to dbW 1ohm, we would have 20log(V) - 10log(1) = 20log(V)
+            /// power_dBm = power_dBW + 30  therefore power_dBm = 20log(V) + 10
+            /// therefore, to convert from dBm to dBW 1ohm we subtract 10 from dBm value
+
+            // scale waveform to have average dBW 1ohm power equal to dut input power normalized to dBW 1ohm
+            ComplexSingle scale = ComplexSingle.FromSingle((float)Math.Pow(10.0, referenceWaveform.PAPR_dB / 20.0)); // scaling value for average power to equal 0dBW 1ohm
+            scale *= ComplexSingle.FromSingle((float)Math.Pow(10.0, (dutAverageInputPower - 10.0) / 20.0)); // cascade scale values so we only have to run through the array once
+            for (int i = 0; i < iq.Length; i++)
+                iq[i] *= scale;
+
+            // get 1 ohm power trace in watts of scaled iq data
+            float[] powerTrace_W = new float[iq.Length];
+            for (int i = 0; i < iq.Length; i++)
+                powerTrace_W[i] = iq[i].Real * iq[i].Real + iq[i].Imaginary * iq[i].Imaginary;
+
+            // get lookup table input power trace in 1ohm watts
+            float[] lutDutInputPowerWattOneOhm = new float[lookUpTable.DutInputPower_dBm.Length];
+            for (int i = 0; i < lookUpTable.DutInputPower_dBm.Length; i++)
+                lutDutInputPowerWattOneOhm[i] = (float)Math.Pow(10.0, (lookUpTable.DutInputPower_dBm[i] - 10.0) / 10.0); // V^2 = 10^((Pin - 10.0)/10)
+
+            // run the trace through 1D interpolation
+            float[] rawEnvelope = LinearInterpolation1D(lutDutInputPowerWattOneOhm, lookUpTable.SupplyVoltage_V, powerTrace_W);
+
+            // create waveform to return to the user
+            Waveform envelopeWaveform = new Waveform()
+            {
+                WaveformName = referenceWaveform.WaveformName + "Envelope",
+                WaveformData = referenceWaveform.WaveformData.Clone(),
+                SignalBandwidth_Hz = 0.8 * referenceWaveform.SampleRate,
+                PAPR_dB = double.NaN, // unnecessary to calculate as it won't be used
+                BurstLength_s = double.NaN, // not applicable in ET
+                SampleRate = referenceWaveform.SampleRate,
+                // burst start and stop locations will be left as null since they also will not be used
+                IdleDurationPresent = referenceWaveform.IdleDurationPresent, // can't null a bool, so copy from reference waveform
+                RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom to the waveform at runtime
+                Script = referenceWaveform.Script // we will copy the script but call replace on it in the following lines to change the waveform name
+            };
+            envelopeWaveform.Script = envelopeWaveform.Script.Replace(referenceWaveform.WaveformName, envelopeWaveform.WaveformName); // this is better here since now we only have to add the suffix once
+            WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.WaveformData.GetWritableBuffer();
+
+            // copy raw envelope data into cloned envelope waveform
+            for (int i = 0; i < rawEnvelope.Length; i++)
+                envWfmWriteBuffer[i] = ComplexSingle.FromSingle(rawEnvelope[i]);
+
+            return envelopeWaveform;
+        }
+        #endregion
+
+        #region Instrument Configuration
+        public static void ConfigureEnvelopeGenerator(NIRfsg envVsg, EnvelopeGeneratorConfiguration envVsgConfig, TrackerConfiguration trackerConfig)
+        {
+            if (envVsgConfig.TerminalConfiguration == RfsgTerminalConfiguration.Differential)
+                envVsg.IQOutPort[""].LoadImpedance = trackerConfig.InputImpedance_Ohms == 50.0 ? 100.0 : trackerConfig.InputImpedance_Ohms;
+            else
+                envVsg.IQOutPort[""].LoadImpedance = trackerConfig.InputImpedance_Ohms;
+            envVsg.IQOutPort[""].TerminalConfiguration = envVsgConfig.TerminalConfiguration;
+            envVsg.IQOutPort[""].CommonModeOffset = trackerConfig.CommonModeOffset_V;
         }
 
         public static Waveform ScaleAndDownloadEnvelopeWaveform(NIRfsg envVsg, Waveform envelopeWaveform, TrackerConfiguration trackerConfig)
@@ -212,23 +271,39 @@ namespace NationalInstruments.ReferenceDesignLibraries
             tclk.Synchronize(); // #todo: allow drift?
             tclk.Initiate();
         }
+        #endregion
 
-        private static float[] LinearInterpolation1D(float[] x, float[] y, float[] xi)
+        private static float[] LinearInterpolation1D(float[] x, float[] y, float[] xi, bool monotonic = false)
         {
-            Array.Sort(x, y);
+            // assumes x and y are the same length and lengths are > 1
+
+            if (!monotonic)
+            {
+                // clone array so we don't act on user's reference
+                x = (float[])x.Clone();
+                y = (float[])y.Clone();
+                Array.Sort(x, y);
+            }
+
             float[] yi = new float[xi.Length];
+
             for (int i = 0; i < xi.Length; i++)
             {
-                float x1 = xi[1];
+                float x1 = xi[i];
                 int index = Array.BinarySearch(x, x1);
                 if (index < 0) // if the needle falls within two values in the haystack, search returns bitwise compliment of index of next larger value
                     index = ~index; // take bitwise compliment to get index of next larger value
-                float x0 = x[index--];
+                if (index == 0) // handle edge case where value is less than first element in the lut
+                    index = 1; // interpolate on first two elements in the lut
+                else if (index == x.Length) // handle edge case where value is greater than last element in the lut
+                    index = x.Length - 1; // interpolate on last two elements in the lut
+                float x0 = x[index - 1];
                 float x2 = x[index];
-                float y0 = y[index--];
+                float y0 = y[index - 1];
                 float y2 = y[index];
                 yi[i] = (y2 - y0) / (x2 - x0) * (x1 - x0) + y0;
             }
+
             return yi;
         }
     }
