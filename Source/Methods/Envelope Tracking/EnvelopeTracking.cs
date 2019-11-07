@@ -4,9 +4,8 @@ using NationalInstruments.ModularInstruments.NIRfsg;
 using NationalInstruments.ModularInstruments.SystemServices.TimingServices;
 using System;
 using System.Linq;
-using static NationalInstruments.ReferenceDesignLibraries.SG;
 
-namespace NationalInstruments.ReferenceDesignLibraries
+namespace NationalInstruments.ReferenceDesignLibraries.Methods
 {
     public static class EnvelopeTracking
     {
@@ -96,8 +95,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             Waveform envelopeWaveform = new Waveform()
             {
-                WaveformName = referenceWaveform.WaveformName + "Envelope",
-                WaveformData = referenceWaveform.WaveformData.Clone(),
+                Name = referenceWaveform.Name + "Envelope",
+                Data = referenceWaveform.Data.Clone(),
                 SignalBandwidth_Hz = 0.8 * referenceWaveform.SampleRate,
                 PAPR_dB = double.NaN, // unnecessary to calculate as it won't be used
                 BurstLength_s = double.NaN, // not applicable in ET
@@ -107,10 +106,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom to the waveform at runtime
                 Script = referenceWaveform.Script // we will copy the script but call replace on it in the following lines to change the waveform name
             };
-            envelopeWaveform.Script = envelopeWaveform.Script.Replace(referenceWaveform.WaveformName, envelopeWaveform.WaveformName); // this is better here since now we only have to add the suffix once
-            WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.WaveformData.GetWritableBuffer();
+            envelopeWaveform.Script = envelopeWaveform.Script.Replace(referenceWaveform.Name, envelopeWaveform.Name); // this is better here since now we only have to add the suffix once
+            WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.Data.GetWritableBuffer();
 
-            double[] iqMagnitudes = referenceWaveform.WaveformData.GetMagnitudeDataArray(false);
+            double[] iqMagnitudes = referenceWaveform.Data.GetMagnitudeDataArray(false);
             double detroughRatio = detroughConfig.MinimumVoltage / detroughConfig.MaximumVoltage;
 
             // Waveforms are assumed to be normalized in range [0, 1], so no normalization will happen here
@@ -152,7 +151,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
         public static Waveform CreateEnvelopeWaveform(Waveform referenceWaveform, LookUpTable lookUpTable, double dutAverageInputPower)
         {
-            ComplexSingle[] iq = referenceWaveform.WaveformData.GetRawData(); // get copy of iq samples
+            ComplexSingle[] iq = referenceWaveform.Data.GetRawData(); // get copy of iq samples
             
             /// power conversions needed to understand following scaling:
             /// power_dBW = 20log(V) - 10log(R) - since R is 100 we get power_dBW = 20log(V) - 20
@@ -182,8 +181,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
             // create waveform to return to the user
             Waveform envelopeWaveform = new Waveform()
             {
-                WaveformName = referenceWaveform.WaveformName + "Envelope",
-                WaveformData = referenceWaveform.WaveformData.Clone(),
+                Name = referenceWaveform.Name + "Envelope",
+                Data = referenceWaveform.Data.Clone(),
                 SignalBandwidth_Hz = 0.8 * referenceWaveform.SampleRate,
                 PAPR_dB = double.NaN, // unnecessary to calculate as it won't be used
                 BurstLength_s = double.NaN, // not applicable in ET
@@ -193,8 +192,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom to the waveform at runtime
                 Script = referenceWaveform.Script // we will copy the script but call replace on it in the following lines to change the waveform name
             };
-            envelopeWaveform.Script = envelopeWaveform.Script.Replace(referenceWaveform.WaveformName, envelopeWaveform.WaveformName); // this is better here since now we only have to add the suffix once
-            WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.WaveformData.GetWritableBuffer();
+            envelopeWaveform.Script = envelopeWaveform.Script.Replace(referenceWaveform.Name, envelopeWaveform.Name); // this is better here since now we only have to add the suffix once
+            WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.Data.GetWritableBuffer();
 
             // copy raw envelope data into cloned envelope waveform
             for (int i = 0; i < rawEnvelope.Length; i++)
@@ -218,7 +217,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public static Waveform ScaleAndDownloadEnvelopeWaveform(NIRfsg envVsg, Waveform envelopeWaveform, TrackerConfiguration trackerConfig)
         {
             // grab the raw envelope so we can use linq to get statistics on it
-            ComplexSingle.DecomposeArray(envelopeWaveform.WaveformData.GetRawData(), out float[] envelope, out _);
+            ComplexSingle.DecomposeArray(envelopeWaveform.Data.GetRawData(), out float[] envelope, out _);
 
             // scale envelope to adjust for tracker gain and offset
             for (int i = 0; i < envelope.Length; i++)
@@ -226,8 +225,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             // clone an envelope waveform to return to the user - want unique waveforms per tracker configuration
             Waveform scaledEnvelopeWaveform = envelopeWaveform;
-            scaledEnvelopeWaveform.WaveformData = envelopeWaveform.WaveformData.Clone();
-            WritableBuffer<ComplexSingle> scaledEnvelopeWaveformBuffer = scaledEnvelopeWaveform.WaveformData.GetWritableBuffer();
+            scaledEnvelopeWaveform.Data = envelopeWaveform.Data.Clone();
+            WritableBuffer<ComplexSingle> scaledEnvelopeWaveformBuffer = scaledEnvelopeWaveform.Data.GetWritableBuffer();
 
             // populate cloned waveform with scaled waveform data
             for (int i = 0; i < envelope.Length; i++)
@@ -250,14 +249,14 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             // create another waveform that we can use to download the scaled envelope to the instrument
             Waveform instrEnvelopeWaveform = envelopeWaveform;
-            instrEnvelopeWaveform.WaveformData = envelopeWaveform.WaveformData.Clone();
-            WritableBuffer<ComplexSingle> instrEnvelopeWaveformBuffer = scaledEnvelopeWaveform.WaveformData.GetWritableBuffer();
+            instrEnvelopeWaveform.Data = envelopeWaveform.Data.Clone();
+            WritableBuffer<ComplexSingle> instrEnvelopeWaveformBuffer = scaledEnvelopeWaveform.Data.GetWritableBuffer();
 
             // populate cloned waveform with scaled waveform data
             for (int i = 0; i < envelope.Length; i++)
                 instrEnvelopeWaveformBuffer[i] = ComplexSingle.FromSingle(envelope[i]);
 
-            DownloadWaveform(envVsg, instrEnvelopeWaveform); // download optimized waveform
+            SG.DownloadWaveform(envVsg, instrEnvelopeWaveform); // download optimized waveform
 
             return scaledEnvelopeWaveform; // return the waveform as it will appear coming out of the front end of the envelope generator
         }
