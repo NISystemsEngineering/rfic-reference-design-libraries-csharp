@@ -74,6 +74,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\Common\Common.csproj">
+      <Project>{8e7d5092-b685-4ad3-9da3-7c53e56f0f32}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\SA\RFmx SpecAn\RFmxSpecAn.csproj">
       <Project>{3d1bc0f6-273c-4a44-82f6-3bb933862ffb}</Project>
       <Name>RFmxSpecAn</Name>

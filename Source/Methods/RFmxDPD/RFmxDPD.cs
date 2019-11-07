@@ -101,7 +101,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         {
             RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.False;
             specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Dpd, true);
-            specAn.Dpd.Configuration.ConfigureReferenceWaveform(selectorString, referenceWaveform.WaveformData, idlePresent, commonConfig.SignalType);
+            specAn.Dpd.Configuration.ConfigureReferenceWaveform(selectorString, referenceWaveform.Data, idlePresent, commonConfig.SignalType);
             specAn.Dpd.Configuration.ConfigureDutAverageInputPower(selectorString, commonConfig.DutAverageInputPower_dBm);
             specAn.Dpd.Configuration.ConfigureMeasurementInterval(selectorString, commonConfig.MeasurementInterval_s);
             specAn.Dpd.Configuration.ConfigureMeasurementSampleRate(selectorString, RFmxSpecAnMXDpdMeasurementSampleRateMode.ReferenceWaveform, referenceWaveform.SampleRate);
@@ -137,9 +137,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             {
                 PredistortedWaveform = referenceWaveform,
             };
-            lutResults.PredistortedWaveform.WaveformName = referenceWaveform.WaveformName + "postLutDpd";
-            lutResults.PredistortedWaveform.WaveformData = referenceWaveform.WaveformData.Clone(); // clone waveform so RFmx can't act on reference waveform
-            lutResults.PredistortedWaveform.Script = lutResults.PredistortedWaveform.Script?.Replace(referenceWaveform.WaveformName, lutResults.PredistortedWaveform.WaveformName);
+            lutResults.PredistortedWaveform.Name = referenceWaveform.Name + "postLutDpd";
+            lutResults.PredistortedWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
+            lutResults.PredistortedWaveform.Script = lutResults.PredistortedWaveform.Script?.Replace(referenceWaveform.Name, lutResults.PredistortedWaveform.Name);
             
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
             if (preDpdGenerationStatus == RfsgGenerationStatus.Complete)
@@ -149,7 +149,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
             specAn.WaitForMeasurementComplete(selectorString, 10.0); // wait for LUT creation to finish
             //waveform data and PAPR are overwritten in post DPD waveform
-            specAn.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, referenceWaveform.WaveformData, idlePresent, 10.0, ref lutResults.PredistortedWaveform.WaveformData,
+            specAn.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, referenceWaveform.Data, idlePresent, 10.0, ref lutResults.PredistortedWaveform.Data,
                 out lutResults.PowerResults.WaveformTruePapr_dB, out lutResults.PowerResults.WaveformPowerOffset_dB);
 
             //Waveform's PAPR is modified to adjust the output power of the waveform on a per waveform basis rather than changing the
@@ -174,9 +174,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             {
                 PredistortedWaveform = referenceWaveform
             };
-            mpResults.PredistortedWaveform.WaveformName = referenceWaveform.WaveformName + "postMpDpd";
-            mpResults.PredistortedWaveform.WaveformData = referenceWaveform.WaveformData.Clone(); // clone waveform so RFmx can't act on reference waveform
-            mpResults.PredistortedWaveform.Script = mpResults.PredistortedWaveform.Script?.Replace(referenceWaveform.WaveformName, mpResults.PredistortedWaveform.WaveformName);
+            mpResults.PredistortedWaveform.Name = referenceWaveform.Name + "postMpDpd";
+            mpResults.PredistortedWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
+            mpResults.PredistortedWaveform.Script = mpResults.PredistortedWaveform.Script?.Replace(referenceWaveform.Name, mpResults.PredistortedWaveform.Name);
             
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
 
@@ -190,7 +190,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 specAn.Initiate(selectorString, "");
                 specAn.WaitForMeasurementComplete(selectorString, 10.0); // wait for polynomial coefficients to be calculated
                 //waveform data and PAPR are overwritten in post DPD waveform
-                specAn.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, referenceWaveform.WaveformData, idlePresent, 10.0, ref mpResults.PredistortedWaveform.WaveformData,
+                specAn.Dpd.ApplyDpd.ApplyDigitalPredistortion(selectorString, referenceWaveform.Data, idlePresent, 10.0, ref mpResults.PredistortedWaveform.Data,
                     out mpResults.PowerResults.WaveformTruePapr_dB, out mpResults.PowerResults.WaveformPowerOffset_dB);
                 //Waveform's PAPR is modified to adjust the output power of the waveform on a per waveform basis rather than changing the
                 //user's configured output power on the instrument

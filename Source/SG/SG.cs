@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
@@ -23,7 +24,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double CarrierFrequency_Hz;
             public double DutAverageInputPower_dBm;
             public double ExternalAttenuation_dBm;
-            public bool ShareLOSGToSA;
+            public LocalOscillatorSharingMode LOSharingMode;
+
             public static InstrumentConfiguration GetDefault()
             {
                 return new InstrumentConfiguration()
@@ -31,28 +33,29 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     SelectedPorts = "",
                     ReferenceClockSource = RfsgFrequencyReferenceSource.PxiClock.ToString(),
                     CarrierFrequency_Hz = 1e9,
-                    DutAverageInputPower_dBm = -10,
-                    ExternalAttenuation_dBm = 0,
-                    ShareLOSGToSA = true,
+                    DutAverageInputPower_dBm = -10.0,
+                    ExternalAttenuation_dBm = 0.0,
+                    LOSharingMode = LocalOscillatorSharingMode.Automatic
                 };
             }
-        }
 
-        public struct Waveform
-        {
-            public string WaveformName;
-            public ComplexWaveform<ComplexSingle> WaveformData;
-            public double SignalBandwidth_Hz;
-            public double PAPR_dB;
-            public double BurstLength_s;
-            public double SampleRate;
-            public int[] BurstStartLocations;
-            public int[] BurstStopLocations;
-            public bool IdleDurationPresent;
-            public double RuntimeScaling;
-            public string Script;
+            public static InstrumentConfiguration GetDefault(NIRfsg rfsg)
+            {
+                InstrumentConfiguration instrConfig = GetDefault();
+                string instrumentModel = rfsg.Identity.InstrumentModel;
+                if (Regex.IsMatch(instrumentModel, "NI PXIe-5830"))
+                {
+                    instrConfig.SelectedPorts = "if0";
+                    instrConfig.CarrierFrequency_Hz = 6.5e9;
+                }
+                else if (Regex.IsMatch(instrumentModel, "NI PXIe-5831"))
+                {
+                    instrConfig.SelectedPorts = "rf0/port0";
+                    instrConfig.CarrierFrequency_Hz = 28e9;
+                }
+                return instrConfig;
+            }
         }
-
         public struct WaveformTimingConfiguration
         {
             public double DutyCycle_Percent;
@@ -63,7 +66,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 return new WaveformTimingConfiguration()
                 {
-                    DutyCycle_Percent = 50,
+                    DutyCycle_Percent = 50.0,
                     PreBurstTime_s = 1e-6,
                     PostBurstTime_s = 1e-6,
                     BurstStartTriggerExport = "PXI_Trig0"
@@ -104,18 +107,26 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             rfsgHandle.FrequencyReference.Source = RfsgFrequencyReferenceSource.FromString(instrConfig.ReferenceClockSource);
 
-            if (instrConfig.ShareLOSGToSA)
+            // Only configure LO settings on supported VSTs
+            if (Regex.IsMatch(rfsgHandle.Identity.InstrumentModel, "NI PXIe-58[34].")) // Matches 583x and 584x VST families
             {
-                rfsgHandle.RF.LocalOscillator.LOOutEnabled = true;
-                rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
+                IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+                NIRfsgPlayback.RetrieveAutomaticSGSASharedLO(rfsgPtr, "", out RfsgPlaybackAutomaticSGSASharedLO currentMode);
+                if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.None && currentMode != RfsgPlaybackAutomaticSGSASharedLO.Disabled)
+                {
+                    //Setting this property resets other settings, which can create issues. Hence, it is only set if the value
+                    //is different than the current mode.
+                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Disabled);
+                }
+                else if (instrConfig.LOSharingMode == LocalOscillatorSharingMode.Automatic && currentMode != RfsgPlaybackAutomaticSGSASharedLO.Enabled)
+                {
+                    //Setting this property resets other settings, which can create issues. Hence, it is only set if the value
+                    //is different than the current mode.
+                    NIRfsgPlayback.StoreAutomaticSGSASharedLO(rfsgPtr, "", RfsgPlaybackAutomaticSGSASharedLO.Enabled);
+                }
             }
-            else
-            {
-                rfsgHandle.RF.LocalOscillator.LOOutEnabled = false;
-                // Return to the default value, in case in future modifications the above case changes
-                // this to something other than the default
-                rfsgHandle.RF.LocalOscillator.Source = RfsgLocalOscillatorSource.Onboard;
-            }
+            //Do nothing; any configuration for LOs with standalone VSGs should be configured manually. 
+            //Baseband instruments don't have LOs. Unsupported VSTs must be configured manually.
         }
 
         public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "")
@@ -128,23 +139,23 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 waveformName = Utilities.FormatWaveformName(waveformName);
             }
 
-            waveform.WaveformName = waveformName;
-            NIRfsgPlayback.ReadWaveformFromFileComplex(filePath, ref waveform.WaveformData);
+            waveform.Name = waveformName;
+            NIRfsgPlayback.ReadWaveformFromFileComplex(filePath, ref waveform.Data);
             NIRfsgPlayback.ReadWaveformFileVersionFromFile(filePath, out string waveformVersion);
 
             if (waveformVersion == "1.0.0")
             {
                 // 1.0.0 waveforms use peak power adjustment = papr + runtime scaling
                 // we will scale the waveform and calculate papr and runtime scaling manually
-                float peak = ComplexSingle.GetMagnitudes(waveform.WaveformData.GetRawData()).Max();
+                float peak = ComplexSingle.GetMagnitudes(waveform.Data.GetRawData()).Max();
                 waveform.RuntimeScaling = 20.0 * Math.Log10(peak);
                 NIRfsgPlayback.ReadPeakPowerAdjustmentFromFile(filePath, 0, out double peakPowerAdjustment);
                 waveform.PAPR_dB = peakPowerAdjustment + waveform.RuntimeScaling;
 
                 // scale the waveform to full scale
-                WritableBuffer<ComplexSingle> waveformBuffer = waveform.WaveformData.GetWritableBuffer();
+                WritableBuffer<ComplexSingle> waveformBuffer = waveform.Data.GetWritableBuffer();
                 ComplexSingle scale = ComplexSingle.FromPolar(1.0f / peak, 0.0f);
-                for (int i = 0; i < waveform.WaveformData.SampleCount; i++)
+                for (int i = 0; i < waveform.Data.SampleCount; i++)
                     waveformBuffer[i] = waveformBuffer[i] * scale; // multiplication is faster than division
             }
             else
@@ -165,10 +176,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
             if (!(waveform.BurstStartLocations?.Length > 0))
                 waveform.BurstStartLocations = new int[1] { 0 }; //Set burst start to the first sample(0)
             if (!(waveform.BurstStopLocations?.Length > 0))
-                waveform.BurstStopLocations = new int[1] { waveform.WaveformData.SampleCount - 1 }; //Set burst stop to the last sample (number of samples minus one)
+                waveform.BurstStopLocations = new int[1] { waveform.Data.SampleCount - 1 }; //Set burst stop to the last sample (number of samples minus one)
 
             // calculating IdleDurationPresent like this also accounts for tools like wlan sfp that put in burst start and stop locations even if there is no idle time in the waveform
-            waveform.IdleDurationPresent = waveform.BurstStopLocations.First() - waveform.BurstStartLocations.First() < waveform.WaveformData.SampleCount - 1;
+            waveform.IdleDurationPresent = waveform.BurstStopLocations.First() - waveform.BurstStartLocations.First() < waveform.Data.SampleCount - 1;
 
             waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
 
@@ -182,7 +193,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             try
             {
-                rfsgHandle.Arb.ClearWaveform(waveform.WaveformName); //Clear existing waveform to avoid erros
+                rfsgHandle.Arb.ClearWaveform(waveform.Name); //Clear existing waveform to avoid erros
             }
             catch (Exception ex)
             {
@@ -192,20 +203,20 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
 
             rfsgHandle.RF.PowerLevelType = RfsgRFPowerLevelType.PeakPower; // set power level to peak before writing so RFSG doesn't scale waveform
-            rfsgHandle.Arb.WriteWaveform(waveform.WaveformName, waveform.WaveformData);
+            rfsgHandle.Arb.WriteWaveform(waveform.Name, waveform.Data);
 
             //Store loaded parameters
-            NIRfsgPlayback.StoreWaveformSignalBandwidth(rfsgPtr, waveform.WaveformName, waveform.SignalBandwidth_Hz);
-            NIRfsgPlayback.StoreWaveformPapr(rfsgPtr, waveform.WaveformName, waveform.PAPR_dB);
-            NIRfsgPlayback.StoreWaveformBurstStartLocations(rfsgPtr, waveform.WaveformName, waveform.BurstStartLocations);
-            NIRfsgPlayback.StoreWaveformBurstStopLocations(rfsgPtr, waveform.WaveformName, waveform.BurstStopLocations);
-            NIRfsgPlayback.StoreWaveformSampleRate(rfsgPtr, waveform.WaveformName, waveform.SampleRate);
-            NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.WaveformName, waveform.RuntimeScaling);
-            NIRfsgPlayback.StoreWaveformSize(rfsgPtr, waveform.WaveformName, waveform.WaveformData.SampleCount);
+            NIRfsgPlayback.StoreWaveformSignalBandwidth(rfsgPtr, waveform.Name, waveform.SignalBandwidth_Hz);
+            NIRfsgPlayback.StoreWaveformPapr(rfsgPtr, waveform.Name, waveform.PAPR_dB);
+            NIRfsgPlayback.StoreWaveformBurstStartLocations(rfsgPtr, waveform.Name, waveform.BurstStartLocations);
+            NIRfsgPlayback.StoreWaveformBurstStopLocations(rfsgPtr, waveform.Name, waveform.BurstStopLocations);
+            NIRfsgPlayback.StoreWaveformSampleRate(rfsgPtr, waveform.Name, waveform.SampleRate);
+            NIRfsgPlayback.StoreWaveformRuntimeScaling(rfsgPtr, waveform.Name, waveform.RuntimeScaling);
+            NIRfsgPlayback.StoreWaveformSize(rfsgPtr, waveform.Name, waveform.Data.SampleCount);
 
             //Manually configure additional settings
-            NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.WaveformName, NIRfsgPlaybackLOOffsetMode.Disabled);
-            NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.WaveformName, false);
+            NIRfsgPlayback.StoreWaveformLOOffsetMode(rfsgPtr, waveform.Name, NIRfsgPlaybackLOOffsetMode.Auto);
+            NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.Name, false);
         }
 
         public static Waveform ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string markerEventExportTerminal = "PXI_Trig0")
@@ -220,9 +231,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
 
             // Create continuous generation script that is unique to the waveform
-            waveform.Script = $@"script REPEAT{waveform.WaveformName}
+            waveform.Script = $@"script REPEAT{waveform.Name}
                                     repeat until ScriptTrigger0
-                                        generate {waveform.WaveformName} marker0(0)
+                                        generate {waveform.Name} marker0(0)
                                     end repeat
                                 end script";
 
@@ -236,11 +247,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public static Waveform ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
-            string scriptName = string.Format("{0}{1}", waveform.WaveformName, waveTiming.DutyCycle_Percent);
+            string scriptName = string.Format("{0}{1}", waveform.Name, waveTiming.DutyCycle_Percent);
 
             if (waveTiming.DutyCycle_Percent <= 0)
             {
-                throw new System.ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
+                throw new ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
             }
 
             //Calculate various timining information
@@ -292,7 +303,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             sb.AppendLine($"wait {preBurstSamp}");
 
             //Configure generation of the selected waveform but only for the burst length; send a trigger at the beginning of each burst
-            sb.Append($"generate {waveform.WaveformName} subset({waveform.BurstStartLocations[0]},{waveform.BurstStopLocations[0]}) marker0(0)");
+            sb.Append($"generate {waveform.Name} subset({waveform.BurstStartLocations[0]},{waveform.BurstStopLocations[0]}) marker0(0)");
 
             //Check to see if the command time is longer than the post-burst time, which determines when the PA disable command needs sent
             bool LongCommand = waveTiming.PostBurstTime_s <= paenConfig.CommandDisableTime_s;
@@ -369,7 +380,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             Waveform waveform = new Waveform
             {
-                WaveformName = waveformName
+                Name = waveformName
             };
 
             NIRfsgPlayback.RetrieveWaveformSignalBandwidth(rfsgPtr, waveformName, out waveform.SignalBandwidth_Hz);
