@@ -232,8 +232,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public static void ConfigureTxP(RFmxWlanMX wlanSignal, TxPConfiguration txPConfig, string selectorString = "")
         {
 
-            wlanSignal.Txp.Configuration.SetMeasurementEnabled(selectorString, true);
-            wlanSignal.Txp.Configuration.SetAllTracesEnabled(selectorString, true);
+            wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.Txp, false);
             //Disabled because we are triggering by default
             wlanSignal.Txp.Configuration.SetBurstDetectionEnabled(selectorString, RFmxWlanMXTxpBurstDetectionEnabled.False);
 
@@ -242,13 +241,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         public static void ConfigureOFDMModAcc(RFmxWlanMX wlanSignal, OFDMModAccConfiguration modAccConfig, string selectorString = "")
         {
-            RFmxWlanMXOfdmModAccAcquisitionLengthMode acMode;
+            wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.OfdmModAcc, false);
 
+            RFmxWlanMXOfdmModAccAcquisitionLengthMode acMode;
             if (modAccConfig.AcquisitionLength_s == 0) acMode = RFmxWlanMXOfdmModAccAcquisitionLengthMode.Auto;
             else acMode = RFmxWlanMXOfdmModAccAcquisitionLengthMode.Manual;
-
-            wlanSignal.OfdmModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
-            wlanSignal.OfdmModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
 
             wlanSignal.OfdmModAcc.Configuration.ConfigureAcquisitionLength(selectorString, acMode, modAccConfig.AcquisitionLength_s);
             wlanSignal.OfdmModAcc.Configuration.ConfigureMeasurementLength(selectorString,
@@ -326,10 +323,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureSEM(RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
         {
-            //Ensure that the measurement and traces are enabled
-            wlanSignal.Sem.Configuration.SetMeasurementEnabled(selectorString, true);
-            wlanSignal.Sem.Configuration.SetAllTracesEnabled(selectorString, true);
-
+            wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.Sem, false);
             wlanSignal.Sem.Configuration.ConfigureSweepTime(selectorString, semConfig.SweepTimeAuto, semConfig.SweepTime_s);
             wlanSignal.Sem.Configuration.ConfigureAveraging(selectorString, semConfig.AveragingEnabled, semConfig.AveragingCount, semConfig.AveragingType);
             wlanSignal.Sem.Configuration.ConfigureSpan(selectorString, semConfig.SpanAuto, semConfig.Span_Hz);

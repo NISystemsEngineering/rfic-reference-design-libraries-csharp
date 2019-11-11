@@ -246,7 +246,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
 
-        #region Measurement Configuration
+        #region Measurement Conffiguration
         public static void ConfigureSignal(RFmxNRMX nr, SignalConfiguration signalConfig, string selectorString = "")
         {
             nr.SetComponentCarrierSpacingType(selectorString, RFmxNRMXComponentCarrierSpacingType.Nominal); // nominal is assumed
@@ -280,8 +280,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureModacc(RFmxNRMX nr, ModAccConfiguration modAccConfig, string selectorString = "")
         {
-            nr.ModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
-            nr.ModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
+            nr.SelectMeasurements(selectorString, RFmxNRMXMeasurementTypes.ModAcc, false);
             nr.ModAcc.Configuration.SetMeasurementLengthUnit(selectorString, modAccConfig.MeasurementLengthUnit);
             nr.ModAcc.Configuration.SetMeasurementOffset(selectorString, modAccConfig.MeasurementOffset);
             nr.ModAcc.Configuration.SetMeasurementLength(selectorString, modAccConfig.MeasurementLength);
@@ -292,8 +291,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureAcp(RFmxNRMX nr, AcpConfiguration acpConfig, string selectorString = "")
         {
-            nr.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
-            nr.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
+            nr.SelectMeasurements(selectorString, RFmxNRMXMeasurementTypes.Acp, false);
             nr.Acp.Configuration.ConfigureNumberOfUtraOffsets(selectorString, acpConfig.NumberOfUtraOffsets);
             nr.Acp.Configuration.ConfigureNumberOfEutraOffsets(selectorString, acpConfig.NumberOfEutraOffsets);
             nr.Acp.Configuration.ConfigureNumberOfNROffsets(selectorString, acpConfig.NumberOfNrOffsets);
@@ -306,8 +304,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureChp(RFmxNRMX nr, ChpConfiguration chpConfig, string selectorString = "")
         {
-            nr.Chp.Configuration.SetMeasurementEnabled(selectorString, true);
-            nr.Chp.Configuration.SetAllTracesEnabled(selectorString, true);
+            nr.SelectMeasurements(selectorString, RFmxNRMXMeasurementTypes.Chp, false);
             nr.Chp.Configuration.ConfigureSweepTime(selectorString, chpConfig.SweepTimeAuto, chpConfig.SweepTimeInterval_s);
             nr.Chp.Configuration.ConfigureAveraging(selectorString, chpConfig.AveragingEnabled, chpConfig.AveragingCount, chpConfig.AveragingType);
         }

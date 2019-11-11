@@ -231,8 +231,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureTxp(RFmxSpecAnMX specAn, TxpConfiguration txpConfig, string selectorString = "")
         {
-            specAn.Txp.Configuration.SetMeasurementEnabled(selectorString, true);
-            specAn.Txp.Configuration.SetAllTracesEnabled(selectorString, true);
+            specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Txp, false);
             specAn.Txp.Configuration.SetMeasurementInterval(selectorString, txpConfig.MeasurementInterval_s);
             specAn.Txp.Configuration.ConfigureRbwFilter(selectorString, txpConfig.Rbw_Hz, txpConfig.RbwFilterType, txpConfig.RrcAlpha);
             specAn.Txp.Configuration.ConfigureAveraging(selectorString, txpConfig.AveragingEnabled, txpConfig.AveragingCount, txpConfig.AveragingType);
@@ -240,8 +239,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureAcp(RFmxSpecAnMX specAn, AcpConfiguration acpConfig, string selectorString = "")
         {
-            specAn.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
-            specAn.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
+            specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Acp, false);
             specAn.Acp.Configuration.ConfigurePowerUnits(selectorString, acpConfig.PowerUnits);
             specAn.Acp.Configuration.ConfigureAveraging(selectorString, acpConfig.AveragingEnabled, acpConfig.AveragingCount, acpConfig.AveragingType);
             specAn.Acp.Configuration.ConfigureFft(selectorString, acpConfig.FftWindow, acpConfig.FftPadding);
@@ -274,8 +272,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureAmpm(RFmxSpecAnMX specAn, AmpmConfiguration ampmConfig, string selectorString = "")
         {
-            specAn.Ampm.Configuration.SetMeasurementEnabled(selectorString, true);
-            specAn.Ampm.Configuration.SetAllTracesEnabled(selectorString, true);
+            specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Ampm, false);
             specAn.Ampm.Configuration.ConfigureMeasurementInterval(selectorString, ampmConfig.MeasurementInterval_s);
             specAn.Ampm.Configuration.ConfigureDutAverageInputPower(selectorString, ampmConfig.DutAverageInputPower_dBm);
             RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent idleDurationPresent = ampmConfig.ReferenceWaveform.IdleDurationPresent ? RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent.False;

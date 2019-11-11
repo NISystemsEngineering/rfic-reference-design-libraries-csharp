@@ -213,8 +213,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureAcp(RFmxLteMX lte, AcpConfiguration acpConfig, string selectorString = "")
         {
-            lte.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
-            lte.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
+            lte.SelectMeasurements(selectorString, RFmxLteMXMeasurementTypes.Acp, false);
             lte.Acp.Configuration.ConfigureNumberOfEutraOffsets(selectorString, acpConfig.NumberOfEutraOffsets);
             lte.Acp.Configuration.ConfigureNumberOfUtraOffsets(selectorString, acpConfig.NumberOfUtraOffsets);
             lte.Acp.Configuration.ConfigureNumberOfGsmOffsets(selectorString, acpConfig.NumberOfGsmOffsets);
@@ -225,8 +224,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureModAcc(RFmxLteMX lte, ModAccConfiguration modAccConfig, string selectorString = "")
         {
-            lte.ModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
-            lte.ModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
+            lte.SelectMeasurements(selectorString, RFmxLteMXMeasurementTypes.ModAcc, false);
             lte.ModAcc.Configuration.ConfigureAveraging(selectorString, modAccConfig.AveragingEnabled, modAccConfig.AveragingCount);
             lte.ModAcc.Configuration.ConfigureSynchronizationModeAndInterval(selectorString, modAccConfig.SynchronizationMode, modAccConfig.MeasurementOffset, modAccConfig.MeasurementLength);
             lte.ModAcc.Configuration.ConfigureEvmUnit(selectorString, modAccConfig.EvmUnit);
