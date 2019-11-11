@@ -19,7 +19,7 @@ namespace LTETests
             RFmxInstrMX instr = new RFmxInstrMX("", "AnalysisOnly=1");
             RFmxLteMX lte = instr.GetLteSignalConfiguration();
 
-            ConfigureCommon(instr, lte, CommonConfiguration.GetDefault());
+            ConfigureCommon(lte, SACommonConfiguration.GetDefault());
             SignalConfiguration signalConfig = SignalConfiguration.GetDefault();
             signalConfig.DuplexScheme = RFmxLteMXDuplexScheme.Tdd;
             ConfigureSignal(lte, signalConfig);
