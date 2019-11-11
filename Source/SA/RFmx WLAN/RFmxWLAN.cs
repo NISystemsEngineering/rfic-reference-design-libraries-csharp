@@ -263,7 +263,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             //The following values are defaults, but called out explicitly for clarity
             wlanSignal.OfdmModAcc.Configuration.SetEvmUnit(selectorString, RFmxWlanMXOfdmModAccEvmUnit.dB);
-            wlanSignal.OfdmModAcc.Configuration.ConfigureChannelEstimationType(selectorString, RFmxWlanMXOfdmModAccChannelEstimationType.ChannelEstimationReference);
+            wlanSignal.OfdmModAcc.Configuration.ConfigureChannelEstimationType(selectorString, RFmxWlanMXOfdmModAccChannelEstimationType.Reference);
             wlanSignal.OfdmModAcc.Configuration.SetBurstStartDetectionEnabled(selectorString, RFmxWlanMXOfdmModAccBurstStartDetectionEnabled.False); //Triggering, so no burst detection
             wlanSignal.OfdmModAcc.Configuration.SetAmplitudeTrackingEnabled(selectorString, RFmxWlanMXOfdmModAccAmplitudeTrackingEnabled.False);
             wlanSignal.OfdmModAcc.Configuration.SetPhaseTrackingEnabled(selectorString, RFmxWlanMXOfdmModAccPhaseTrackingEnabled.False);
