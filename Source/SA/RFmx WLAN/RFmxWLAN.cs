@@ -65,7 +65,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             public double AveragePowerMean_dBm;
             public double PeakPowerMaximum_dBm;
-            public AnalogWaveform<float> PowerVsTime;
         }
         public struct OFDMModAccConfiguration
         {
@@ -93,8 +92,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public struct OFDMModAccResults
         {
-            public AnalogWaveform<float> EVMperSymbolTrace;
-            public ComplexSingle[] DataConstellation;
             public double CompositeRMSEVMMean_dB;
             public double CompositeDataRMSEVMMean_dB;
             public double CompositePilotRMSEVMMean_dB;
@@ -200,8 +197,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public static void ConfigureTxP(RFmxWlanMX wlanSignal, TxPConfiguration txPConfig, string selectorString = "")
         {
 
-            wlanSignal.Txp.Configuration.SetMeasurementEnabled(selectorString, true);
-            wlanSignal.Txp.Configuration.SetAllTracesEnabled(selectorString, true);
+            wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.Txp, false);
             //Disabled because we are triggering by default
             wlanSignal.Txp.Configuration.SetBurstDetectionEnabled(selectorString, RFmxWlanMXTxpBurstDetectionEnabled.False);
 
@@ -210,13 +206,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         public static void ConfigureOFDMModAcc(RFmxWlanMX wlanSignal, OFDMModAccConfiguration modAccConfig, string selectorString = "")
         {
-            RFmxWlanMXOfdmModAccAcquisitionLengthMode acMode;
+            wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.OfdmModAcc, false);
 
+            RFmxWlanMXOfdmModAccAcquisitionLengthMode acMode;
             if (modAccConfig.AcquisitionLength_s == 0) acMode = RFmxWlanMXOfdmModAccAcquisitionLengthMode.Auto;
             else acMode = RFmxWlanMXOfdmModAccAcquisitionLengthMode.Manual;
-
-            wlanSignal.OfdmModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
-            wlanSignal.OfdmModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
 
             wlanSignal.OfdmModAcc.Configuration.ConfigureAcquisitionLength(selectorString, acMode, modAccConfig.AcquisitionLength_s);
             wlanSignal.OfdmModAcc.Configuration.ConfigureMeasurementLength(selectorString,
@@ -234,7 +228,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
             //The following values are defaults, but called out explicitly for clarity
             wlanSignal.OfdmModAcc.Configuration.SetEvmUnit(selectorString, RFmxWlanMXOfdmModAccEvmUnit.dB);
-            wlanSignal.OfdmModAcc.Configuration.ConfigureChannelEstimationType(selectorString, RFmxWlanMXOfdmModAccChannelEstimationType.ChannelEstimationReference);
+            wlanSignal.OfdmModAcc.Configuration.ConfigureChannelEstimationType(selectorString, RFmxWlanMXOfdmModAccChannelEstimationType.Reference);
             wlanSignal.OfdmModAcc.Configuration.SetBurstStartDetectionEnabled(selectorString, RFmxWlanMXOfdmModAccBurstStartDetectionEnabled.False); //Triggering, so no burst detection
             wlanSignal.OfdmModAcc.Configuration.SetAmplitudeTrackingEnabled(selectorString, RFmxWlanMXOfdmModAccAmplitudeTrackingEnabled.False);
             wlanSignal.OfdmModAcc.Configuration.SetPhaseTrackingEnabled(selectorString, RFmxWlanMXOfdmModAccPhaseTrackingEnabled.False);
@@ -294,10 +288,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureSEM(RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
         {
-            //Ensure that the measurement and traces are enabled
-            wlanSignal.Sem.Configuration.SetMeasurementEnabled(selectorString, true);
-            wlanSignal.Sem.Configuration.SetAllTracesEnabled(selectorString, true);
-
+            wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.Sem, false);
             wlanSignal.Sem.Configuration.ConfigureSweepTime(selectorString, semConfig.SweepTimeAuto, semConfig.SweepTime_s);
             wlanSignal.Sem.Configuration.ConfigureAveraging(selectorString, semConfig.AveragingEnabled, semConfig.AveragingCount, semConfig.AveragingType);
             wlanSignal.Sem.Configuration.ConfigureSpan(selectorString, semConfig.SpanAuto, semConfig.Span_Hz);
@@ -311,7 +302,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             TxPResults txpResults = new TxPResults();
 
-            wlanSignal.Txp.Results.FetchPowerTrace(selectorString, 10, ref txpResults.PowerVsTime);
             wlanSignal.Txp.Results.FetchMeasurement(selectorString, 10, out txpResults.AveragePowerMean_dBm, out txpResults.PeakPowerMaximum_dBm);
 
             return txpResults;
@@ -320,8 +310,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         public static OFDMModAccResults FetchOFDMModAcc(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             OFDMModAccResults modAccResults = new OFDMModAccResults();
-            wlanSignal.OfdmModAcc.Results.FetchChainRmsEvmPerSymbolMeanTrace(selectorString, 10, ref modAccResults.EVMperSymbolTrace);
-            wlanSignal.OfdmModAcc.Results.FetchDataConstellationTrace(selectorString, 10, ref modAccResults.DataConstellation);
             wlanSignal.OfdmModAcc.Results.FetchCompositeRmsEvm(selectorString, 10, out modAccResults.CompositeRMSEVMMean_dB,
                 out modAccResults.CompositeDataRMSEVMMean_dB, out modAccResults.CompositePilotRMSEVMMean_dB);
             wlanSignal.OfdmModAcc.Results.FetchNumberOfSymbolsUsed(selectorString, 10, out modAccResults.NumberOfSymbolsUsed);
