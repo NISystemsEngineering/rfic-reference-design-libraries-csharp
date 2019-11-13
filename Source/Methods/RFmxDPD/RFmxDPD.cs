@@ -9,15 +9,15 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         #region Type Definitionss
         public struct PreDpdCrestFactorReductionCarrierChannel
         {
-            public double Offset;
-            public double Bandwidth;
+            public double Offset_Hz;
+            public double Bandwidth_Hz;
 
             public static PreDpdCrestFactorReductionCarrierChannel GetDefault()
             {
                 return new PreDpdCrestFactorReductionCarrierChannel
                 {
-                    Offset = 0.000,
-                    Bandwidth = 20e6
+                    Offset_Hz = 0.000,
+                    Bandwidth_Hz = 20e6
                 };
             }
         }
@@ -194,8 +194,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             for (int i = 0; i < preDpdCfr.CarrierChannels.Length; i++)
             {
                 carrierString = RFmxSpecAnMX.BuildCarrierString2(selectorString, i);
-                specAn.Dpd.PreDpd.SetCarrierOffset(carrierString, preDpdCfr.CarrierChannels[i].Offset);
-                specAn.Dpd.PreDpd.SetCarrierBandwidth(carrierString, preDpdCfr.CarrierChannels[i].Bandwidth);
+                specAn.Dpd.PreDpd.SetCarrierOffset(carrierString, preDpdCfr.CarrierChannels[i].Offset_Hz);
+                specAn.Dpd.PreDpd.SetCarrierBandwidth(carrierString, preDpdCfr.CarrierChannels[i].Bandwidth_Hz);
             }
 
             // Apply CFR and return
