@@ -38,7 +38,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             {
                 return new PreDpdCrestFactorReduction
                 {
-                    Enabled = RFmxSpecAnMXDpdPreDpdCfrEnabled.False,
+                    Enabled = RFmxSpecAnMXDpdPreDpdCfrEnabled.True,
                     Method = RFmxSpecAnMXDpdPreDpdCfrMethod.Clipping,
                     MaxIterations = 10,
                     TargetPapr_dB = 8,
