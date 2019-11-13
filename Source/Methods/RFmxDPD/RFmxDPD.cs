@@ -6,7 +6,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
 {
     public static class RFmxDPD
     {
-        #region Type Definitionss
+        #region Type Definitions
         public struct PreDpdCrestFactorReductionCarrierChannel
         {
             public double Offset_Hz;
@@ -172,9 +172,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         {
             // Configure the new waveform
             Waveform preDpdCfrWaveform = referenceWaveform;
-            preDpdCfrWaveform.Name = referenceWaveform.Name + "preDPDCFR";
             preDpdCfrWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
-            preDpdCfrWaveform.Script = preDpdCfrWaveform.Script?.Replace(referenceWaveform.Name, preDpdCfrWaveform.Name);
+            preDpdCfrWaveform.UpdateWaveformNameAndScript(referenceWaveform.Name + "preDPDCFR");
 
             //Configure Pre-DPD CFR             
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent preDpdCfrIdlePresent = preDpdCfrWaveform.IdleDurationPresent ?
@@ -255,9 +254,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             {
                 PredistortedWaveform = referenceWaveform,
             };
-            lutResults.PredistortedWaveform.Name = referenceWaveform.Name + "postLutDpd";
             lutResults.PredistortedWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
-            lutResults.PredistortedWaveform.Script = lutResults.PredistortedWaveform.Script?.Replace(referenceWaveform.Name, lutResults.PredistortedWaveform.Name);
+            lutResults.PredistortedWaveform.UpdateWaveformNameAndScript(referenceWaveform.Name + "postLutDpd");
 
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
             if (preDpdGenerationStatus == RfsgGenerationStatus.Complete)
@@ -292,9 +290,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             {
                 PredistortedWaveform = referenceWaveform
             };
-            mpResults.PredistortedWaveform.Name = referenceWaveform.Name + "postMpDpd";
             mpResults.PredistortedWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
-            mpResults.PredistortedWaveform.Script = mpResults.PredistortedWaveform.Script?.Replace(referenceWaveform.Name, mpResults.PredistortedWaveform.Name);
+            mpResults.PredistortedWaveform.UpdateWaveformNameAndScript(referenceWaveform.Name + "postMpDpd");
 
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
 

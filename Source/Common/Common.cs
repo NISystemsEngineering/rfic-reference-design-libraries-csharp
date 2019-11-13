@@ -44,6 +44,13 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public bool IdleDurationPresent;
         public double RuntimeScaling;
         public string Script;
+
+        public void UpdateWaveformNameAndScript(string newName)
+        {
+            // Update the script with the new waveform name
+            Script = Script?.Replace(Name, newName);
+            Name = newName;
+        }
     }
     public enum LocalOscillatorSharingMode
     {
