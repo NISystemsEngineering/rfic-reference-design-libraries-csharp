@@ -12,7 +12,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region Type_Definitionss
         public struct SignalConfiguration
         {
-            public bool AutoDetectSignal;
             public RFmxWlanMXStandard Standard;
             public double ChannelBandwidth_Hz;
 
@@ -20,7 +19,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             {
                 return new SignalConfiguration
                 {
-                    AutoDetectSignal = true,
                     Standard = RFmxWlanMXStandard.Standard802_11ac,
                     ChannelBandwidth_Hz = 20e6
                 };
@@ -177,20 +175,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region Measurement Configuration
         public static void ConfigureSignal(RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
         {
-            RFmxWlanMXStandard standard = signalConfig.Standard;
-            double bandwdidth = signalConfig.ChannelBandwidth_Hz;
-            if (signalConfig.AutoDetectSignal)
-            {
-                wlanSignal.AutoDetectSignal(selectorString, 10);
-
-                wlanSignal.GetDetectedStandard(selectorString, out int standard_int);
-                standard = (RFmxWlanMXStandard)standard_int;
-                if (standard == RFmxWlanMXStandard.Unknown) throw new RFmxException("RFmx atuomatic signal detection failed. Check the input signal and try again.");
-
-                wlanSignal.GetDetectedChannelBandwidth(selectorString, out bandwdidth);
-            }
-            wlanSignal.ConfigureStandard(selectorString, (RFmxWlanMXStandard)standard);
-            wlanSignal.ConfigureChannelBandwidth(selectorString, bandwdidth);
+            wlanSignal.ConfigureStandard(selectorString, signalConfig.Standard);
+            wlanSignal.ConfigureChannelBandwidth(selectorString, signalConfig.ChannelBandwidth_Hz);
         }
 
         public static void ConfigureTxP(RFmxWlanMX wlanSignal, TxPConfiguration txPConfig, string selectorString = "")
