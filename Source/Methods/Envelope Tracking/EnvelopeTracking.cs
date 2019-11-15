@@ -94,7 +94,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom to the waveform at runtime
                 Script = referenceWaveform.Script // we will copy the script but call replace on it in the following lines to change the waveform name
             };
-            envelopeWaveform.Script = envelopeWaveform.Script.Replace(referenceWaveform.Name, envelopeWaveform.Name); // this is better here since now we only have to add the suffix once
+            envelopeWaveform.Script = envelopeWaveform.Script?.Replace(referenceWaveform.Name, envelopeWaveform.Name); // this is better here since now we only have to add the suffix once
             WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.Data.GetWritableBuffer();
 
             double[] iqMagnitudes = referenceWaveform.Data.GetMagnitudeDataArray(false);
@@ -183,7 +183,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom to the waveform at runtime
                 Script = referenceWaveform.Script // we will copy the script but call replace on it in the following lines to change the waveform name
             };
-            envelopeWaveform.Script = envelopeWaveform.Script.Replace(referenceWaveform.Name, envelopeWaveform.Name); // this is better here since now we only have to add the suffix once
+            envelopeWaveform.Script = envelopeWaveform.Script?.Replace(referenceWaveform.Name, envelopeWaveform.Name); // this is better here since now we only have to add the suffix once
             WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.Data.GetWritableBuffer();
 
             // copy raw envelope data into cloned envelope waveform
