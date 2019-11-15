@@ -205,9 +205,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nr.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             nr.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
             nr.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxNRMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
-
-            if (commonConfig.AutoLevelEnabled)
-                nr.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s, out _);
         }
         #endregion
 

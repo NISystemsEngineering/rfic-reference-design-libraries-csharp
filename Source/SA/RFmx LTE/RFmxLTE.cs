@@ -155,8 +155,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             lte.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             lte.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
             lte.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxLteMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
-            if (commonConfig.AutoLevelEnabled)
-                lte.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s, out double _);
         }
         #endregion
 

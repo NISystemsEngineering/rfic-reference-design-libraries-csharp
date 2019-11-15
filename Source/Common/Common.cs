@@ -11,9 +11,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public bool EnableTrigger;
         public string DigitalTriggerSource;
         public double TriggerDelay_s;
-        public bool AutoLevelEnabled;
-        public double AutoLevelMeasurementInterval_s;
-        public double AutoLevelBandwidth_Hz;
         public static SACommonConfiguration GetDefault()
         {
             return new SACommonConfiguration
@@ -25,9 +22,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 EnableTrigger = true,
                 DigitalTriggerSource = "PXI_Trig0",
                 TriggerDelay_s = 0,
-                AutoLevelEnabled = false,
-                AutoLevelMeasurementInterval_s = 10e-3,
-                AutoLevelBandwidth_Hz = 20e6
             };
         }
     }

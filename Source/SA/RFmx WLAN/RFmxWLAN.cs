@@ -172,7 +172,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
             wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxWlanMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
-            if (commonConfig.AutoLevelEnabled) wlanSignal.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s);
         }
         #endregion
         #region Measurement Configuration
