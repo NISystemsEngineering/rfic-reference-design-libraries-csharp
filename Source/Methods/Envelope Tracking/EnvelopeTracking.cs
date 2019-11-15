@@ -78,7 +78,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         #endregion
 
         #region Envelope Creation
-        public static Waveform CreateEnvelopeWaveform(Waveform referenceWaveform, DetroughConfiguration detroughConfig)
+        public static Waveform ConfigureEnvelopeWaveform(Waveform referenceWaveform, DetroughConfiguration detroughConfig)
         {
             Waveform envelopeWaveform = new Waveform()
             {
@@ -136,7 +136,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             return envelopeWaveform;
         }
 
-        public static Waveform CreateEnvelopeWaveform(Waveform referenceWaveform, LookUpTable lookUpTable, double dutAverageInputPower)
+        public static Waveform ConfigureEnvelopeWaveform(Waveform referenceWaveform, LookUpTable lookUpTable, double dutAverageInputPower)
         {
             ComplexSingle[] iq = referenceWaveform.Data.GetRawData(); // get copy of iq samples
             
