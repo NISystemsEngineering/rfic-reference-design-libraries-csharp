@@ -89,7 +89,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 BurstLength_s = referenceWaveform.BurstLength_s,
                 SampleRate = referenceWaveform.SampleRate,
                 // burst start and stop locations will be left as null since they also will not be used
-                IdleDurationPresent = referenceWaveform.IdleDurationPresent, // can't null a bool, so copy from reference waveform
+                // IdleDurationPresent will not be touched since the concept of idle time doesn't follow RF waveforms, it will default to false
                 RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom to the waveform at runtime
                 Script = referenceWaveform.Script // we will copy the script but call replace on it in the following lines to change the waveform name
             };
@@ -175,7 +175,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 BurstLength_s = referenceWaveform.BurstLength_s,
                 SampleRate = referenceWaveform.SampleRate,
                 // burst start and stop locations will be left as null since they also will not be used
-                IdleDurationPresent = referenceWaveform.IdleDurationPresent, // can't null a bool, so copy from reference waveform
+                // IdleDurationPresent will not be touched since the concept of idle time doesn't follow RF waveforms, it will default to false
                 RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom to the waveform at runtime
                 Script = referenceWaveform.Script // we will copy the script but call replace on it in the following lines to change the waveform name
             };
