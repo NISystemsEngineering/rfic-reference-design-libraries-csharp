@@ -108,7 +108,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                     for (int i = 0; i < envWfmWriteBuffer.Size; i++)
                     {
                         double sampleValue = iqMagnitudes[i] + detroughRatio * Math.Exp(-iqMagnitudes[i] / detroughRatio);
-                        envWfmWriteBuffer[i] = ComplexSingle.FromSingle((float)(detroughConfig.MaximumVoltage_V * sampleValue / expScale)); // Scale detrough to Vmax. Divide by detroughed waveform's max value to normalize. IQMagnitude's max value is 1
+                        // Scale detrough to Vmax. Divide by detroughed waveform's max value to normalize. IQMagnitude's max value is 1
+                        envWfmWriteBuffer[i] = ComplexSingle.FromSingle((float)(detroughConfig.MaximumVoltage_V * sampleValue / expScale));
                     }
                     break;
                 case DetroughType.Cosine:
@@ -117,7 +118,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                     for (int i = 0; i < envWfmWriteBuffer.Size; i++)
                     {
                         double sampleValue = 1 - (1 - detroughRatio) * Math.Cos(iqMagnitudes[i] * cosScale);
-                        envWfmWriteBuffer[i] = ComplexSingle.FromSingle((float)(detroughConfig.MaximumVoltage_V * sampleValue / cosScale)); // Scale detrough to Vmax. Divide by detroughed waveform's max value to normalize. IQMagnitude's max value is 1: 1-(1-d) *cos(1*pi/2)
+                        // Scale detrough to Vmax. Divide by detroughed waveform's max value to normalize. IQMagnitude's max value is 1: 1-(1-d) *cos(1*pi/2)
+                        envWfmWriteBuffer[i] = ComplexSingle.FromSingle((float)(detroughConfig.MaximumVoltage_V * sampleValue / cosScale));
                     }
                     break;
                 case DetroughType.Power:
@@ -126,7 +128,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                     for (int i = 0; i < envWfmWriteBuffer.Size; i++)
                     {
                         double sampleValue = (1 - detroughRatio) + (Math.Pow(iqMagnitudes[i], detroughConfig.Exponent) * (1 - detroughRatio));
-                        envWfmWriteBuffer[i] = ComplexSingle.FromSingle((float)(detroughConfig.MaximumVoltage_V * sampleValue / powScale)); // Scale detrough to Vmax. Divide by detroughed waveform's max value. IQMagnitude's max value is 1: (1-d) + (1^exponent)*(1-d)
+                        // Scale detrough to Vmax. Divide by detroughed waveform's max value. IQMagnitude's max value is 1: (1-d) + (1^exponent)*(1-d)
+                        envWfmWriteBuffer[i] = ComplexSingle.FromSingle((float)(detroughConfig.MaximumVoltage_V * sampleValue / powScale));
                     }
                     break;
                 default:
