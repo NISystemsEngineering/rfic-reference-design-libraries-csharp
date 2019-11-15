@@ -47,5 +47,21 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 };
             }
         }
+        public struct AutoLevelConfiguration
+        {
+            public bool Enabled;
+            public double MeasurementInterval_s;
+            public double Bandwidth_Hz;
+
+            public static AutoLevelConfiguration GetDefault()
+            {
+                return new AutoLevelConfiguration
+                {
+                    Enabled = false,
+                    MeasurementInterval_s = 10e-3,
+                    Bandwidth_Hz = 20e6
+                };
+            }
+        }
     }
 }
