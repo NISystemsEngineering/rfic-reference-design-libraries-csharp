@@ -2,29 +2,6 @@
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
-    public struct SACommonConfiguration
-    {
-        public double CenterFrequency_Hz;
-        public double ReferenceLevel_dBm;
-        public double ExternalAttenuation_dB;
-        public string SelectedPorts;
-        public bool EnableTrigger;
-        public string DigitalTriggerSource;
-        public double TriggerDelay_s;
-        public static SACommonConfiguration GetDefault()
-        {
-            return new SACommonConfiguration
-            {
-                SelectedPorts = "",
-                CenterFrequency_Hz = 1e9,
-                ReferenceLevel_dBm = 0,
-                ExternalAttenuation_dB = 0,
-                EnableTrigger = true,
-                DigitalTriggerSource = "PXI_Trig0",
-                TriggerDelay_s = 0,
-            };
-        }
-    }
     public struct Waveform
     {
         public string Name;
@@ -44,5 +21,31 @@ namespace NationalInstruments.ReferenceDesignLibraries
         Automatic,
         None
     }
-
+    // SA Specific Common Properties
+    namespace SA
+    {
+        public struct CommonConfiguration
+        {
+            public double CenterFrequency_Hz;
+            public double ReferenceLevel_dBm;
+            public double ExternalAttenuation_dB;
+            public string SelectedPorts;
+            public bool EnableTrigger;
+            public string DigitalTriggerSource;
+            public double TriggerDelay_s;
+            public static CommonConfiguration GetDefault()
+            {
+                return new CommonConfiguration
+                {
+                    SelectedPorts = "",
+                    CenterFrequency_Hz = 1e9,
+                    ReferenceLevel_dBm = 0,
+                    ExternalAttenuation_dB = 0,
+                    EnableTrigger = true,
+                    DigitalTriggerSource = "PXI_Trig0",
+                    TriggerDelay_s = 0,
+                };
+            }
+        }
+    }
 }

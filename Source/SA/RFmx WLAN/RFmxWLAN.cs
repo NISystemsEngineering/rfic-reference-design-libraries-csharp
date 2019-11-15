@@ -163,7 +163,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxWlanMX wlanSignal, SACommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
             wlanSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);

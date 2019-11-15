@@ -150,7 +150,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxLteMX lte, SACommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxLteMX lte, CommonConfiguration commonConfig, string selectorString = "")
         {
             lte.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             lte.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);

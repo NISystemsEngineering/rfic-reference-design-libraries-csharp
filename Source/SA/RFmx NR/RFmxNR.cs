@@ -198,7 +198,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxNRMX nr, SACommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxNRMX nr, CommonConfiguration commonConfig, string selectorString = "")
         {
             nr.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             nr.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
