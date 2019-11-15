@@ -11,19 +11,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
     {
 
         #region Type Definitions
-        public struct EnvelopeGeneratorConfiguration
-        {
-            public RfsgTerminalConfiguration TerminalConfiguration;
-
-            public static EnvelopeGeneratorConfiguration GetDefault()
-            {
-                return new EnvelopeGeneratorConfiguration()
-                {
-                    TerminalConfiguration = RfsgTerminalConfiguration.Differential,
-                };
-            }
-        }
-
         public struct TrackerConfiguration
         {
             public double InputImpedance_Ohms;
@@ -204,13 +191,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         #endregion
 
         #region Instrument Configuration
-        public static void ConfigureEnvelopeGenerator(NIRfsg envVsg, EnvelopeGeneratorConfiguration envVsgConfig, TrackerConfiguration trackerConfig)
+        public static void ConfigureEnvelopeGenerator(NIRfsg envVsg, TrackerConfiguration trackerConfig)
         {
-            if (envVsgConfig.TerminalConfiguration == RfsgTerminalConfiguration.Differential)
-                envVsg.IQOutPort[""].LoadImpedance = trackerConfig.InputImpedance_Ohms == 50.0 ? 100.0 : trackerConfig.InputImpedance_Ohms;
-            else
-                envVsg.IQOutPort[""].LoadImpedance = trackerConfig.InputImpedance_Ohms;
-            envVsg.IQOutPort[""].TerminalConfiguration = envVsgConfig.TerminalConfiguration;
+            // all function calls assume a differential terminal configuration since that is the only option supported by the PXIe-5820
+            envVsg.IQOutPort[""].LoadImpedance = trackerConfig.InputImpedance_Ohms == 50.0 ? 100.0 : trackerConfig.InputImpedance_Ohms;
+            envVsg.IQOutPort[""].TerminalConfiguration = RfsgTerminalConfiguration.Differential;
             envVsg.IQOutPort[""].CommonModeOffset = trackerConfig.CommonModeOffset_V;
         }
 
