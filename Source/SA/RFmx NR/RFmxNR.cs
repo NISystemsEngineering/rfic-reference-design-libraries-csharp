@@ -211,7 +211,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
 
-        #region Measurement Conffiguration
+        #region Measurement Configuration
         public static void ConfigureSignal(RFmxNRMX nr, SignalConfiguration signalConfig, string selectorString = "")
         {
             nr.SetComponentCarrierSpacingType(selectorString, RFmxNRMXComponentCarrierSpacingType.Nominal); // nominal is assumed
