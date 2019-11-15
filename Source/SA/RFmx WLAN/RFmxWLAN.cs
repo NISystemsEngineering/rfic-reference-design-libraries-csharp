@@ -159,7 +159,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Measurement Configuration
-        public static void ConfigureSignal(RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
         {
             wlanSignal.ConfigureStandard(selectorString, signalConfig.Standard);
             wlanSignal.ConfigureChannelBandwidth(selectorString, signalConfig.ChannelBandwidth_Hz);

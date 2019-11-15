@@ -159,7 +159,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Configuration
-        public static void ConfigureSignal(RFmxLteMX lte, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxLteMX lte, SignalConfiguration signalConfig, string selectorString = "")
         {
             lte.ComponentCarrier.SetSpacingType(selectorString, RFmxLteMXComponentCarrierSpacingType.Nominal); // nominal spacing is assumed
             lte.ConfigureLinkDirection(selectorString, signalConfig.LinkDirection);
