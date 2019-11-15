@@ -86,7 +86,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 Data = referenceWaveform.Data.Clone(),
                 SignalBandwidth_Hz = 0.8 * referenceWaveform.SampleRate,
                 PAPR_dB = double.NaN, // unnecessary to calculate as it won't be used
-                BurstLength_s = double.NaN, // not applicable in ET
+                BurstLength_s = referenceWaveform.BurstLength_s,
                 SampleRate = referenceWaveform.SampleRate,
                 // burst start and stop locations will be left as null since they also will not be used
                 IdleDurationPresent = referenceWaveform.IdleDurationPresent, // can't null a bool, so copy from reference waveform
@@ -172,7 +172,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 Data = referenceWaveform.Data.Clone(),
                 SignalBandwidth_Hz = 0.8 * referenceWaveform.SampleRate,
                 PAPR_dB = double.NaN, // unnecessary to calculate as it won't be used
-                BurstLength_s = double.NaN, // not applicable in ET
+                BurstLength_s = referenceWaveform.BurstLength_s,
                 SampleRate = referenceWaveform.SampleRate,
                 // burst start and stop locations will be left as null since they also will not be used
                 IdleDurationPresent = referenceWaveform.IdleDurationPresent, // can't null a bool, so copy from reference waveform
