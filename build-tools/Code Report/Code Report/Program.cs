@@ -71,19 +71,7 @@ namespace Code_Report
                     {
                         if (member.Kind() == SyntaxKind.NamespaceDeclaration)
                         {
-                            NamespaceDeclarationSyntax nameSpace = (NamespaceDeclarationSyntax)member;
-                            /*foreach (MemberDeclarationSyntax subMember in nameSpace.Members)
-                            {
-                                if (subMember.Kind() == SyntaxKind.ClassDeclaration)
-                                {
-                                    ClassDeclarationSyntax myClass = (ClassDeclarationSyntax)subMember;
-                                    xml.WriteStartElement("Class");
-                                    xml.WriteAttributeString("Name", myClass.Identifier.ToString());
-                                    ParseMembers(myClass.Members, xml);
-                                }
-
-                            }*/
-                            ParseMembers(nameSpace.Members, xml, o);
+                            ParseNamespace(member, xml, o);
                         }
                     }
                     xml.WriteEndElement();
@@ -97,6 +85,11 @@ namespace Code_Report
         {
             internal string MemberTypeName;
             internal SortedList<string, string> paramList;
+        }
+        static void ParseNamespace(MemberDeclarationSyntax member, XmlWriter xml, Options o)
+        {
+            NamespaceDeclarationSyntax nameSpace = (NamespaceDeclarationSyntax)member;
+            ParseMembers(nameSpace.Members, xml, o);
         }
         static void ParseMembers(SyntaxList<MemberDeclarationSyntax> members, XmlWriter xmlWriter, Options o)
         {
@@ -169,6 +162,10 @@ namespace Code_Report
                         xmlWriter.WriteAttributeString("Name", subClass.Identifier.ToString());
                         ParseMembers(subClass.Members, xmlWriter, o);
                         xmlWriter.WriteEndElement();
+                        break;
+                    case SyntaxKind.NamespaceDeclaration:
+                        // Recurse through the namespace and new members
+                        ParseNamespace(member, xmlWriter, o);
                         break;
                     default:
                         break;
