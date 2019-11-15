@@ -69,7 +69,7 @@ namespace SG_SA_IntegrationTests
             SG.DownloadWaveform(rfsg, lteTdd10Waveform);
             SG.ConfigureContinuousGeneration(rfsg, lteTdd10Waveform);
             
-            var lteCommonConfig = SACommonConfiguration.GetDefault();
+            var lteCommonConfig = CommonConfiguration.GetDefault();
 
             string instrumentModel = rfsg.Identity.InstrumentModel;
             if (Regex.IsMatch(instrumentModel, "NI PXIe-5830"))
