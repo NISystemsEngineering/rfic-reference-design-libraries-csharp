@@ -55,8 +55,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
-        public struct LookUpTable
+        public struct LookUpTableConfiguration
         {
+            public double DutAverageInputPower_dBm;
             public float[] DutInputPower_dBm;
             public float[] SupplyVoltage_V;
         }
@@ -139,7 +140,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             return envelopeWaveform;
         }
 
-        public static Waveform ConfigureEnvelopeWaveform(Waveform referenceWaveform, LookUpTable lookUpTable, double dutAverageInputPower)
+        public static Waveform ConfigureEnvelopeWaveform(Waveform referenceWaveform, LookUpTableConfiguration lookUpTableConfig)
         {
             ComplexSingle[] iq = referenceWaveform.Data.GetRawData(); // get copy of iq samples
             
@@ -151,7 +152,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
 
             // scale waveform to have average dBW 1ohm power equal to dut input power normalized to dBW 1ohm
             ComplexSingle scale = ComplexSingle.FromSingle((float)Math.Pow(10.0, referenceWaveform.PAPR_dB / 20.0)); // scaling value for average power to equal 0dBW 1ohm
-            scale *= ComplexSingle.FromSingle((float)Math.Pow(10.0, (dutAverageInputPower - 10.0) / 20.0)); // cascade scale values so we only have to run through the array once
+            scale *= ComplexSingle.FromSingle((float)Math.Pow(10.0, (lookUpTableConfig.DutAverageInputPower_dBm - 10.0) / 20.0)); // cascade scale values so we only have to run through the array once
             for (int i = 0; i < iq.Length; i++)
                 iq[i] *= scale;
 
@@ -161,12 +162,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 powerTrace_W[i] = iq[i].Real * iq[i].Real + iq[i].Imaginary * iq[i].Imaginary;
 
             // get lookup table input power trace in 1ohm watts
-            float[] lutDutInputPowerWattOneOhm = new float[lookUpTable.DutInputPower_dBm.Length];
-            for (int i = 0; i < lookUpTable.DutInputPower_dBm.Length; i++)
-                lutDutInputPowerWattOneOhm[i] = (float)Math.Pow(10.0, (lookUpTable.DutInputPower_dBm[i] - 10.0) / 10.0); // V^2 = 10^((Pin - 10.0)/10)
+            float[] lutDutInputPowerWattOneOhm = new float[lookUpTableConfig.DutInputPower_dBm.Length];
+            for (int i = 0; i < lookUpTableConfig.DutInputPower_dBm.Length; i++)
+                lutDutInputPowerWattOneOhm[i] = (float)Math.Pow(10.0, (lookUpTableConfig.DutInputPower_dBm[i] - 10.0) / 10.0); // V^2 = 10^((Pin - 10.0)/10)
 
             // run the trace through 1D interpolation
-            float[] rawEnvelope = LinearInterpolation1D(lutDutInputPowerWattOneOhm, lookUpTable.SupplyVoltage_V, powerTrace_W);
+            float[] rawEnvelope = LinearInterpolation1D(lutDutInputPowerWattOneOhm, lookUpTableConfig.SupplyVoltage_V, powerTrace_W);
 
             // create waveform to return to the user
             Waveform envelopeWaveform = new Waveform()
