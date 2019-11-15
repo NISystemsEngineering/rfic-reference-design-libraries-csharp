@@ -199,6 +199,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             lte.ModAcc.Configuration.ConfigureSynchronizationModeAndInterval(selectorString, modAccConfig.SynchronizationMode, modAccConfig.MeasurementOffset, modAccConfig.MeasurementLength);
             lte.ModAcc.Configuration.ConfigureEvmUnit(selectorString, modAccConfig.EvmUnit);
         }
+        public static void SelectAndInitiateMeasurements(RFmxLteMX lte, RFmxLteMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
+            bool enableTraces = false, string selectorString = "", string resultName = "")
+        {
+            // Aggregate the selected measurements into a single value
+            // OR of 0 and x equals x
+            RFmxLteMXMeasurementTypes selectedMeasurement = 0;
+            foreach (RFmxLteMXMeasurementTypes measurement in measurements)
+                selectedMeasurement |= measurement;
+            lte.SelectMeasurements(selectorString, selectedMeasurement, enableTraces);
+
+            if (autoLevelConfig.Enabled)
+                lte.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s, out double _);
+
+            // Initiate acquisition and measurement for the selected measurements
+            lte.Initiate(selectorString, resultName);
+        }
         #endregion
 
         #region Measurement Results

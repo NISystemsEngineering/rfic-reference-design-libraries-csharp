@@ -240,6 +240,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent idleDurationPresent = ampmConfig.ReferenceWaveform.IdleDurationPresent ? RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent.False;
             specAn.Ampm.Configuration.ConfigureReferenceWaveform(selectorString, ampmConfig.ReferenceWaveform.Data, idleDurationPresent, ampmConfig.SignalType);
         }
+        public static void SelectAndInitiateMeasurements(RFmxSpecAnMX specAn, RFmxSpecAnMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
+            bool enableTraces = false, string selectorString = "", string resultName = "")
+        {
+            // Aggregate the selected measurements into a single value
+            // OR of 0 and x equals x
+            RFmxSpecAnMXMeasurementTypes selectedMeasurement = 0;
+            foreach (RFmxSpecAnMXMeasurementTypes measurement in measurements)
+                selectedMeasurement |= measurement;
+            specAn.SelectMeasurements(selectorString, selectedMeasurement, enableTraces);
+
+            if (autoLevelConfig.Enabled)
+                specAn.AutoLevel(selectorString, autoLevelConfig.Bandwidth_Hz, autoLevelConfig.MeasurementInterval_s, out double _);
+
+            // Initiate acquisition and measurement for the selected measurements
+            specAn.Initiate(selectorString, resultName);
+        }
         #endregion
 
         #region Measurement Results

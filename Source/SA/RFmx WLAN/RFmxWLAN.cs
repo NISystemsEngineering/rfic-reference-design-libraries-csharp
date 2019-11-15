@@ -256,7 +256,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
             return servoResults;
         }
+        public static void SelectAndInitiateMeasurements(RFmxWlanMX wlanSignal, RFmxWlanMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
+            bool enableTraces = false, string selectorString = "", string resultName = "")
+        {
+            // Aggregate the selected measurements into a single value
+            // OR of 0 and x equals x
+            RFmxWlanMXMeasurementTypes selectedMeasurement = 0;
+            foreach (RFmxWlanMXMeasurementTypes measurement in measurements)
+                selectedMeasurement |= measurement;
+            wlanSignal.SelectMeasurements(selectorString, selectedMeasurement, enableTraces);
 
+            if (autoLevelConfig.Enabled)
+                wlanSignal.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s);
+
+            // Initiate acquisition and measurement for the selected measurements
+            wlanSignal.Initiate(selectorString, resultName);
+        }
         public static void ConfigureSEM(RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
         {
             wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.Sem, false);

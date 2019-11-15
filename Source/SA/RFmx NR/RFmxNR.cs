@@ -270,6 +270,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nr.Chp.Configuration.ConfigureSweepTime(selectorString, chpConfig.SweepTimeAuto, chpConfig.SweepTimeInterval_s);
             nr.Chp.Configuration.ConfigureAveraging(selectorString, chpConfig.AveragingEnabled, chpConfig.AveragingCount, chpConfig.AveragingType);
         }
+        public static void SelectAndInitiateMeasurements(RFmxNRMX nr, RFmxNRMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
+            bool enableTraces = false, string selectorString = "", string resultName = "")
+        {
+            // Aggregate the selected measurements into a single value
+            // OR of 0 and x equals x
+            RFmxNRMXMeasurementTypes selectedMeasurement = 0;
+            foreach (RFmxNRMXMeasurementTypes measurement in measurements)
+                selectedMeasurement |= measurement;
+            nr.SelectMeasurements(selectorString, selectedMeasurement, enableTraces);
+
+            if (autoLevelConfig.Enabled)
+                nr.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s, out double _);
+
+            // Initiate acquisition and measurement for the selected measurements
+            nr.Initiate(selectorString, resultName);
+        }
         #endregion
 
         #region Measurement Results
