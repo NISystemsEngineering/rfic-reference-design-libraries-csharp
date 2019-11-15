@@ -25,20 +25,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
-        public struct AutoLevelConfiguration
-        {
-            public bool AutoLevelReferenceLevel;
-            public double AutoLevelMeasureTime_s;
-
-            public static AutoLevelConfiguration GetDefault()
-            {
-                return new AutoLevelConfiguration
-                {
-                    AutoLevelReferenceLevel = false,
-                    AutoLevelMeasureTime_s = 10e-3
-                };
-            }
-        }
 
         #region Measurement Definitions
         public struct TxPConfiguration
@@ -233,7 +219,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             bool servoSucess = false;
             for (int i = 0; i < servoConfig.MaxNumberOfIterations; i++)
             {
-                if (autoLevelConfig.AutoLevelReferenceLevel) servoTxpSession.AutoLevel(selectorString, autoLevelConfig.AutoLevelMeasureTime_s);
+                if (autoLevelConfig.Enabled) servoTxpSession.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s);
                 servoTxpSession.Initiate(selectorString, "");
 
                 powerLevel = rfsgSession.RF.PowerLevel;
