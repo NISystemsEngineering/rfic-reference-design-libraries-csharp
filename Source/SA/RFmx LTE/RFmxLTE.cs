@@ -154,7 +154,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             lte.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             lte.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
-            lte.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxLteMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            lte.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxLteMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.TriggerEnabled);
         }
         #endregion
 

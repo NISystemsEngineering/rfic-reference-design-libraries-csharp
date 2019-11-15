@@ -188,7 +188,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             specAnSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             specAnSignal.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
-            specAnSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            specAnSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.TriggerEnabled);
         }
 
         public static void ConfigureTxp(RFmxSpecAnMX specAn, TxpConfiguration txpConfig, string selectorString = "")

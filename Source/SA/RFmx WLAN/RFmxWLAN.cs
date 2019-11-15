@@ -155,7 +155,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
-            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxWlanMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
+            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxWlanMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.TriggerEnabled);
         }
         #endregion
         #region Measurement Configuration

@@ -30,7 +30,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double ReferenceLevel_dBm;
             public double ExternalAttenuation_dB;
             public string SelectedPorts;
-            public bool EnableTrigger;
+            public bool TriggerEnabled;
             public string DigitalTriggerSource;
             public double TriggerDelay_s;
             public static CommonConfiguration GetDefault()
@@ -41,7 +41,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     CenterFrequency_Hz = 1e9,
                     ReferenceLevel_dBm = 0,
                     ExternalAttenuation_dB = 0,
-                    EnableTrigger = true,
+                    TriggerEnabled = true,
                     DigitalTriggerSource = "PXI_Trig0",
                     TriggerDelay_s = 0,
                 };
