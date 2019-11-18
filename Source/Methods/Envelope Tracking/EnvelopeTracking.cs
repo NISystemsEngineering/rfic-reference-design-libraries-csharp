@@ -164,8 +164,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             /// therefore, to convert from dBm to dBW 1ohm we subtract 10 from dBm value
 
             // scale waveform to have average dBW 1ohm power equal to dut input power normalized to dBW 1ohm
-            ComplexSingle scale = ComplexSingle.FromSingle((float)Math.Pow(10.0, referenceWaveform.PAPR_dB / 20.0)); // scaling value for average power to equal 0dBW 1ohm
-            scale *= ComplexSingle.FromSingle((float)Math.Pow(10.0, (lookUpTableConfig.DutAverageInputPower_dBm - 10.0) / 20.0)); // cascade scale values so we only have to run through the array once
+            ComplexSingle scale = ComplexSingle.FromSingle((float)Math.Pow(10.0, (referenceWaveform.PAPR_dB + lookUpTableConfig.DutAverageInputPower_dBm - 10.0) / 20.0));
             for (int i = 0; i < iq.Length; i++)
                 iq[i] *= scale;
 
