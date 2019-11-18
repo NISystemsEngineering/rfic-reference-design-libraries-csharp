@@ -69,7 +69,7 @@ namespace SG_SA_IntegrationTests
             SG.DownloadWaveform(rfsg, lteTdd10Waveform);
             SG.ConfigureContinuousGeneration(rfsg, lteTdd10Waveform);
             
-            var lteCommonConfig = SACommonConfiguration.GetDefault();
+            var lteCommonConfig = CommonConfiguration.GetDefault();
 
             string instrumentModel = rfsg.Identity.InstrumentModel;
             if (Regex.IsMatch(instrumentModel, "NI PXIe-5830"))
@@ -84,7 +84,7 @@ namespace SG_SA_IntegrationTests
             }
             var lte = instr.GetLteSignalConfiguration();
             RFmxLTE.ConfigureCommon(lte, lteCommonConfig);
-            RFmxLTE.ConfigureSignal(lte, RFmxLTE.SignalConfiguration.GetDefault());
+            RFmxLTE.ConfigureStandard(lte, RFmxLTE.SignalConfiguration.GetDefault());
             RFmxLTE.ConfigureModAcc(lte, RFmxLTE.ModAccConfiguration.GetDefault());
 
             lte.Commit("");

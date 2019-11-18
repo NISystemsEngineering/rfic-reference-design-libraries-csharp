@@ -12,7 +12,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #region Type_Definitionss
         public struct SignalConfiguration
         {
-            public bool AutoDetectSignal;
             public RFmxWlanMXStandard Standard;
             public double ChannelBandwidth_Hz;
 
@@ -20,27 +19,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             {
                 return new SignalConfiguration
                 {
-                    AutoDetectSignal = true,
                     Standard = RFmxWlanMXStandard.Standard802_11ac,
                     ChannelBandwidth_Hz = 20e6
                 };
             }
         }
 
-        public struct AutoLevelConfiguration
-        {
-            public bool AutoLevelReferenceLevel;
-            public double AutoLevelMeasureTime_s;
-
-            public static AutoLevelConfiguration GetDefault()
-            {
-                return new AutoLevelConfiguration
-                {
-                    AutoLevelReferenceLevel = false,
-                    AutoLevelMeasureTime_s = 10e-3
-                };
-            }
-        }
 
         #region Measurement Definitions
         public struct TxPConfiguration
@@ -165,33 +149,20 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxWlanMX wlanSignal, SACommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
             wlanSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             wlanSignal.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             wlanSignal.ConfigureReferenceLevel(selectorString, commonConfig.ReferenceLevel_dBm);
             wlanSignal.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
-            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxWlanMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
-            if (commonConfig.AutoLevelEnabled) wlanSignal.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s);
+            wlanSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxWlanMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.TriggerEnabled);
         }
         #endregion
         #region Measurement Configuration
-        public static void ConfigureSignal(RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
         {
-            RFmxWlanMXStandard standard = signalConfig.Standard;
-            double bandwdidth = signalConfig.ChannelBandwidth_Hz;
-            if (signalConfig.AutoDetectSignal)
-            {
-                wlanSignal.AutoDetectSignal(selectorString, 10);
-
-                wlanSignal.GetDetectedStandard(selectorString, out int standard_int);
-                standard = (RFmxWlanMXStandard)standard_int;
-                if (standard == RFmxWlanMXStandard.Unknown) throw new RFmxException("RFmx atuomatic signal detection failed. Check the input signal and try again.");
-
-                wlanSignal.GetDetectedChannelBandwidth(selectorString, out bandwdidth);
-            }
-            wlanSignal.ConfigureStandard(selectorString, (RFmxWlanMXStandard)standard);
-            wlanSignal.ConfigureChannelBandwidth(selectorString, bandwdidth);
+            wlanSignal.ConfigureStandard(selectorString, signalConfig.Standard);
+            wlanSignal.ConfigureChannelBandwidth(selectorString, signalConfig.ChannelBandwidth_Hz);
         }
 
         public static void ConfigureTxP(RFmxWlanMX wlanSignal, TxPConfiguration txPConfig, string selectorString = "")
@@ -248,7 +219,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             bool servoSucess = false;
             for (int i = 0; i < servoConfig.MaxNumberOfIterations; i++)
             {
-                if (autoLevelConfig.AutoLevelReferenceLevel) servoTxpSession.AutoLevel(selectorString, autoLevelConfig.AutoLevelMeasureTime_s);
+                if (autoLevelConfig.Enabled) servoTxpSession.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s);
                 servoTxpSession.Initiate(selectorString, "");
 
                 powerLevel = rfsgSession.RF.PowerLevel;
@@ -285,7 +256,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
             return servoResults;
         }
+        public static void SelectAndInitiateMeasurements(RFmxWlanMX wlanSignal, RFmxWlanMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
+            bool enableTraces = false, string selectorString = "", string resultName = "")
+        {
+            // Aggregate the selected measurements into a single value
+            // OR of 0 and x equals x
+            RFmxWlanMXMeasurementTypes selectedMeasurements = 0;
+            foreach (RFmxWlanMXMeasurementTypes measurement in measurements)
+                selectedMeasurements |= measurement;
+            wlanSignal.SelectMeasurements(selectorString, selectedMeasurements, enableTraces);
 
+            if (autoLevelConfig.Enabled)
+                wlanSignal.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s);
+
+            // Initiate acquisition and measurement for the selected measurements
+            wlanSignal.Initiate(selectorString, resultName);
+        }
         public static void ConfigureSEM(RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
         {
             wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.Sem, false);

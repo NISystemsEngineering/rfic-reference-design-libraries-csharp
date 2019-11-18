@@ -7,6 +7,7 @@ using NationalInstruments.RFmx.LteMX;
 using NationalInstruments.DataInfrastructure;
 using NationalInstruments;
 using NationalInstruments.ReferenceDesignLibraries;
+using NationalInstruments.ReferenceDesignLibraries.SA;
 
 namespace LTETests
 {
@@ -19,10 +20,10 @@ namespace LTETests
             RFmxInstrMX instr = new RFmxInstrMX("", "AnalysisOnly=1");
             RFmxLteMX lte = instr.GetLteSignalConfiguration();
 
-            ConfigureCommon(lte, SACommonConfiguration.GetDefault());
+            ConfigureCommon(lte, CommonConfiguration.GetDefault());
             SignalConfiguration signalConfig = SignalConfiguration.GetDefault();
             signalConfig.DuplexScheme = RFmxLteMXDuplexScheme.Tdd;
-            ConfigureSignal(lte, signalConfig);
+            ConfigureStandard(lte, signalConfig);
             ModAccConfiguration modAccConfig = ModAccConfiguration.GetDefault();
             modAccConfig.MeasurementOffset = 4;
             ConfigureModAcc(lte, modAccConfig);
