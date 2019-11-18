@@ -58,7 +58,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             public bool Enabled;
             public double MeasurementInterval_s;
-            public double Bandwidth_Hz;
 
             public static AutoLevelConfiguration GetDefault()
             {
@@ -66,7 +65,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 {
                     Enabled = false,
                     MeasurementInterval_s = 10e-3,
-                    Bandwidth_Hz = 20e6
                 };
             }
         }
