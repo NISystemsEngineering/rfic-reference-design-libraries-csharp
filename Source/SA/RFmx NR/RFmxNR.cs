@@ -275,10 +275,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             // Aggregate the selected measurements into a single value
             // OR of 0 and x equals x
-            RFmxNRMXMeasurementTypes selectedMeasurement = 0;
+            RFmxNRMXMeasurementTypes selectedMeasurements = 0;
             foreach (RFmxNRMXMeasurementTypes measurement in measurements)
-                selectedMeasurement |= measurement;
-            nr.SelectMeasurements(selectorString, selectedMeasurement, enableTraces);
+                selectedMeasurements |= measurement;
+            nr.SelectMeasurements(selectorString, selectedMeasurements, enableTraces);
 
             if (autoLevelConfig.Enabled)
                 nr.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s, out double _);

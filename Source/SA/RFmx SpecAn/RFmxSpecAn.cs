@@ -245,10 +245,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             // Aggregate the selected measurements into a single value
             // OR of 0 and x equals x
-            RFmxSpecAnMXMeasurementTypes selectedMeasurement = 0;
+            RFmxSpecAnMXMeasurementTypes selectedMeasurements = 0;
             foreach (RFmxSpecAnMXMeasurementTypes measurement in measurements)
-                selectedMeasurement |= measurement;
-            specAn.SelectMeasurements(selectorString, selectedMeasurement, enableTraces);
+                selectedMeasurements |= measurement;
+            specAn.SelectMeasurements(selectorString, selectedMeasurements, enableTraces);
 
             if (autoLevelConfig.Enabled)
                 specAn.AutoLevel(selectorString, autoLevelConfig.Bandwidth_Hz, autoLevelConfig.MeasurementInterval_s, out double _);

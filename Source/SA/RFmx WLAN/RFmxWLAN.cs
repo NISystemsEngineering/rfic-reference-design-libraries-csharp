@@ -261,10 +261,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             // Aggregate the selected measurements into a single value
             // OR of 0 and x equals x
-            RFmxWlanMXMeasurementTypes selectedMeasurement = 0;
+            RFmxWlanMXMeasurementTypes selectedMeasurements = 0;
             foreach (RFmxWlanMXMeasurementTypes measurement in measurements)
-                selectedMeasurement |= measurement;
-            wlanSignal.SelectMeasurements(selectorString, selectedMeasurement, enableTraces);
+                selectedMeasurements |= measurement;
+            wlanSignal.SelectMeasurements(selectorString, selectedMeasurements, enableTraces);
 
             if (autoLevelConfig.Enabled)
                 wlanSignal.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s);

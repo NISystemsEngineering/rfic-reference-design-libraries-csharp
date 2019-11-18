@@ -204,10 +204,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             // Aggregate the selected measurements into a single value
             // OR of 0 and x equals x
-            RFmxLteMXMeasurementTypes selectedMeasurement = 0;
+            RFmxLteMXMeasurementTypes selectedMeasurements = 0;
             foreach (RFmxLteMXMeasurementTypes measurement in measurements)
-                selectedMeasurement |= measurement;
-            lte.SelectMeasurements(selectorString, selectedMeasurement, enableTraces);
+                selectedMeasurements |= measurement;
+            lte.SelectMeasurements(selectorString, selectedMeasurements, enableTraces);
 
             if (autoLevelConfig.Enabled)
                 lte.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s, out double _);
