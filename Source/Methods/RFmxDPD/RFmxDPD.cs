@@ -21,7 +21,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 };
             }
         }
-        public struct PreDpdCrestFactorReduction
+
+        public struct PreDpdCrestFactorReductionConfiguration
         {
             public RFmxSpecAnMXDpdPreDpdCfrEnabled Enabled;
             public RFmxSpecAnMXDpdPreDpdCfrMethod Method;
@@ -34,9 +35,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public RFmxSpecAnMXDpdPreDpdCfrFilterEnabled FilterEnabled;
             public PreDpdCrestFactorReductionCarrierChannel[] CarrierChannels;
 
-            public static PreDpdCrestFactorReduction GetDefault()
+            public static PreDpdCrestFactorReductionConfiguration GetDefault()
             {
-                return new PreDpdCrestFactorReduction
+                return new PreDpdCrestFactorReductionConfiguration
                 {
                     Enabled = RFmxSpecAnMXDpdPreDpdCfrEnabled.True,
                     Method = RFmxSpecAnMXDpdPreDpdCfrMethod.Clipping,
@@ -51,6 +52,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 };
             }
         }
+
         public struct CommonConfiguration
         {
             public double MeasurementInterval_s;
@@ -69,7 +71,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 };
             }
         }
-        public struct ApplyDpdCrestFactorReduction
+
+        public struct ApplyDpdCrestFactorReductionConfiguration
         {
             public RFmxSpecAnMXDpdApplyDpdCfrEnabled Enabled;
             public RFmxSpecAnMXDpdApplyDpdCfrMethod Method;
@@ -81,9 +84,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public double ShapingFactor;
             public double ShapingThreshold_dB;
 
-            public static ApplyDpdCrestFactorReduction GetDefault()
+            public static ApplyDpdCrestFactorReductionConfiguration GetDefault()
             {
-                return new ApplyDpdCrestFactorReduction
+                return new ApplyDpdCrestFactorReductionConfiguration
                 {
                     Enabled = RFmxSpecAnMXDpdApplyDpdCfrEnabled.True,
                     Method = RFmxSpecAnMXDpdApplyDpdCfrMethod.Clipping,
@@ -97,6 +100,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 };
             }
         }
+
         public struct LookupTableConfiguration
         {
             public RFmxSpecAnMXDpdLookupTableType Type;
@@ -168,45 +172,44 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         #endregion
 
         #region ConfigureDPD
-        public static Waveform ConfigurePreDPDCrestFactorReduction(RFmxSpecAnMX specAn, Waveform referenceWaveform, PreDpdCrestFactorReduction preDpdCfr, string selectorString = "")
+        public static Waveform ConfigurePreDpdCrestFactorReduction(RFmxSpecAnMX specAn, Waveform referenceWaveform, PreDpdCrestFactorReductionConfiguration preDpdCfrConfig, string selectorString = "")
         {
             Waveform preDpdCfrWaveform = referenceWaveform;
-            if (preDpdCfr.Enabled == RFmxSpecAnMXDpdPreDpdCfrEnabled.True)
+
+            RFmxSpecAnMXDpdApplyDpdIdleDurationPresent preDpdCfrIdlePresent = preDpdCfrWaveform.IdleDurationPresent ?
+                RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
+            specAn.Dpd.PreDpd.SetCfrEnabled(selectorString, preDpdCfrConfig.Enabled);
+            specAn.Dpd.PreDpd.SetCfrMethod(selectorString, preDpdCfrConfig.Method);
+            specAn.Dpd.PreDpd.SetCfrMaximumIterations(selectorString, preDpdCfrConfig.MaxIterations);
+            specAn.Dpd.PreDpd.SetCfrTargetPapr(selectorString, preDpdCfrConfig.TargetPapr_dB);
+            specAn.Dpd.PreDpd.SetCfrWindowType(selectorString, preDpdCfrConfig.WindowType);
+            specAn.Dpd.PreDpd.SetCfrWindowLength(selectorString, preDpdCfrConfig.WindowLength);
+            specAn.Dpd.PreDpd.SetCfrShapingFactor(selectorString, preDpdCfrConfig.ShapingFactor);
+            specAn.Dpd.PreDpd.SetCfrShapingThreshold(selectorString, preDpdCfrConfig.ShapingThreshold_dB);
+            specAn.Dpd.PreDpd.SetCfrFilterEnabled(selectorString, preDpdCfrConfig.FilterEnabled);
+            specAn.Dpd.PreDpd.SetCfrNumberOfCarriers(selectorString, preDpdCfrConfig.CarrierChannels.Length);
+
+            // Configure the carrier channels
+            for (int i = 0; i < preDpdCfrConfig.CarrierChannels.Length; i++)
+            {
+                string carrierString = RFmxSpecAnMX.BuildCarrierString2(selectorString, i);
+                specAn.Dpd.PreDpd.SetCarrierOffset(carrierString, preDpdCfrConfig.CarrierChannels[i].Offset_Hz);
+                specAn.Dpd.PreDpd.SetCarrierBandwidth(carrierString, preDpdCfrConfig.CarrierChannels[i].Bandwidth_Hz);
+            }
+
+            // Only call Apply Pre-DPD CFR and modify the waveform if Pre-DPD CFR is enabled
+            if (preDpdCfrConfig.Enabled == RFmxSpecAnMXDpdPreDpdCfrEnabled.True)
             {
                 // Configure the new waveform
                 preDpdCfrWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
-                preDpdCfrWaveform.UpdateWaveformNameAndScript(referenceWaveform.Name + "preDPDCFR");
-
-                //Configure Pre-DPD CFR             
-                RFmxSpecAnMXDpdApplyDpdIdleDurationPresent preDpdCfrIdlePresent = preDpdCfrWaveform.IdleDurationPresent ?
-                    RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
-                specAn.Dpd.PreDpd.SetCfrEnabled(selectorString, preDpdCfr.Enabled);
-                specAn.Dpd.PreDpd.SetCfrMethod(selectorString, preDpdCfr.Method);
-                specAn.Dpd.PreDpd.SetCfrMaximumIterations(selectorString, preDpdCfr.MaxIterations);
-                specAn.Dpd.PreDpd.SetCfrTargetPapr(selectorString, preDpdCfr.TargetPapr_dB);
-                specAn.Dpd.PreDpd.SetCfrWindowType(selectorString, preDpdCfr.WindowType);
-                specAn.Dpd.PreDpd.SetCfrWindowLength(selectorString, preDpdCfr.WindowLength);
-                specAn.Dpd.PreDpd.SetCfrShapingFactor(selectorString, preDpdCfr.ShapingFactor);
-                specAn.Dpd.PreDpd.SetCfrShapingThreshold(selectorString, preDpdCfr.ShapingThreshold_dB);
-                specAn.Dpd.PreDpd.SetCfrFilterEnabled(selectorString, preDpdCfr.FilterEnabled);
-                specAn.Dpd.PreDpd.SetCfrNumberOfCarriers(selectorString, preDpdCfr.CarrierChannels.Length);
-
-                string carrierString;
-                for (int i = 0; i < preDpdCfr.CarrierChannels.Length; i++)
-                {
-                    carrierString = RFmxSpecAnMX.BuildCarrierString2(selectorString, i);
-                    specAn.Dpd.PreDpd.SetCarrierOffset(carrierString, preDpdCfr.CarrierChannels[i].Offset_Hz);
-                    specAn.Dpd.PreDpd.SetCarrierBandwidth(carrierString, preDpdCfr.CarrierChannels[i].Bandwidth_Hz);
-                }
+                preDpdCfrWaveform.UpdateNameAndScript(referenceWaveform.Name + "preDPDCFR");
 
                 // Apply CFR and return
                 specAn.Dpd.PreDpd.ApplyPreDpdSignalConditioning(selectorString, referenceWaveform.Data, preDpdCfrIdlePresent, ref preDpdCfrWaveform.Data, out preDpdCfrWaveform.PAPR_dB);
             }
-            else
-                specAn.Dpd.PreDpd.SetCfrEnabled(selectorString, preDpdCfr.Enabled);
-
             return preDpdCfrWaveform;
         }
+
         public static void ConfigureCommon(RFmxSpecAnMX specAn, CommonConfiguration commonConfig, Waveform referenceWaveform, string selectorString = "")
         {
             RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ?
@@ -218,22 +221,18 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             specAn.Dpd.Configuration.ConfigureMeasurementSampleRate(selectorString, RFmxSpecAnMXDpdMeasurementSampleRateMode.ReferenceWaveform, referenceWaveform.SampleRate);
             specAn.Dpd.Configuration.ConfigureSynchronizationMethod(selectorString, commonConfig.SynchronizationMethod);
         }
-        public static void ConfigureApplyDpdCrestFactorReduction(RFmxSpecAnMX specAn, ApplyDpdCrestFactorReduction applyDpdCfr, string selectorString = "")
+
+        public static void ConfigureApplyDpdCrestFactorReduction(RFmxSpecAnMX specAn, ApplyDpdCrestFactorReductionConfiguration applyDpdCfrConfig, string selectorString = "")
         {
-            if (applyDpdCfr.Enabled == RFmxSpecAnMXDpdApplyDpdCfrEnabled.True)
-            {
-                specAn.Dpd.ApplyDpd.SetCfrEnabled(selectorString, applyDpdCfr.Enabled);
-                specAn.Dpd.ApplyDpd.SetCfrMethod(selectorString, applyDpdCfr.Method);
-                specAn.Dpd.ApplyDpd.SetCfrMaximumIterations(selectorString, applyDpdCfr.MaxIterations);
-                specAn.Dpd.ApplyDpd.SetCfrTargetPaprType(selectorString, applyDpdCfr.TargetPaprType);
-                specAn.Dpd.ApplyDpd.SetCfrTargetPapr(selectorString, applyDpdCfr.TargetPapr_dB);
-                specAn.Dpd.ApplyDpd.SetCfrWindowType(selectorString, applyDpdCfr.WindowType);
-                specAn.Dpd.ApplyDpd.SetCfrWindowLength(selectorString, applyDpdCfr.WindowLength);
-                specAn.Dpd.ApplyDpd.SetCfrShapingFactor(selectorString, applyDpdCfr.ShapingFactor);
-                specAn.Dpd.ApplyDpd.SetCfrShapingThreshold(selectorString, applyDpdCfr.ShapingThreshold_dB);
-            }
-            else
-                specAn.Dpd.ApplyDpd.SetCfrEnabled(selectorString, applyDpdCfr.Enabled);
+            specAn.Dpd.ApplyDpd.SetCfrEnabled(selectorString, applyDpdCfrConfig.Enabled);
+            specAn.Dpd.ApplyDpd.SetCfrMethod(selectorString, applyDpdCfrConfig.Method);
+            specAn.Dpd.ApplyDpd.SetCfrMaximumIterations(selectorString, applyDpdCfrConfig.MaxIterations);
+            specAn.Dpd.ApplyDpd.SetCfrTargetPaprType(selectorString, applyDpdCfrConfig.TargetPaprType);
+            specAn.Dpd.ApplyDpd.SetCfrTargetPapr(selectorString, applyDpdCfrConfig.TargetPapr_dB);
+            specAn.Dpd.ApplyDpd.SetCfrWindowType(selectorString, applyDpdCfrConfig.WindowType);
+            specAn.Dpd.ApplyDpd.SetCfrWindowLength(selectorString, applyDpdCfrConfig.WindowLength);
+            specAn.Dpd.ApplyDpd.SetCfrShapingFactor(selectorString, applyDpdCfrConfig.ShapingFactor);
+            specAn.Dpd.ApplyDpd.SetCfrShapingThreshold(selectorString, applyDpdCfrConfig.ShapingThreshold_dB);
         }
 
         public static void ConfigureLookupTable(RFmxSpecAnMX specAn, LookupTableConfiguration lutConfig, string selectorString = "")
@@ -266,7 +265,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 PredistortedWaveform = referenceWaveform,
             };
             lutResults.PredistortedWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
-            lutResults.PredistortedWaveform.UpdateWaveformNameAndScript(referenceWaveform.Name + "postLutDpd");
+            lutResults.PredistortedWaveform.UpdateNameAndScript(referenceWaveform.Name + "postLutDpd");
 
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
             if (preDpdGenerationStatus == RfsgGenerationStatus.Complete)
@@ -302,7 +301,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 PredistortedWaveform = referenceWaveform
             };
             mpResults.PredistortedWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
-            mpResults.PredistortedWaveform.UpdateWaveformNameAndScript(referenceWaveform.Name + "postMpDpd");
+            mpResults.PredistortedWaveform.UpdateNameAndScript(referenceWaveform.Name + "postMpDpd");
 
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
 
