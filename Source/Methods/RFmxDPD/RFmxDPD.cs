@@ -202,7 +202,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             {
                 // Configure the new waveform
                 preDpdCfrWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
-                preDpdCfrWaveform.UpdateWaveformNameAndScript(referenceWaveform.Name + "preDPDCFR");
+                preDpdCfrWaveform.UpdateNameAndScript(referenceWaveform.Name + "preDPDCFR");
 
                 // Apply CFR and return
                 specAn.Dpd.PreDpd.ApplyPreDpdSignalConditioning(selectorString, referenceWaveform.Data, preDpdCfrIdlePresent, ref preDpdCfrWaveform.Data, out preDpdCfrWaveform.PAPR_dB);
@@ -265,7 +265,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 PredistortedWaveform = referenceWaveform,
             };
             lutResults.PredistortedWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
-            lutResults.PredistortedWaveform.UpdateWaveformNameAndScript(referenceWaveform.Name + "postLutDpd");
+            lutResults.PredistortedWaveform.UpdateNameAndScript(referenceWaveform.Name + "postLutDpd");
 
             RfsgGenerationStatus preDpdGenerationStatus = rfsgSession.CheckGenerationStatus();
             if (preDpdGenerationStatus == RfsgGenerationStatus.Complete)
@@ -301,7 +301,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 PredistortedWaveform = referenceWaveform
             };
             mpResults.PredistortedWaveform.Data = referenceWaveform.Data.Clone(); // clone waveform so RFmx can't act on reference waveform
-            mpResults.PredistortedWaveform.UpdateWaveformNameAndScript(referenceWaveform.Name + "postMpDpd");
+            mpResults.PredistortedWaveform.UpdateNameAndScript(referenceWaveform.Name + "postMpDpd");
 
             RFmxSpecAnMXDpdApplyDpdIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ? RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.True : RFmxSpecAnMXDpdApplyDpdIdleDurationPresent.False;
 

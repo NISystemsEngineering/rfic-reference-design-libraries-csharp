@@ -16,7 +16,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public double RuntimeScaling;
         public string Script;
 
-        public void UpdateWaveformNameAndScript(string newName)
+        public void UpdateNameAndScript(string newName)
         {
             // Update the script with the new waveform name
             Script = Script?.Replace(Name, newName);
