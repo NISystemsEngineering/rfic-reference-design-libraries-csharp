@@ -17,15 +17,24 @@ namespace NationalInstruments.ReferenceDesignLibraries
         #pragma warning disable CS0612
 
         #region Type Definitions
+        /// <summary>Defines common instrument settings used for generation.</summary>
         public struct InstrumentConfiguration
         {
+            /// <summary>Specifies the port to configure.</summary>
             public string SelectedPorts;
+            /// <summary>Specifies the source of the Reference Clock signal.</summary>
             public string ReferenceClockSource;
+            /// <summary>Specifies the frequency of the generated RF signal in Hz. For arbitrary waveform generation, this property specifies the center frequency of the signal.</summary>
             public double CarrierFrequency_Hz;
+            /// <summary>Specifies the desired average input power in dBm that the DUT should receive from the generator.</summary>
             public double DutAverageInputPower_dBm;
+            /// <summary>Specifies the external attenuation, if any, in dB between the RF signal generator and the device under test.</summary>
             public double ExternalAttenuation_dB;
+            /// <summary>Defines the local oscillator sharing behavior for VST devices.</summary>
             public LocalOscillatorSharingMode LOSharingMode;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static InstrumentConfiguration GetDefault()
             {
                 return new InstrumentConfiguration()
@@ -39,6 +48,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 };
             }
 
+            /// <summary>Returns the struct with default values set based upon the instrument model of <paramref name="rfsg"/>.</summary>
+            /// <param name="rfsg">The open RFSG session to configure.</param>
+            /// <returns>The struct with default values set based upon the instrument model of <paramref name="rfsg"/>.</returns>
             public static InstrumentConfiguration GetDefault(NIRfsg rfsg)
             {
                 InstrumentConfiguration instrConfig = GetDefault();
@@ -56,12 +68,22 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 return instrConfig;
             }
         }
+
+        /// <summary>Defines timing information for configuring bursted waveform generation.</summary>
         public struct WaveformTimingConfiguration
         {
+            /// <summary>Specifes the percentage of the generation period in which the signal should be active. Idle time will be added to the generation script in order to 
+            /// create the requested duty cycle.</summary>
             public double DutyCycle_Percent;
+            /// <summary>Specifies the time in seconds prior to the start of the RF burst in which the DUT should be enabled.</summary>
             public double PreBurstTime_s;
+            /// <summary>Specifies the time in seconds after the conclusion of the RF burst before which the DUT should be disabled.</summary>
             public double PostBurstTime_s;
+            /// <summary>Specifies the trigger terminal in which to export a trigger on the first sample of the burst.</summary>
             public string BurstStartTriggerExport;
+
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static WaveformTimingConfiguration GetDefault()
             {
                 return new WaveformTimingConfiguration()
@@ -74,15 +96,37 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
 
-        public enum PAENMode { Disabled, Static, Dynamic };
+        /// <summary>Defines different modes for controlling the DUT state when using bursted generation.</summary>
+        public enum PAENMode 
+        { 
+            /// <summary>Disables exporting a signal to control a DUT during generation.</summary>
+            Disabled, 
+            /// <summary>Exports a signal to turn on a DUT at the start of generation, and exports a signal to turn off the DUT after <see cref="AbortGeneration(NIRfsg, int)"/> is called.</summary>
+            Static, 
+            /// <summary>Exports a signal to dynamically turn on and off a DUT just before and just after each RF burst from the signal generator.</summary>
+            Dynamic 
+        };
 
+        /// <summary>Defines different parameters for controlling a DUT when using bursted generation.</summary>
         public struct PAENConfiguration
         {
+            /// <summary>Specifies the mode to use for controlling the DUT state during generation.</summary>
             public PAENMode PAEnableMode;
+            /// <summary>Specifies the behavior of the signal specified in <see cref="PAEnableTriggerExportTerminal"/>. If controlling the DUT directly with the PFI line, set
+            /// the value to <see cref="RfsgMarkerEventOutputBehaviour.Toggle"/> to toggle the digital line high and low with each burst. If controlling the DUT with another instrument, set the value
+            /// to <see cref="RfsgMarkerEventOutputBehaviour.Pulse"/> to trigger the instrument before and after each burst.</summary>
             public RfsgMarkerEventOutputBehaviour PAEnableTriggerMode;
+            /// <summary>Specifies the length of time in seconds required to send the enable command to the DUT. This is only used when the DUT state is controlled via digital commands, and should be set based
+            /// on the length of the command pattern being sent. The default value of 0 is sufficient for directly controlling the DUT state via the PFI line.</summary>
             public double CommandEnableTime_s;
+            /// <summary>Specifies the length of time in seconds required to send the disable command to the DUT. This is only used when the DUT state is controlled via digital commands, and should be set based
+            /// on the length of the command pattern being sent. The default value of 0 is sufficient for directly controlling the DUT state via the PFI line.</summary>
             public double CommandDisableTime_s;
+            /// <summary>Specifies the terminal in which to export a signal used to enable and disable the DUT.</summary>
             public string PAEnableTriggerExportTerminal;
+
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static PAENConfiguration GetDefault()
             {
                 return new PAENConfiguration
@@ -98,7 +142,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
         #endregion
-
+        
+        /// <summary>Configures common instrument settings for generation.</summary>
+        /// <param name="rfsgHandle">The open RFSG session to configure.</param>
+        /// <param name="instrConfig">The common instrument settings to configure.</param>
         public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
             rfsgHandle.SignalPath.SelectedPorts = instrConfig.SelectedPorts;
@@ -128,7 +175,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //Do nothing; any configuration for LOs with standalone VSGs should be configured manually. 
             //Baseband instruments don't have LOs. Unsupported VSTs must be configured manually.
         }
-
+        
+        /// <summary>Loads a waveform and relevant properties from a TDMS file.</summary>
+        /// <param name="filePath">Specifies the absolute path to the .TDMS waveform file on disk.</param>
+        /// <param name="waveformName">(Optional) Specifies the name to use to represent the waveform. The file name will be used by default.</param>
+        /// <returns>The waveform data and associated properties represented in the Waveform type.</returns>
         public static Waveform LoadWaveformFromTDMS(string filePath, string waveformName = "")
         {
             Waveform waveform = new Waveform();
@@ -185,7 +236,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             return waveform;
         }
-
+        
+        /// <summary>Downloads a previously loaded waveform to the instrument and sets associated properties.</summary>
+        /// <param name="rfsgHandle">The open RFSG session to configure.</param>
+        /// <param name="waveform">The waveform data and associated properties to download to the instrument. Use <see cref="LoadWaveformFromTDMS(string, string)"/> to load a waveform from a TDMS file.</param>
         public static void DownloadWaveform(NIRfsg rfsgHandle, Waveform waveform)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
@@ -219,6 +273,13 @@ namespace NationalInstruments.ReferenceDesignLibraries
             NIRfsgPlayback.StoreWaveformRFBlankingEnabled(rfsgPtr, waveform.Name, false);
         }
 
+        /// <summary>Configures the generator to generate the waveform continuously with a trigger on the first sample of the waveform. Use <see cref="AbortGeneration(NIRfsg, int)"/>
+        /// to abort generation to always ensure complete packet generation.</summary>
+        /// <param name="rfsgHandle">The open RFSG session to configure.</param>
+        /// <param name="waveform">Specifies the waveform to generate continuously. Call <see cref="DownloadWaveform(NIRfsg, Waveform)"/> prior to calling this function.</param>
+        /// <param name="markerEventExportTerminal">(Optional) Specifies the terminal name where the trigger at the start of the waveform should be exported to. 
+        /// The default value is to generate a trigger on the PXI_Trig0 line.</param>
+        /// <returns>The Waveform with the "Script" parameter set to the newly created generation script.</returns>
         public static Waveform ConfigureContinuousGeneration(NIRfsg rfsgHandle, Waveform waveform, string markerEventExportTerminal = "PXI_Trig0")
         {
             //Configure the trigger to be generated on the first sample of each waveform generation,
@@ -244,6 +305,16 @@ namespace NationalInstruments.ReferenceDesignLibraries
             return waveform;
         }
 
+        /// <summary>Configures the generator to generate the waveform plus idle time continuously for Dynamic EVM test cases. Also configures triggering or pulsing settings to 
+        /// control the DUT. Use <see cref="AbortGeneration(NIRfsg, int)"/> to abort generation to always ensure that the DUT state is returned to the initial state.</summary>
+        /// <param name="rfsgHandle">The open RFSG session to configure.</param>
+        /// <param name="waveform">Specifies the waveform to generate; its burst length will be used in conjuction with the duty cycle to calculate the idle time.
+        /// Call <see cref="DownloadWaveform(NIRfsg, Waveform)"/> prior to calling this function.</param>
+        /// <param name="waveTiming">Specifies the timing parameters used to configure the bursted generation.</param>
+        /// <param name="paenConfig">Specifies parameters pertaining to how the DUT is controlled during generation.</param>
+        /// <param name="period">Returns the total generation period, consisting of the waveform burst length, idle time, and any additional pre/post burst time configured.</param>
+        /// <param name="idleTime">Returns the computed idle time based upon the requested duty cycle.</param>
+        /// <returns>The Waveform with the "Script" parameter set to the newly created generation script.</returns>
         public static Waveform ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
@@ -363,6 +434,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
             return waveform;
         }
 
+        /// <summary>Calls <see cref="NIRfsgPlayback.SetScriptToGenerateSingleRfsg(IntPtr, string)"/>, which will download the script contained in <paramref name="waveform"/> and apply
+        /// all associated parameters.</summary>
+        /// <param name="rfsgHandle">The open RFSG session to configure.</param>
+        /// <param name="waveform">Specifies the waveform and its associated script that is to be used for generation.</param>
         public static void ApplyWaveformAttributes(NIRfsg rfsgHandle, Waveform waveform)
         {
             if (string.IsNullOrEmpty(waveform.Script)) // default to continuous if no script in waveform
@@ -374,6 +449,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
 
+        /// <summary>Retrieves waveform parameters from the <see cref="NIRfsgPlayback"/> waveform database based on the waveform name. 
+        /// NOTE - this does not return any value for <see cref="Waveform.Data"/>. This data cannot be retrieved from the database.</summary>
+        /// <param name="rfsgHandle">The open RFSG session.</param>
+        /// <param name="waveformName">Specifies the name of the waveform to use to lookup its properties.</param>
+        /// <returns>The waveform parameters associated with the specified name.</returns>
         public static Waveform GetWaveformParametersByName(NIRfsg rfsgHandle, string waveformName)
         {
             IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
@@ -424,6 +504,12 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Utility.Commit();
         }
 
+        /// <summary>Notifies running scripts configured with <see cref="ConfigureContinuousGeneration(NIRfsg, Waveform, string)"/> or 
+        /// <see cref="ConfigureBurstedGeneration(NIRfsg, Waveform, WaveformTimingConfiguration, PAENConfiguration, out double, out double)"/>
+        /// to enter the cleanup state, and then aborts generation. This function ensures that these scripts always reach a finished state before
+        /// aborting, so as to ensure the DUT is in the desired state at the end of generation.</summary>
+        /// <param name="rfsgHandle">The open RFSG session to configure.</param>
+        /// <param name="timeOut_ms">(Optional) The timeout to wait for generation to complete before manually aborting.</param>
         public static void AbortGeneration(NIRfsg rfsgHandle, int timeOut_ms = 1000)
         {
             //This should trigger the generator to stop infinite generation and trigger any post
@@ -459,6 +545,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
 
+        /// <summary>Aborts generation, disables the output, and closes the instrument session.</summary>
+        /// <param name="rfsgHandle">The open RFSG session to close.</param>
         public static void CloseInstrument(NIRfsg rfsgHandle)
         {
             rfsgHandle.Abort();
@@ -466,11 +554,20 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Close();
         }
 
+        /// <summary>Converts samples to time based on the sample rate.</summary>
+        /// <param name="time">Specifies the time in seconds.</param>
+        /// <param name="sampleRate">Specifies the sample rate in samples/second.</param>
+        /// <returns>The rounded sample count pertaining to the time value specified.</returns>
         private static long TimeToSamples(double time, double sampleRate)
         {
             return (long)Math.Round(time * sampleRate);
         }
 
+        /// <summary>Calculates the waveform duration between the first and final burst.</summary>
+        /// <param name="BurstStartLocations">The burst start locations loaded from the waveform file.</param>
+        /// <param name="BurstStopLocations">The burst stop locations loaded from the waveform file.</param>
+        /// <param name="SampleRate">The waveform sample rate loaded from the waveform file.</param>
+        /// <returns>The waveform duration in seconds.</returns>
         private static double CalculateWaveformDuration(int[] BurstStartLocations, int[] BurstStopLocations, double SampleRate)
         {
             int finalStopIndex = BurstStopLocations.Length - 1;
@@ -482,6 +579,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
         public static class Utilities
         {
+            /// <summary>Formats the waveform name in order to avoid any errors when used in a script or downloaded to the generator.</summary>
+            /// <param name="waveformName">The waveform name to format.</param>
+            /// <returns>The formatted waveform name.</returns>
             public static string FormatWaveformName(string waveformName)
             {
                 //The RFSG playback library and script compiler won't accept names with non-text/numeric characters
