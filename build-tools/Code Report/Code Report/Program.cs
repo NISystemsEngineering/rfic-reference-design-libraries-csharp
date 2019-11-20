@@ -126,10 +126,9 @@ namespace Code_Report
                         MethodDeclarationSyntax method = (MethodDeclarationSyntax)member;
                         // Get the return data type
                         TypeSyntax returnType = method.ReturnType;
-                        if (returnType.Kind() == SyntaxKind.IdentifierName)
+                        if (returnType.ToString().ToLower() != "void")
                         {
-                            IdentifierNameSyntax returnValue = (IdentifierNameSyntax)returnType;
-                            paramList.Add(returnValue.Identifier.ToString(), memberDocumentation.MethodDocumentation.ReturnValueDescription);
+                            paramList.Add("ReturnValue;Type=" + returnType.ToString(), memberDocumentation.MethodDocumentation.ReturnValueDescription);
                         }
                         // Get all input and output parameters
                         foreach (ParameterSyntax param in method.ParameterList.Parameters)
@@ -150,15 +149,11 @@ namespace Code_Report
                             if (structMem.Kind() == SyntaxKind.FieldDeclaration)
                             {
                                 FieldDeclarationSyntax param = (FieldDeclarationSyntax)structMem;
+                                DocumentationParsingResults paramDoc = ParseDocumentation(param);
                                 for (int i = 0; i < param.Declaration.Variables.Count; i++)
                                 {
-
-                                        var vars = param.Declaration.Variables[i];
-                                        DocumentationParsingResults paramDoc = ParseDocumentation(vars);
-                                    paramList.Add(param.Declaration.Variables[i].Identifier.ToString(), paramDoc.MemberDescription);
-                                    //desc = ParseDocumentation(param);
-                                    //Console.Write(desc);
-
+                                    var variableDeclaration = param.Declaration.Variables[i];
+                                    paramList.Add(variableDeclaration.Identifier.ToString(), paramDoc.MemberDescription);
                                 }
                             }
                         }
@@ -235,7 +230,12 @@ namespace Code_Report
                         t.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia || t.Kind() == SyntaxKind.MultiLineCommentTrivia);
 
                     // Convert the trivia to a string, and strip out the tabs and /// 
-                    string rawTrivia = Regex.Replace(trivia.ToString(), @"^\s+\/\/\/", "", options: RegexOptions.Multiline);
+                    string rawTrivia = Regex.Replace(trivia.ToString(), @"^\s+\/\/\/", "", RegexOptions.Multiline);
+                    // Strip <see> tags from the text, but leave in place the referenced function or type
+                    // i.e. <see cref="DownloadWaveform(NIRfsg, Waveform)"/> becomes DownloadWaveform
+                    rawTrivia = Regex.Replace(rawTrivia, @"<see cref=""([\w\.]+)(?:\(.*\))?""\/>", "$1", RegexOptions.Multiline);
+                    // Strip <paramRef> tags from the text, leaving in place the referenced parameter name
+                    rawTrivia = Regex.Replace(rawTrivia, @"<paramref name=""(\w+)""\/>", "$1", RegexOptions.Multiline);
 
                     // The XML structure of the documentation is "rootless", so adding simple root node avoids parser errors
                     rawTrivia = "<root>" + rawTrivia + "</root>";
@@ -250,7 +250,10 @@ namespace Code_Report
 
                     try
                     {
-                        results.MethodDocumentation.ReturnValueDescription = documentation.Element("returns").Value;
+                        string returnValue = documentation.Element("returns").Value;
+                        // Remove newlines from the description
+                        returnValue = Regex.Replace(returnValue, "[\n\r]", "");
+                        results.MethodDocumentation.ReturnValueDescription = returnValue;
                     }
                     catch (System.NullReferenceException e) { }
 
@@ -259,6 +262,8 @@ namespace Code_Report
                     {
                         string parameterName = param.Attribute("name").Value;
                         string parameterDescription = param.Value;
+                        // Remove newlines from the description
+                        parameterDescription = Regex.Replace(parameterDescription, "[\n\r]", "");
                         results.MethodDocumentation.ParameterDescriptions.Add(parameterName, parameterDescription);
                     } 
 
