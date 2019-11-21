@@ -226,7 +226,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             // create another waveform that we can use to download the scaled envelope to the instrument
             Waveform instrEnvelopeWaveform = envelopeWaveform;
             instrEnvelopeWaveform.Data = envelopeWaveform.Data.Clone();
-            WritableBuffer<ComplexSingle> instrEnvelopeWaveformBuffer = scaledEnvelopeWaveform.Data.GetWritableBuffer();
+            WritableBuffer<ComplexSingle> instrEnvelopeWaveformBuffer = instrEnvelopeWaveform.Data.GetWritableBuffer();
 
             // populate cloned waveform with scaled waveform data
             for (int i = 0; i < envelope.Length; i++)
