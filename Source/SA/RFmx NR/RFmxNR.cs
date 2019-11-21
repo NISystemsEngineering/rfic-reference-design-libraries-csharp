@@ -198,21 +198,18 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxNRMX nr, SACommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxNRMX nr, CommonConfiguration commonConfig, string selectorString = "")
         {
             nr.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             nr.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
             nr.ConfigureFrequency(selectorString, commonConfig.CenterFrequency_Hz);
             nr.ConfigureExternalAttenuation(selectorString, commonConfig.ExternalAttenuation_dB);
-            nr.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxNRMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
-
-            if (commonConfig.AutoLevelEnabled)
-                nr.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s, out _);
+            nr.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxNRMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.TriggerEnabled);
         }
         #endregion
 
         #region Measurement Configuration
-        public static void ConfigureSignal(RFmxNRMX nr, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxNRMX nr, SignalConfiguration signalConfig, string selectorString = "")
         {
             nr.SetComponentCarrierSpacingType(selectorString, RFmxNRMXComponentCarrierSpacingType.Nominal); // nominal is assumed
             nr.SetLinkDirection(selectorString, signalConfig.LinkDirection);
@@ -245,8 +242,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureModacc(RFmxNRMX nr, ModAccConfiguration modAccConfig, string selectorString = "")
         {
-            nr.ModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
-            nr.ModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
+            nr.SelectMeasurements(selectorString, RFmxNRMXMeasurementTypes.ModAcc, false);
             nr.ModAcc.Configuration.SetMeasurementLengthUnit(selectorString, modAccConfig.MeasurementLengthUnit);
             nr.ModAcc.Configuration.SetMeasurementOffset(selectorString, modAccConfig.MeasurementOffset);
             nr.ModAcc.Configuration.SetMeasurementLength(selectorString, modAccConfig.MeasurementLength);
@@ -257,8 +253,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureAcp(RFmxNRMX nr, AcpConfiguration acpConfig, string selectorString = "")
         {
-            nr.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
-            nr.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
+            nr.SelectMeasurements(selectorString, RFmxNRMXMeasurementTypes.Acp, false);
             nr.Acp.Configuration.ConfigureNumberOfUtraOffsets(selectorString, acpConfig.NumberOfUtraOffsets);
             nr.Acp.Configuration.ConfigureNumberOfEutraOffsets(selectorString, acpConfig.NumberOfEutraOffsets);
             nr.Acp.Configuration.ConfigureNumberOfNROffsets(selectorString, acpConfig.NumberOfNrOffsets);
@@ -271,10 +266,25 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureChp(RFmxNRMX nr, ChpConfiguration chpConfig, string selectorString = "")
         {
-            nr.Chp.Configuration.SetMeasurementEnabled(selectorString, true);
-            nr.Chp.Configuration.SetAllTracesEnabled(selectorString, true);
+            nr.SelectMeasurements(selectorString, RFmxNRMXMeasurementTypes.Chp, false);
             nr.Chp.Configuration.ConfigureSweepTime(selectorString, chpConfig.SweepTimeAuto, chpConfig.SweepTimeInterval_s);
             nr.Chp.Configuration.ConfigureAveraging(selectorString, chpConfig.AveragingEnabled, chpConfig.AveragingCount, chpConfig.AveragingType);
+        }
+        public static void SelectAndInitiateMeasurements(RFmxNRMX nr, RFmxNRMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
+            bool enableTraces = false, string selectorString = "", string resultName = "")
+        {
+            // Aggregate the selected measurements into a single value
+            // OR of 0 and x equals x
+            RFmxNRMXMeasurementTypes selectedMeasurements = 0;
+            foreach (RFmxNRMXMeasurementTypes measurement in measurements)
+                selectedMeasurements |= measurement;
+            nr.SelectMeasurements(selectorString, selectedMeasurements, enableTraces);
+
+            if (autoLevelConfig.Enabled)
+                nr.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s, out double _);
+
+            // Initiate acquisition and measurement for the selected measurements
+            nr.Initiate(selectorString, resultName);
         }
         #endregion
 

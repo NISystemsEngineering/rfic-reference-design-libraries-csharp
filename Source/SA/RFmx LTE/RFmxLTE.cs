@@ -150,18 +150,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configuration
-        public static void ConfigureCommon(RFmxLteMX lte, SACommonConfiguration commonConfig, string selectorString = "")
+        public static void ConfigureCommon(RFmxLteMX lte, CommonConfiguration commonConfig, string selectorString = "")
         {
             lte.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
             lte.ConfigureRF(selectorString, commonConfig.CenterFrequency_Hz, commonConfig.ReferenceLevel_dBm, commonConfig.ExternalAttenuation_dB);
-            lte.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxLteMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.EnableTrigger);
-            if (commonConfig.AutoLevelEnabled)
-                lte.AutoLevel(selectorString, commonConfig.AutoLevelMeasurementInterval_s, out double _);
+            lte.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxLteMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.TriggerEnabled);
         }
         #endregion
 
         #region Measurement Configuration
-        public static void ConfigureSignal(RFmxLteMX lte, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxLteMX lte, SignalConfiguration signalConfig, string selectorString = "")
         {
             lte.ComponentCarrier.SetSpacingType(selectorString, RFmxLteMXComponentCarrierSpacingType.Nominal); // nominal spacing is assumed
             lte.ConfigureLinkDirection(selectorString, signalConfig.LinkDirection);
@@ -185,8 +183,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureAcp(RFmxLteMX lte, AcpConfiguration acpConfig, string selectorString = "")
         {
-            lte.Acp.Configuration.SetMeasurementEnabled(selectorString, true);
-            lte.Acp.Configuration.SetAllTracesEnabled(selectorString, true);
+            lte.SelectMeasurements(selectorString, RFmxLteMXMeasurementTypes.Acp, false);
             lte.Acp.Configuration.ConfigureNumberOfEutraOffsets(selectorString, acpConfig.NumberOfEutraOffsets);
             lte.Acp.Configuration.ConfigureNumberOfUtraOffsets(selectorString, acpConfig.NumberOfUtraOffsets);
             lte.Acp.Configuration.ConfigureNumberOfGsmOffsets(selectorString, acpConfig.NumberOfGsmOffsets);
@@ -197,11 +194,26 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         public static void ConfigureModAcc(RFmxLteMX lte, ModAccConfiguration modAccConfig, string selectorString = "")
         {
-            lte.ModAcc.Configuration.SetMeasurementEnabled(selectorString, true);
-            lte.ModAcc.Configuration.SetAllTracesEnabled(selectorString, true);
+            lte.SelectMeasurements(selectorString, RFmxLteMXMeasurementTypes.ModAcc, false);
             lte.ModAcc.Configuration.ConfigureAveraging(selectorString, modAccConfig.AveragingEnabled, modAccConfig.AveragingCount);
             lte.ModAcc.Configuration.ConfigureSynchronizationModeAndInterval(selectorString, modAccConfig.SynchronizationMode, modAccConfig.MeasurementOffset, modAccConfig.MeasurementLength);
             lte.ModAcc.Configuration.ConfigureEvmUnit(selectorString, modAccConfig.EvmUnit);
+        }
+        public static void SelectAndInitiateMeasurements(RFmxLteMX lte, RFmxLteMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
+            bool enableTraces = false, string selectorString = "", string resultName = "")
+        {
+            // Aggregate the selected measurements into a single value
+            // OR of 0 and x equals x
+            RFmxLteMXMeasurementTypes selectedMeasurements = 0;
+            foreach (RFmxLteMXMeasurementTypes measurement in measurements)
+                selectedMeasurements |= measurement;
+            lte.SelectMeasurements(selectorString, selectedMeasurements, enableTraces);
+
+            if (autoLevelConfig.Enabled)
+                lte.AutoLevel(selectorString, autoLevelConfig.MeasurementInterval_s, out double _);
+
+            // Initiate acquisition and measurement for the selected measurements
+            lte.Initiate(selectorString, resultName);
         }
         #endregion
 
