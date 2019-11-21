@@ -38,7 +38,7 @@ namespace EnvelopeTrackingTests
             for (int i = 0; i < referenceWaveform.Data.SampleCount; i++)
                 writableBuffer[i] = ComplexSingle.FromSingle((float)Math.Sqrt(Math.Pow(10.0, (writableBuffer[i].Real - 10.0) / 10.0)));
 
-            Waveform envelopeWaveform = ConfigureEnvelopeWaveform(referenceWaveform, lutConfig);
+            Waveform envelopeWaveform = CreateLookUpTableEnvelopeWaveform(referenceWaveform, lutConfig);
             ComplexSingle.DecomposeArrayPolar(envelopeWaveform.Data.GetRawData(), out float[] yi, out _);
 
             float[] solution = new float[] { 4.5f, 5.5f, 6.5f, 7.5f, 8.5f };
