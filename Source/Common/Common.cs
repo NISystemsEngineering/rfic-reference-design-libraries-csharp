@@ -1,6 +1,4 @@
-﻿using NationalInstruments.DataInfrastructure;
-
-namespace NationalInstruments.ReferenceDesignLibraries
+﻿namespace NationalInstruments.ReferenceDesignLibraries
 {
     public struct Waveform
     {
@@ -23,11 +21,13 @@ namespace NationalInstruments.ReferenceDesignLibraries
             Name = newName;
         }
     }
+
     public enum LocalOscillatorSharingMode
     {
         Automatic,
         None
     }
+
     // SA Specific Common Properties
     namespace SA
     {
@@ -40,6 +40,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public bool TriggerEnabled;
             public string DigitalTriggerSource;
             public double TriggerDelay_s;
+
             public static CommonConfiguration GetDefault()
             {
                 return new CommonConfiguration
@@ -54,6 +55,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 };
             }
         }
+
         public struct AutoLevelConfiguration
         {
             public bool Enabled;
