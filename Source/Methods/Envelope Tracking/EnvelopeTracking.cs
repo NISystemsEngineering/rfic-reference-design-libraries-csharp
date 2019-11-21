@@ -92,7 +92,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         #endregion
 
         #region Envelope Creation
-        public static Waveform ConfigureEnvelopeWaveform(Waveform referenceWaveform, DetroughConfiguration detroughConfig)
+        public static Waveform CreateDetroughEnvelopeWaveform(Waveform referenceWaveform, DetroughConfiguration detroughConfig)
         {
             Waveform envelopeWaveform = CloneAndConditionReferenceWaveform(referenceWaveform);
             WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.Data.GetWritableBuffer();
@@ -140,7 +140,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             return envelopeWaveform;
         }
 
-        public static Waveform ConfigureEnvelopeWaveform(Waveform referenceWaveform, LookUpTableConfiguration lookUpTableConfig)
+        public static Waveform CreateLookUpTableEnvelopeWaveform(Waveform referenceWaveform, LookUpTableConfiguration lookUpTableConfig)
         {
             ComplexSingle[] iq = referenceWaveform.Data.GetRawData(); // get copy of iq samples
             
