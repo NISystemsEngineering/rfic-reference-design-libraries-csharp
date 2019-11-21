@@ -94,20 +94,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         #region Envelope Creation
         public static Waveform ConfigureEnvelopeWaveform(Waveform referenceWaveform, DetroughConfiguration detroughConfig)
         {
-            Waveform envelopeWaveform = new Waveform()
-            {
-                Name = referenceWaveform.Name + "Envelope",
-                Data = referenceWaveform.Data.Clone(),
-                SignalBandwidth_Hz = 0.8 * referenceWaveform.SampleRate,
-                PAPR_dB = double.NaN, // unnecessary to calculate as it won't be used
-                BurstLength_s = referenceWaveform.BurstLength_s,
-                SampleRate = referenceWaveform.SampleRate,
-                // burst start and stop locations will be left as null since they also will not be used
-                // IdleDurationPresent will not be touched since the concept of idle time doesn't follow RF waveforms, it will default to false
-                RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom to the waveform at runtime
-                Script = referenceWaveform.Script // we will copy the script but call replace on it in the following lines to change the waveform name
-            };
-            envelopeWaveform.Script = envelopeWaveform.Script?.Replace(referenceWaveform.Name, envelopeWaveform.Name); // this is better here since now we only have to add the suffix once
+            Waveform envelopeWaveform = CloneAndConditionReferenceWaveform(referenceWaveform);
             WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.Data.GetWritableBuffer();
 
             double[] iqMagnitudes = referenceWaveform.Data.GetMagnitudeDataArray(false);
@@ -182,23 +169,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             float[] rawEnvelope = LinearInterpolation1D(lutDutInputPowerWattOneOhm, lookUpTableConfig.SupplyVoltage_V, powerTrace_W);
 
             // create waveform to return to the user
-            Waveform envelopeWaveform = new Waveform()
-            {
-                Name = referenceWaveform.Name + "Envelope",
-                Data = referenceWaveform.Data.Clone(),
-                SignalBandwidth_Hz = 0.8 * referenceWaveform.SampleRate,
-                PAPR_dB = double.NaN, // unnecessary to calculate as it won't be used
-                BurstLength_s = referenceWaveform.BurstLength_s,
-                SampleRate = referenceWaveform.SampleRate,
-                // burst start and stop locations will be left as null since they also will not be used
-                // IdleDurationPresent will not be touched since the concept of idle time doesn't follow RF waveforms, it will default to false
-                RuntimeScaling = 10 * Math.Log10(0.9), // applies 10% headroom to the waveform at runtime
-                Script = referenceWaveform.Script // we will copy the script but call replace on it in the following lines to change the waveform name
-            };
-            envelopeWaveform.Script = envelopeWaveform.Script?.Replace(referenceWaveform.Name, envelopeWaveform.Name); // this is better here since now we only have to add the suffix once
-            WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.Data.GetWritableBuffer();
+            Waveform envelopeWaveform = CloneAndConditionReferenceWaveform(referenceWaveform);
 
             // copy raw envelope data into cloned envelope waveform
+            WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.Data.GetWritableBuffer();
             for (int i = 0; i < rawEnvelope.Length; i++)
                 envWfmWriteBuffer[i] = ComplexSingle.FromSingle(rawEnvelope[i]);
 
@@ -273,6 +247,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             tclk.Initiate();
         }
         #endregion
+
+        private static Waveform CloneAndConditionReferenceWaveform(Waveform referenceWaveform)
+        {
+            Waveform envelopeWaveform = referenceWaveform;
+            envelopeWaveform.UpdateNameAndScript(referenceWaveform.Name + "Envelope");
+            envelopeWaveform.Data = referenceWaveform.Data.Clone();
+            envelopeWaveform.SignalBandwidth_Hz = 0.8 * referenceWaveform.SampleRate;
+            envelopeWaveform.PAPR_dB = double.NaN; // papr does not make sense for envelope waveforms so set to NaN
+            // burst length already copied
+            // sample rate already copied
+            envelopeWaveform.BurstStartLocations = (int[])referenceWaveform.BurstStartLocations.Clone();
+            envelopeWaveform.BurstStopLocations = (int[])referenceWaveform.BurstStopLocations.Clone();
+            envelopeWaveform.RuntimeScaling = 10.0 * Math.Log10(0.9); // applies 10% headroom
+            // script was updated already
+            return envelopeWaveform;
+        }
 
         private static float[] LinearInterpolation1D(float[] x, float[] y, float[] xi, bool monotonic = false)
         {
