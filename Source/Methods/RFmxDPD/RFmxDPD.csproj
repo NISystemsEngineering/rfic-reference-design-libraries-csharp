@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="NationalInstruments.Common, Version=19.0.40.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\National Instruments\Measurement Studio\DotNET\v4.0\AnyCPU\NationalInstruments.Common 19.0.40\NationalInstruments.Common.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NationalInstruments.ModularInstruments.NIRfsg.Fx45, Version=19.1.0.49152, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -57,6 +58,7 @@
     <ProjectReference Include="..\..\Common\Common.csproj">
       <Project>{8e7d5092-b685-4ad3-9da3-7c53e56f0f32}</Project>
       <Name>Common</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\SG\SG.csproj">
       <Project>{89abcac5-cedb-4535-bd58-e205a97834d9}</Project>
