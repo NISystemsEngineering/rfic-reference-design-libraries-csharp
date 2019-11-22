@@ -58,7 +58,7 @@
     <ProjectReference Include="..\..\Common\Common.csproj">
       <Project>{8e7d5092-b685-4ad3-9da3-7c53e56f0f32}</Project>
       <Name>Common</Name>
-      <Private>False</Private>
+      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\SG\SG.csproj">
       <Project>{89abcac5-cedb-4535-bd58-e205a97834d9}</Project>
