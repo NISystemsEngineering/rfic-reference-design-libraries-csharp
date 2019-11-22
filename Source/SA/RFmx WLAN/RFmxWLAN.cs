@@ -159,10 +159,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Measurement Configuration
-        public static void ConfigureStandard(RFmxWlanMX wlanSignal, StandardConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxWlanMX wlanSignal, StandardConfiguration standardConfig, string selectorString = "")
         {
-            wlanSignal.ConfigureStandard(selectorString, signalConfig.Standard);
-            wlanSignal.ConfigureChannelBandwidth(selectorString, signalConfig.ChannelBandwidth_Hz);
+            wlanSignal.ConfigureStandard(selectorString, standardConfig.Standard);
+            wlanSignal.ConfigureChannelBandwidth(selectorString, standardConfig.ChannelBandwidth_Hz);
         }
 
         public static void ConfigureTxP(RFmxWlanMX wlanSignal, TxPConfiguration txPConfig, string selectorString = "")

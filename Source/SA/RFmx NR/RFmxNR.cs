@@ -209,20 +209,20 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Configuration
-        public static void ConfigureStandard(RFmxNRMX nr, StandardConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxNRMX nr, StandardConfiguration standardConfig, string selectorString = "")
         {
             nr.SetComponentCarrierSpacingType(selectorString, RFmxNRMXComponentCarrierSpacingType.Nominal); // nominal is assumed
-            nr.SetLinkDirection(selectorString, signalConfig.LinkDirection);
-            nr.SetFrequencyRange(selectorString, signalConfig.FrequencyRange);
-            nr.SetBand(selectorString, signalConfig.Band);
-            nr.SetAutoResourceBlockDetectionEnabled(selectorString, signalConfig.AutoResourceBlockDetectionEnabled);
-            nr.ComponentCarrier.SetDownlinkTestModel(selectorString, signalConfig.DownlinkTestModel);
-            nr.ComponentCarrier.SetDownlinkTestModelDuplexScheme(selectorString, signalConfig.DownlinkTestModelDuplexScheme);
-            nr.ComponentCarrier.SetNumberOfComponentCarriers(selectorString, signalConfig.ComponentCarrierConfigurations.Length);
-            for (int i = 0; i < signalConfig.ComponentCarrierConfigurations.Length; i++)
+            nr.SetLinkDirection(selectorString, standardConfig.LinkDirection);
+            nr.SetFrequencyRange(selectorString, standardConfig.FrequencyRange);
+            nr.SetBand(selectorString, standardConfig.Band);
+            nr.SetAutoResourceBlockDetectionEnabled(selectorString, standardConfig.AutoResourceBlockDetectionEnabled);
+            nr.ComponentCarrier.SetDownlinkTestModel(selectorString, standardConfig.DownlinkTestModel);
+            nr.ComponentCarrier.SetDownlinkTestModelDuplexScheme(selectorString, standardConfig.DownlinkTestModelDuplexScheme);
+            nr.ComponentCarrier.SetNumberOfComponentCarriers(selectorString, standardConfig.ComponentCarrierConfigurations.Length);
+            for (int i = 0; i < standardConfig.ComponentCarrierConfigurations.Length; i++)
             {
                 string carrierString = RFmxNRMX.BuildCarrierString(selectorString, i);
-                ComponentCarrierConfiguration componentCarrierConfig = signalConfig.ComponentCarrierConfigurations[i];
+                ComponentCarrierConfiguration componentCarrierConfig = standardConfig.ComponentCarrierConfigurations[i];
                 nr.ComponentCarrier.SetBandwidth(carrierString, componentCarrierConfig.Bandwidth_Hz);
                 nr.ComponentCarrier.SetCellID(carrierString, componentCarrierConfig.CellId);
                 nr.ComponentCarrier.SetPuschModulationType(carrierString, componentCarrierConfig.PuschModulationType);
