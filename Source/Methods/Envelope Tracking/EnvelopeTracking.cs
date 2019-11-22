@@ -220,7 +220,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 envelope[i] = envelope[i] / (absolutePeak); // brings waveform down to +/- 1 magnitude
 
             // set instrument properties
-            envVsg.IQOutPort[""].Level = 2 * absolutePeak; // gain is interpreted as peak-to-peak
+            envVsg.IQOutPort[""].Level = 2.0 * absolutePeak; // gain is interpreted as peak-to-peak
             envVsg.IQOutPort[""].Offset = 0.0; // set offset to 0 since this is done in DSP not in HW on the 5820 and only clips the waveform further
 
             // create another waveform that we can use to download the scaled envelope to the instrument
