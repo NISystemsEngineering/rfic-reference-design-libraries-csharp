@@ -21,7 +21,7 @@ namespace LTETests
             RFmxLteMX lte = instr.GetLteSignalConfiguration();
 
             ConfigureCommon(lte, CommonConfiguration.GetDefault());
-            SignalConfiguration signalConfig = SignalConfiguration.GetDefault();
+            StandardConfiguration signalConfig = StandardConfiguration.GetDefault();
             signalConfig.DuplexScheme = RFmxLteMXDuplexScheme.Tdd;
             ConfigureStandard(lte, signalConfig);
             ModAccConfiguration modAccConfig = ModAccConfiguration.GetDefault();

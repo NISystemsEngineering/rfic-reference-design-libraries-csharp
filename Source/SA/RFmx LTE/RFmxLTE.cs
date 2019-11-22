@@ -29,7 +29,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
-        public struct SignalConfiguration
+        public struct StandardConfiguration
         {
             public RFmxLteMXLinkDirection LinkDirection;
             public RFmxLteMXDuplexScheme DuplexScheme;
@@ -40,9 +40,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxLteMXDownlinkAutoCellIDDetectionEnabled DownlinkAutoCellIDDetectionEnabled;
             public ComponentCarrierConfiguration[] ComponentCarrierConfigurations;
 
-            public static SignalConfiguration GetDefault()
+            public static StandardConfiguration GetDefault()
             {
-                return new SignalConfiguration()
+                return new StandardConfiguration()
                 {
                     LinkDirection = RFmxLteMXLinkDirection.Uplink,
                     DuplexScheme = RFmxLteMXDuplexScheme.Fdd,
@@ -159,26 +159,26 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Configuration
-        public static void ConfigureStandard(RFmxLteMX lte, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxLteMX lte, StandardConfiguration standardConfig, string selectorString = "")
         {
             lte.ComponentCarrier.SetSpacingType(selectorString, RFmxLteMXComponentCarrierSpacingType.Nominal); // nominal spacing is assumed
-            lte.ConfigureLinkDirection(selectorString, signalConfig.LinkDirection);
-            lte.ConfigureDuplexScheme(selectorString, signalConfig.DuplexScheme, signalConfig.UplinkDownlinkConfiguration);
-            lte.ConfigureBand(selectorString, signalConfig.Band);
-            lte.ConfigureNumberOfComponentCarriers(selectorString, signalConfig.ComponentCarrierConfigurations.Length);
-            for (int i = 0; i < signalConfig.ComponentCarrierConfigurations.Length; i++)
+            lte.ConfigureLinkDirection(selectorString, standardConfig.LinkDirection);
+            lte.ConfigureDuplexScheme(selectorString, standardConfig.DuplexScheme, standardConfig.UplinkDownlinkConfiguration);
+            lte.ConfigureBand(selectorString, standardConfig.Band);
+            lte.ConfigureNumberOfComponentCarriers(selectorString, standardConfig.ComponentCarrierConfigurations.Length);
+            for (int i = 0; i < standardConfig.ComponentCarrierConfigurations.Length; i++)
             {
                 string carrierString = RFmxLteMX.BuildCarrierString(selectorString, i);
-                ComponentCarrierConfiguration componentCarrierConfig = signalConfig.ComponentCarrierConfigurations[i];
+                ComponentCarrierConfiguration componentCarrierConfig = standardConfig.ComponentCarrierConfigurations[i];
                 lte.ComponentCarrier.SetBandwidth(carrierString, componentCarrierConfig.Bandwidth_Hz);
                 lte.ComponentCarrier.SetCellId(carrierString, componentCarrierConfig.CellId);
                 lte.ComponentCarrier.ConfigurePuschModulationType(carrierString, componentCarrierConfig.PuschModulationType);
                 lte.ComponentCarrier.ConfigurePuschResourceBlocks(carrierString, componentCarrierConfig.PuschResourceBlockOffset, componentCarrierConfig.PuschNumberOfResourceBlocks);
                 lte.ComponentCarrier.ConfigureDownlinkTestModel(carrierString, componentCarrierConfig.DownlinkTestModel);
             }
-            lte.ComponentCarrier.ConfigureAutoResourceBlockDetectionEnabled(selectorString, signalConfig.PuschAutoResourceBlockDetectionEnabled);
-            lte.ConfigureAutoDmrsDetectionEnabled(selectorString, signalConfig.AutoDmrsDetectionEnabled);
-            lte.ComponentCarrier.ConfigureDownlinkAutoCellIDDetectionEnabled(selectorString, signalConfig.DownlinkAutoCellIDDetectionEnabled);
+            lte.ComponentCarrier.ConfigureAutoResourceBlockDetectionEnabled(selectorString, standardConfig.PuschAutoResourceBlockDetectionEnabled);
+            lte.ConfigureAutoDmrsDetectionEnabled(selectorString, standardConfig.AutoDmrsDetectionEnabled);
+            lte.ComponentCarrier.ConfigureDownlinkAutoCellIDDetectionEnabled(selectorString, standardConfig.DownlinkAutoCellIDDetectionEnabled);
         }
 
         public static void ConfigureAcp(RFmxLteMX lte, AcpConfiguration acpConfig, string selectorString = "")
