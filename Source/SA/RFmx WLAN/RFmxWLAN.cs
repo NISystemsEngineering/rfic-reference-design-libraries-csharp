@@ -10,14 +10,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         //Structs were chosen over a basic class due to the ease of viewing function inputs inside of TestStand (avoiding encapsulation)
         //This has the downside of requiring two steps to initialize the struct to the default values
         #region Type_Definitionss
-        public struct SignalConfiguration
+        public struct StandardConfiguration
         {
             public RFmxWlanMXStandard Standard;
             public double ChannelBandwidth_Hz;
 
-            public static SignalConfiguration GetDefault()
+            public static StandardConfiguration GetDefault()
             {
-                return new SignalConfiguration
+                return new StandardConfiguration
                 {
                     Standard = RFmxWlanMXStandard.Standard802_11ac,
                     ChannelBandwidth_Hz = 20e6
@@ -159,7 +159,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Measurement Configuration
-        public static void ConfigureStandard(RFmxWlanMX wlanSignal, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxWlanMX wlanSignal, StandardConfiguration signalConfig, string selectorString = "")
         {
             wlanSignal.ConfigureStandard(selectorString, signalConfig.Standard);
             wlanSignal.ConfigureChannelBandwidth(selectorString, signalConfig.ChannelBandwidth_Hz);

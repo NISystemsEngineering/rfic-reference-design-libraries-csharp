@@ -45,7 +45,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
-        public struct SignalConfiguration
+        public struct StandardConfiguration
         {
             public RFmxNRMXLinkDirection LinkDirection;
             public RFmxNRMXFrequencyRange FrequencyRange;
@@ -55,9 +55,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxNRMXDownlinkTestModelDuplexScheme DownlinkTestModelDuplexScheme;
             public ComponentCarrierConfiguration[] ComponentCarrierConfigurations;
 
-            public static SignalConfiguration GetDefault()
+            public static StandardConfiguration GetDefault()
             {
-                return new SignalConfiguration
+                return new StandardConfiguration
                 {
                     LinkDirection = RFmxNRMXLinkDirection.Uplink,
                     FrequencyRange = RFmxNRMXFrequencyRange.Range1,
@@ -209,7 +209,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Configuration
-        public static void ConfigureStandard(RFmxNRMX nr, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxNRMX nr, StandardConfiguration signalConfig, string selectorString = "")
         {
             nr.SetComponentCarrierSpacingType(selectorString, RFmxNRMXComponentCarrierSpacingType.Nominal); // nominal is assumed
             nr.SetLinkDirection(selectorString, signalConfig.LinkDirection);

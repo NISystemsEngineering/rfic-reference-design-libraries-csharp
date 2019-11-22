@@ -29,7 +29,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
-        public struct SignalConfiguration
+        public struct StandardConfiguration
         {
             public RFmxLteMXLinkDirection LinkDirection;
             public RFmxLteMXDuplexScheme DuplexScheme;
@@ -40,9 +40,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxLteMXDownlinkAutoCellIDDetectionEnabled DownlinkAutoCellIDDetectionEnabled;
             public ComponentCarrierConfiguration[] ComponentCarrierConfigurations;
 
-            public static SignalConfiguration GetDefault()
+            public static StandardConfiguration GetDefault()
             {
-                return new SignalConfiguration()
+                return new StandardConfiguration()
                 {
                     LinkDirection = RFmxLteMXLinkDirection.Uplink,
                     DuplexScheme = RFmxLteMXDuplexScheme.Fdd,
@@ -159,7 +159,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Configuration
-        public static void ConfigureStandard(RFmxLteMX lte, SignalConfiguration signalConfig, string selectorString = "")
+        public static void ConfigureStandard(RFmxLteMX lte, StandardConfiguration signalConfig, string selectorString = "")
         {
             lte.ComponentCarrier.SetSpacingType(selectorString, RFmxLteMXComponentCarrierSpacingType.Nominal); // nominal spacing is assumed
             lte.ConfigureLinkDirection(selectorString, signalConfig.LinkDirection);
