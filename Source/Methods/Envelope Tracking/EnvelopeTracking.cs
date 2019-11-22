@@ -241,9 +241,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         {   
             TClock tclk = new TClock(new ITClockSynchronizableDevice[] { rfVsg, envVsg });
             tclk.DevicesToSynchronize[0].SampleClockDelay = -syncConfig.RFDelayRange_s / 2.0; // The VST2 can only apply positive delays so we have to establish an inital delay of -RFDelayRange/2 for TCLK to handle negative shifts as well
-            rfVsg.Arb.RelativeDelay = syncConfig.RFDelayRange_s + syncConfig.RFDelay_s;
+            rfVsg.Arb.RelativeDelay = syncConfig.RFDelayRange_s / 2.0 + syncConfig.RFDelay_s;
             tclk.ConfigureForHomogeneousTriggers();
-            tclk.Synchronize(); // #todo: allow drift?
+            tclk.Synchronize();
             tclk.Initiate();
         }
         #endregion
