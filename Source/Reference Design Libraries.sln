@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxInstr", "SA\RFmx Instr\RFmxInstr.csproj", "{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envelope Tracking", "Methods\Envelope Tracking\Envelope Tracking.csproj", "{724A8D0C-EE49-405C-AA33-884FDA656088}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,10 @@ Global
 		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{724A8D0C-EE49-405C-AA33-884FDA656088}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{724A8D0C-EE49-405C-AA33-884FDA656088}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{724A8D0C-EE49-405C-AA33-884FDA656088}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{724A8D0C-EE49-405C-AA33-884FDA656088}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,6 +110,7 @@ Global
 		{3779EC48-73B9-4620-8E17-57340A70611A} = {9DF8AA31-0EBB-4E3D-ACAE-96F2350DA9F8}
 		{8E7D5092-B685-4AD3-9DA3-7C53E56F0F32} = {9DF8AA31-0EBB-4E3D-ACAE-96F2350DA9F8}
 		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA} = {2B079B61-B71B-440E-BFF7-0DF80927B5C5}
+		{724A8D0C-EE49-405C-AA33-884FDA656088} = {3779EC48-73B9-4620-8E17-57340A70611A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D020C05D-4EF8-45D5-8E12-D76DE5E66039}
