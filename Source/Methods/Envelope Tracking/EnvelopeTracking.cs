@@ -257,8 +257,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             envelopeWaveform.PAPR_dB = double.NaN; // papr does not make sense for envelope waveforms so set to NaN
             // burst length already copied
             // sample rate already copied
-            envelopeWaveform.BurstStartLocations = (int[])referenceWaveform.BurstStartLocations.Clone();
-            envelopeWaveform.BurstStopLocations = (int[])referenceWaveform.BurstStopLocations.Clone();
+            envelopeWaveform.BurstStartLocations = (int[])referenceWaveform.BurstStartLocations?.Clone();
+            envelopeWaveform.BurstStopLocations = (int[])referenceWaveform.BurstStopLocations?.Clone();
             envelopeWaveform.RuntimeScaling = 10.0 * Math.Log10(0.9); // applies 10% headroom
             // script was updated already
             return envelopeWaveform;
