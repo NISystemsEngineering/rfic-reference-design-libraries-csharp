@@ -84,7 +84,7 @@ namespace SG_SA_IntegrationTests
             }
             var lte = instr.GetLteSignalConfiguration();
             RFmxLTE.ConfigureCommon(lte, lteCommonConfig);
-            RFmxLTE.ConfigureStandard(lte, RFmxLTE.SignalConfiguration.GetDefault());
+            RFmxLTE.ConfigureStandard(lte, RFmxLTE.StandardConfiguration.GetDefault());
             RFmxLTE.ConfigureModAcc(lte, RFmxLTE.ModAccConfiguration.GetDefault());
 
             lte.Commit("");
