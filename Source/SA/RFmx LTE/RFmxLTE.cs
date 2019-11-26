@@ -6,6 +6,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
     public static class RFmxLTE
     {
         #region Type Definitions
+
+        /// <summary>Defines common settings for a single component carrier.</summary>
         public struct ComponentCarrierConfiguration
         {
             public double Bandwidth_Hz;
@@ -15,6 +17,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int PuschNumberOfResourceBlocks;
             public RFmxLteMXDownlinkTestModel DownlinkTestModel;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static ComponentCarrierConfiguration GetDefault()
             {
                 return new ComponentCarrierConfiguration()
@@ -29,6 +33,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common settings related to the standard of the measured LTE signal.</summary>
         public struct StandardConfiguration
         {
             public RFmxLteMXLinkDirection LinkDirection;
@@ -40,6 +45,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxLteMXDownlinkAutoCellIDDetectionEnabled DownlinkAutoCellIDDetectionEnabled;
             public ComponentCarrierConfiguration[] ComponentCarrierConfigurations;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static StandardConfiguration GetDefault()
             {
                 return new StandardConfiguration()
@@ -56,6 +63,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common settings for the ModAcc measurement.</summary>
         public struct ModAccConfiguration
         {
             public RFmxLteMXModAccSynchronizationMode SynchronizationMode;
@@ -65,6 +73,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxLteMXModAccAveragingEnabled AveragingEnabled;
             public int AveragingCount;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static ModAccConfiguration GetDefault()
             {
                 return new ModAccConfiguration()
@@ -79,6 +89,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common results of the ModAcc measurement for a single component carrier.</summary>
         public struct ModAccComponentCarrierResults
         {
             public int PeakCompositeEvmSubcarrierIndex;
@@ -88,11 +99,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double MeanFrequencyError_Hz;
             public int PeakCompositeEvmSlotIndex;
         }
+
+        /// <summary>Defines common results of the ModAcc measurement.</summary>
         public struct ModAccResults
         {
             public ModAccComponentCarrierResults[] ComponentCarrierResults;
         }
 
+        /// <summary>Defines common settings for the ACP measurement.</summary>
         public struct AcpConfiguration
         {
             public int NumberOfGsmOffsets;
@@ -107,6 +121,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double Rbw_Hz;
             public RFmxLteMXAcpRbwFilterType RbwFilterType;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static AcpConfiguration GetDefault()
             {
                 return new AcpConfiguration()
@@ -126,6 +142,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common results of the ACP measurement for a single defined offset.</summary>
         public struct AcpOffsetResults
         {
             public double LowerAbsolutePower_dBm;
@@ -136,12 +153,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double IntegrationBandwidth_Hz;
         }
 
+        /// <summary>Defines common results of the ACP measurement for a single component carrier.</summary>
         public struct AcpComponentCarrierResults
         {
             public double AbsolutePower_dBm;
             public double RelativePower_dB;
         }
 
+        /// <summary>Defines common results of the ACP measurement.</summary>
         public struct AcpResults
         {
             public AcpOffsetResults[] OffsetResults;
@@ -150,6 +169,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configuration
+
+        /// <summary>Configures common measurement settings for the personality.</summary>
+        /// <param name="lte">Specifies the LTE signal to configure.</param>
+        /// <param name="commonConfig">Specifies the common settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
+        /// See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureCommon(RFmxLteMX lte, CommonConfiguration commonConfig, string selectorString = "")
         {
             lte.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
@@ -158,6 +183,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
 
+        /// <summary>Configures common settings related to the LTE standard of the measured signal.</summary>
+        /// <param name="lte">Specifies the LTE signal to configure.</param>
+        /// <param name="standardConfig">Specifies the WLAN standard settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         #region Measurement Configuration
         public static void ConfigureStandard(RFmxLteMX lte, StandardConfiguration standardConfig, string selectorString = "")
         {
@@ -181,6 +210,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             lte.ComponentCarrier.ConfigureDownlinkAutoCellIDDetectionEnabled(selectorString, standardConfig.DownlinkAutoCellIDDetectionEnabled);
         }
 
+        /// <summary>Configures common settings for the ACP measurement and selects the measurement.</summary>
+        /// <param name="lte">Specifies the LTE signal to configure.</param>
+        /// <param name="acpConfig">Specifies the ACP settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureAcp(RFmxLteMX lte, AcpConfiguration acpConfig, string selectorString = "")
         {
             lte.SelectMeasurements(selectorString, RFmxLteMXMeasurementTypes.Acp, false);
@@ -192,6 +225,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             lte.Acp.Configuration.ConfigureSweepTime(selectorString, acpConfig.SweepTimeAuto, acpConfig.SweepTimeInterval_s);
         }
 
+        /// <summary>Configures common settings for the ModAcc measurement and selects the measurement.</summary>
+        /// <param name="lte">Specifies the LTE signal to configure.</param>
+        /// <param name="modAccConfig">Specifies the ModAcc settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureModAcc(RFmxLteMX lte, ModAccConfiguration modAccConfig, string selectorString = "")
         {
             lte.SelectMeasurements(selectorString, RFmxLteMXMeasurementTypes.ModAcc, false);
@@ -199,6 +236,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             lte.ModAcc.Configuration.ConfigureSynchronizationModeAndInterval(selectorString, modAccConfig.SynchronizationMode, modAccConfig.MeasurementOffset, modAccConfig.MeasurementLength);
             lte.ModAcc.Configuration.ConfigureEvmUnit(selectorString, modAccConfig.EvmUnit);
         }
+
+        /// <summary>Performs actions to initiate acquisition and measurement.<para></para> Enables the specified measurement(s) before optionally 
+        /// automatically adjusting the reference level before beginning measurements. Finally, initiates the acquisition and measurement(s).</summary>
+        /// <param name="lte">Specifies the LTE signal to configure.</param>
+        /// <param name="measurements">Specifies one or more previously configured measurements to enable for this acquisition.</param>
+        /// <param name="autoLevelConfig">Specifies the configuration for the optional AutoLevel process which will automatically set the analyzer's reference level.</param>
+        /// <param name="enableTraces">(Optional) Specifies whether traces should be enabled for the measurement(s).</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
+        /// <param name="resultName">(Optional) Specifies the name to be associated with measurement results. Provide a unique name, such as "r1" to enable 
+        /// fetching of multiple measurement results and traces. See the RFmx help for more documentation of this parameter.</param>
         public static void SelectAndInitiateMeasurements(RFmxLteMX lte, RFmxLteMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
             bool enableTraces = false, string selectorString = "", string resultName = "")
         {
@@ -218,6 +265,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Results
+
+        /// <summary>Fetches common results from the ACP measurement.</summary>
+        /// <param name="lte">Specifies the LTE signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
         public static AcpResults FetchAcp(RFmxLteMX lte, string selectorString = "")
         {
             double[] lowerRelativePower = null;
@@ -257,6 +308,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return results;
         }
 
+        /// <summary>Fetches common results from the ModAcc measurement.</summary>
+        /// <param name="lte">Specifies the LTE signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
         public static ModAccResults FetchModAcc(RFmxLteMX lte, string selectorString = "")
         {
             double[] meanRmsCompositeEvm = null;
