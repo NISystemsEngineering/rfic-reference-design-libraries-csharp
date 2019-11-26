@@ -236,6 +236,8 @@ namespace Code_Report
                     rawTrivia = Regex.Replace(rawTrivia, @"<see cref=""([\w\.]+)(?:\(.*\))?""\/>", "$1", RegexOptions.Multiline);
                     // Strip <paramRef> tags from the text, leaving in place the referenced parameter name
                     rawTrivia = Regex.Replace(rawTrivia, @"<paramref name=""(\w+)""\/>", "$1", RegexOptions.Multiline);
+                    // Clear <para> tags
+                    rawTrivia = Regex.Replace(rawTrivia, @"<\/*para>", "", RegexOptions.Multiline);
 
                     // The XML structure of the documentation is "rootless", so adding simple root node avoids parser errors
                     rawTrivia = "<root>" + rawTrivia + "</root>";
