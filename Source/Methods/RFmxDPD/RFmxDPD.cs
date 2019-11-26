@@ -7,11 +7,15 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
     public static class RFmxDPD
     {
         #region Type Definitions
+
+        /// <summary>Defines commmon settings for the application of crest factor reduction on the reference waveform prior to applying DPD for a single carrier channel.</summary>
         public struct PreDpdCrestFactorReductionCarrierChannel
         {
             public double Offset_Hz;
             public double Bandwidth_Hz;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static PreDpdCrestFactorReductionCarrierChannel GetDefault()
             {
                 return new PreDpdCrestFactorReductionCarrierChannel
@@ -22,6 +26,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
+        /// <summary>Defines commmon settings for the application of crest factor reduction on the reference waveform prior to applying DPD.</summary>
         public struct PreDpdCrestFactorReductionConfiguration
         {
             public RFmxSpecAnMXDpdPreDpdCfrEnabled Enabled;
@@ -35,6 +40,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public RFmxSpecAnMXDpdPreDpdCfrFilterEnabled FilterEnabled;
             public PreDpdCrestFactorReductionCarrierChannel[] CarrierChannels;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static PreDpdCrestFactorReductionConfiguration GetDefault()
             {
                 return new PreDpdCrestFactorReductionConfiguration
@@ -53,6 +60,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
+        /// <summary>Defines common settings for the application of DPD, regardless of which method is used.</summary>
         public struct CommonConfiguration
         {
             public double MeasurementInterval_s;
@@ -60,6 +68,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public RFmxSpecAnMXDpdSynchronizationMethod SynchronizationMethod;
             public double DutAverageInputPower_dBm;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static CommonConfiguration GetDefault()
             {
                 return new CommonConfiguration
@@ -72,6 +82,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
+        /// <summary>Defines commmon settings for the application of crest factor reduction on the predistorted waveform after DPD is applied.</summary>
         public struct ApplyDpdCrestFactorReductionConfiguration
         {
             public RFmxSpecAnMXDpdApplyDpdCfrEnabled Enabled;
@@ -84,6 +95,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public double ShapingFactor;
             public double ShapingThreshold_dB;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static ApplyDpdCrestFactorReductionConfiguration GetDefault()
             {
                 return new ApplyDpdCrestFactorReductionConfiguration
@@ -101,6 +114,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
+        /// <summary>Defines commmon settings for the application of lookup table based DPD.</summary>
         public struct LookupTableConfiguration
         {
             public RFmxSpecAnMXDpdLookupTableType Type;
@@ -110,6 +124,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public double ThresholdLevel_dB;
             public double StepSize_dB;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static LookupTableConfiguration GetDefault()
             {
                 return new LookupTableConfiguration
@@ -124,12 +140,15 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
+        /// <summary>Defines commmon settings for the application of memory polynomial based DPD.</summary>
         public struct MemoryPolynomialConfiguration
         {
             public RFmxSpecAnMXDpdApplyDpdMemoryModelCorrectionType CorrectionType;
             public int NumberOfIterations;
             public int Order, Depth, LeadOrder, LagOrder, LeadMemoryDepth, LagMemoryDepth, MaximumLead, MaximumLag;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static MemoryPolynomialConfiguration GetDefault()
             {
                 return new MemoryPolynomialConfiguration
@@ -148,6 +167,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
+        /// <summary>Defines common power results after the application of DPD.</summary>
         public struct PowerResults
         {
             public double WaveformPowerOffset_dB;
@@ -155,6 +175,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public double TrainingPower_dBm;
         }
 
+        /// <summary>Defines common results after the application of lookup table based DPD.</summary>
         public struct LookupTableResults
         {
             public Waveform PredistortedWaveform;
@@ -163,6 +184,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public PowerResults PowerResults;
         }
 
+        /// <summary>Defines common results after the application of memory polynomial based DPD.</summary>
         public struct MemoryPolynomialResults
         {
             public Waveform PredistortedWaveform;
@@ -172,6 +194,15 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         #endregion
 
         #region ConfigureDPD
+
+        /// <summary>Configures common pre-DPD CFR settings and applies CFR to the reference waveform, which is returned by the function.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="referenceWaveform">Specifies the <see cref="Waveform"/> whose data defines the complex baseband equivalent of the RF signal on which the 
+        /// pre-DPD signal conditioning is applied. See the RFmx help for more documention of this parameter.</param>
+        /// <param name="preDpdCfrConfig">Specifies common pre-DPD CFR settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
+        /// See the RFmx help for more documention of this parameter.</param>
+        /// <returns>The reference waveform with CFR applied.</returns>
         public static Waveform ConfigurePreDpdCrestFactorReduction(RFmxSpecAnMX specAn, Waveform referenceWaveform, PreDpdCrestFactorReductionConfiguration preDpdCfrConfig, string selectorString = "")
         {
             Waveform preDpdCfrWaveform = referenceWaveform;
@@ -210,6 +241,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             return preDpdCfrWaveform;
         }
 
+        /// <summary>Configures common settings for the application of DPD, regardless of which method is used.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="commonConfig">Specifies the common settings to apply.</param>
+        /// <param name="referenceWaveform">Specifies the <see cref="Waveform"/> whose data defines the complex baseband equivalent of the RF signal applied at the input 
+        /// port of the device under test when performing the measurement. See the RFmx help for more documention of this parameter.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
+        /// See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureCommon(RFmxSpecAnMX specAn, CommonConfiguration commonConfig, Waveform referenceWaveform, string selectorString = "")
         {
             RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ?
@@ -222,6 +260,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             specAn.Dpd.Configuration.ConfigureSynchronizationMethod(selectorString, commonConfig.SynchronizationMethod);
         }
 
+        /// <summary>Configures commmon settings for the application of crest factor reduction on the predistorted waveform after DPD is applied.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="applyDpdCfrConfig">Specifies the apply DPD CFR settings to configure.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
+        /// See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureApplyDpdCrestFactorReduction(RFmxSpecAnMX specAn, ApplyDpdCrestFactorReductionConfiguration applyDpdCfrConfig, string selectorString = "")
         {
             specAn.Dpd.ApplyDpd.SetCfrEnabled(selectorString, applyDpdCfrConfig.Enabled);
@@ -235,6 +278,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             specAn.Dpd.ApplyDpd.SetCfrShapingThreshold(selectorString, applyDpdCfrConfig.ShapingThreshold_dB);
         }
 
+        /// <summary>Configures common settings for the application of lookup table based DPD.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="lutConfig">Specifies the common lookup table settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
+        /// See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureLookupTable(RFmxSpecAnMX specAn, LookupTableConfiguration lutConfig, string selectorString = "")
         {
             specAn.Dpd.Configuration.ConfigureDpdModel(selectorString, RFmxSpecAnMXDpdModel.LookupTable);
@@ -244,6 +292,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             specAn.Dpd.ApplyDpd.ConfigureLookupTableCorrectionType(selectorString, lutConfig.CorrectionType);
         }
 
+        /// <summary>Configures common settings for the application of memory polynomial based DPD.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="mpConfig">Specifies the memory polynomial settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
+        /// See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureMemoryPolynomial(RFmxSpecAnMX specAn, MemoryPolynomialConfiguration mpConfig, string selectorString = "")
         {
             specAn.Dpd.Configuration.ConfigureDpdModel(selectorString, RFmxSpecAnMXDpdModel.GeneralizedMemoryPolynomial);
@@ -257,6 +310,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         #endregion
 
         #region PerformDPD
+
+        /// <summary>Acquires the incoming signal, applies lookup table based digital predistortion to the reference waveform, and downloads the predistorted waveform to the generator.
+        ///  If generation is in progress when this function is called, generation will be continued with the predistorted waveform.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="rfsgSession">Specifies the open RFSG session to </param>
+        /// <param name="referenceWaveform">Specifies the <see cref="Waveform"/> whose data defines the complex baseband equivalent of the RF signal applied at the input 
+        /// port of the device under test when performing the measurement. See the RFmx help for more documention of this parameter.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
+        /// See the RFmx help for more documention of this parameter.</param>
+        /// <returns>Common results after the application of lookup table based DPD.</returns>
         public static LookupTableResults PerformLookupTable(RFmxSpecAnMX specAn, NIRfsg rfsgSession, Waveform referenceWaveform, string selectorString = "")
         {
             //Instantiate new waveform with reference waveform properties
@@ -292,6 +355,15 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             return lutResults;
         }
 
+        /// <summary>Acquires the incoming signal, applies memory polynomial based digital predistortion to the reference waveform, and downloads the predistorted waveform to the generator.
+        ///  If generation is in progress when this function is called, generation will be continued with the predistorted waveform.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="rfsgSession">Specifies the open RFSG session to </param>
+        /// <param name="referenceWaveform">Specifies the <see cref="Waveform"/> whose data defines the complex baseband equivalent of the RF signal applied at the input 
+        /// port of the device under test when performing the measurement. See the RFmx help for more documention of this parameter.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
+        /// See the RFmx help for more documention of this parameter.</param>
+        /// <returns>Common results after the application of memory polynomial based DPD.</returns>
         public static MemoryPolynomialResults PerformMemoryPolynomial(RFmxSpecAnMX specAn, NIRfsg rfsgSession, MemoryPolynomialConfiguration mpConfig,
             Waveform referenceWaveform, string selectorString = "")
         {
