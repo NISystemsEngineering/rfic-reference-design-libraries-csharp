@@ -348,6 +348,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the ModAcc measurement.</summary>
         /// <param name="nr">Specifies the NR signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common ModAcc measurement results.</returns>
         public static ModAccResults FetchModAcc(RFmxNRMX nr, string selectorString = "")
         {
             nr.ComponentCarrier.GetNumberOfComponentCarriers(selectorString, out int numComponentCarriers);
@@ -373,6 +374,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the ACP measurement.</summary>
         /// <param name="nr">Specifies the NR signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common ACP measurement results.</returns>
         public static AcpResults FetchAcp(RFmxNRMX nr, string selectorString = "")
         {
             double[] lowerRelativePower = null;
@@ -418,6 +420,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the CHP measurement.</summary>
         /// <param name="nr">Specifies the NR signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common CHP measurement results.</returns>
         public static ChpResults FetchChp(RFmxNRMX nr, string selectorString = "")
         {
             ChpResults results;

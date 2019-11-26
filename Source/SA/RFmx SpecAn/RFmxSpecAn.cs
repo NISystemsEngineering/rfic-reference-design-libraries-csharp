@@ -313,6 +313,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the TxP measurement.</summary>
         /// <param name="specAn">Specifies the SpecAn signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common TxP measurement results.</returns>
         public static TxpResults FetchTxp(RFmxSpecAnMX specAn, string selectorString = "")
         {
             TxpResults txpResults = new TxpResults();
@@ -324,6 +325,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the ACP measurement.</summary>
         /// <param name="specAn">Specifies the SpecAn signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common ACP measurement results.</returns>
         public static AcpResults FetchAcp(RFmxSpecAnMX specAn, string selectorString = "")
         {
             double[] lowerRelativePower = null;
@@ -368,6 +370,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the AMPM measurement.</summary>
         /// <param name="specAn">Specifies the SpecAn signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common AMPM measurement results.</returns>
         public static AmpmResults FetchAmpm(RFmxSpecAnMX specAn, string selectorString = "")
         {
             AmpmResults ampmResults = new AmpmResults();

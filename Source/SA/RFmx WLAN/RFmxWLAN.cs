@@ -394,7 +394,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the TxP measurement.</summary>
         /// <param name="wlanSignal">Specifies the WLAN signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
-        /// <returns></returns>
+        /// <returns>Common TxP measurement results.</returns>
         public static TxPResults FetchTxP(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             TxPResults txpResults = new TxPResults();
@@ -406,7 +406,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the OFDM ModAcc measurement.</summary>
         /// <param name="wlanSignal">Specifies the WLAN signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
-        /// <returns></returns>
+        /// <returns>Common OFDM ModAcc measurement results.</returns>
         public static OFDMModAccResults FetchOFDMModAcc(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             OFDMModAccResults modAccResults = new OFDMModAccResults();
@@ -420,6 +420,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the SEM measurement.</summary>
         /// <param name="wlanSignal">Specifies the WLAN signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common SEM measurement results.</returns>
         public static SEMResults FetchSEM(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             SEMResults semResults = new SEMResults();

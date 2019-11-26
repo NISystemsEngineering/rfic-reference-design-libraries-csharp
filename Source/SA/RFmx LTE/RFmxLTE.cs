@@ -269,6 +269,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the ACP measurement.</summary>
         /// <param name="lte">Specifies the LTE signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common ACP measurement results.</returns>
         public static AcpResults FetchAcp(RFmxLteMX lte, string selectorString = "")
         {
             double[] lowerRelativePower = null;
@@ -311,6 +312,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Fetches common results from the ModAcc measurement.</summary>
         /// <param name="lte">Specifies the LTE signal to fetch results from.</param>
         /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common ModAcc measurement results.</returns>
         public static ModAccResults FetchModAcc(RFmxLteMX lte, string selectorString = "")
         {
             double[] meanRmsCompositeEvm = null;
