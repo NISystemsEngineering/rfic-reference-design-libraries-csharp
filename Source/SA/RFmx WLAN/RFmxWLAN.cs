@@ -239,7 +239,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         /// <summary>Configures common settings related to the WLAN standard of the measured signal.</summary>
         /// <param name="wlanSignal">Specifies the WLAN signal to configure.</param>
-        /// <param name="signalConfig">Specifies the WLAN standard settings to apply.</param>
+        /// <param name="standardConfig">Specifies the WLAN standard settings to apply.</param>
         /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used.See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureStandard(RFmxWlanMX wlanSignal, StandardConfiguration standardConfig, string selectorString = "")
         {
