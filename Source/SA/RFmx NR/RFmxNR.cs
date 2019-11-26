@@ -6,6 +6,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
     public static class RFmxNR
     {
         #region Type Definitions
+        /// <summary>Defines common settings for a single component carrier.</summary>
         public struct ComponentCarrierConfiguration
         {
             public double Bandwidth_Hz;
@@ -23,6 +24,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxNRMXPuschDmrsDuration PuschDmrsDuration;
             public int PuschDmrsAdditionalPositions;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static ComponentCarrierConfiguration GetDefault()
             {
                 return new ComponentCarrierConfiguration()
@@ -45,6 +48,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common settings related to the standard of the measured NR signal.</summary>
         public struct StandardConfiguration
         {
             public RFmxNRMXLinkDirection LinkDirection;
@@ -55,6 +59,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxNRMXDownlinkTestModelDuplexScheme DownlinkTestModelDuplexScheme;
             public ComponentCarrierConfiguration[] ComponentCarrierConfigurations;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static StandardConfiguration GetDefault()
             {
                 return new StandardConfiguration
@@ -70,6 +76,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common settings for the ModAcc measurement.</summary>
         public struct ModAccConfiguration
         {
             public RFmxNRMXModAccMeasurementLengthUnit MeasurementLengthUnit;
@@ -79,6 +86,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxNRMXModAccAveragingEnabled AveragingEnabled;
             public int AveragingCount;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static ModAccConfiguration GetDefault()
             {
                 return new ModAccConfiguration
@@ -93,6 +102,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common results of the ModAcc measurement for a single component carrier.</summary>
         public struct ModAccComponentCarrierResults
         {
             public int PeakCompositeEvmSubcarrierIndex;
@@ -103,11 +113,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int PeakCompositeEvmSlotIndex;
         }
 
+        /// <summary>Defines common results of the ModAcc measurement.</summary>
         public struct ModAccResults
         {
             public ModAccComponentCarrierResults[] ComponentCarrierResults;
         }
 
+        /// <summary>Defines common settings for the ACP measurement.</summary>
         public struct AcpConfiguration
         {
             public int NumberOfUtraOffsets;
@@ -122,6 +134,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int AveragingCount;
             public RFmxNRMXAcpAveragingType AveragingType;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static AcpConfiguration GetDefault()
             {
                 return new AcpConfiguration
@@ -141,6 +155,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common results of the ACP measurement for a single defined offset.</summary>
         public struct AcpOffsetResults
         {
             public double LowerAbsolutePower_dBm;
@@ -151,18 +166,21 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double IntegrationBandwidth_Hz;
         }
 
+        /// <summary>Defines common results of the ACP measurement for a single component carrier.</summary>
         public struct AcpComponentCarrierResults
         {
             public double AbsolutePower_dBm;
             public double RelativePower_dB;
         }
 
+        /// <summary>Defines common results of the ACP measurement.</summary>
         public struct AcpResults
         {
             public AcpOffsetResults[] OffsetResults;
             public AcpComponentCarrierResults[] ComponentCarrierResults;
         }
 
+        /// <summary>Defines common settings for the CHP measurement.</summary>
         public struct ChpConfiguration
         {
             public RFmxNRMXChpSweepTimeAuto SweepTimeAuto;
@@ -171,6 +189,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int AveragingCount;
             public RFmxNRMXChpAveragingType AveragingType;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static ChpConfiguration GetDefault()
             {
                 return new ChpConfiguration
@@ -184,12 +204,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common results of the CHP measurement for a single component carrier.</summary>
         public struct ChpComponentCarrierResults
         {
             public double AbsolutePower_dBm;
             public double RelativePower_dB;
         }
 
+        /// <summary>Defines common results of the CHP measurement.</summary>
         public struct ChpResults
         {
             public double TotalAggregatedPower_dBm;
@@ -198,6 +220,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configuration
+
+        /// <summary>Configures common measurement settings for the personality.</summary>
+        /// <param name="nr">Specifies the NR signal to configure.</param>
+        /// <param name="commonConfig">Specifies the common settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
+        /// See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureCommon(RFmxNRMX nr, CommonConfiguration commonConfig, string selectorString = "")
         {
             nr.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
@@ -209,6 +237,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Configuration
+
+        /// <summary>Configures common settings related to the NR standard of the measured signal.</summary>
+        /// <param name="nr">Specifies the NR signal to configure.</param>
+        /// <param name="standardConfig">Specifies the WLAN standard settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureStandard(RFmxNRMX nr, StandardConfiguration standardConfig, string selectorString = "")
         {
             nr.SetComponentCarrierSpacingType(selectorString, RFmxNRMXComponentCarrierSpacingType.Nominal); // nominal is assumed
@@ -240,6 +273,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Configures common settings for the ModAcc measurement and selects the measurement.</summary>
+        /// <param name="nr">Specifies the NR signal to configure.</param>
+        /// <param name="modAccConfig">Specifies the ModAcc settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureModacc(RFmxNRMX nr, ModAccConfiguration modAccConfig, string selectorString = "")
         {
             nr.SelectMeasurements(selectorString, RFmxNRMXMeasurementTypes.ModAcc, false);
@@ -251,6 +288,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nr.ModAcc.Configuration.SetAveragingCount(selectorString, modAccConfig.AveragingCount);
         }
 
+        /// <summary>Configures common settings for the ACP measurement and selects the measurement.</summary>
+        /// <param name="nr">Specifies the NR signal to configure.</param>
+        /// <param name="acpConfig">Specifies the ACP settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureAcp(RFmxNRMX nr, AcpConfiguration acpConfig, string selectorString = "")
         {
             nr.SelectMeasurements(selectorString, RFmxNRMXMeasurementTypes.Acp, false);
@@ -264,12 +305,26 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             nr.Acp.Configuration.ConfigureAveraging(selectorString, acpConfig.AveragingEnabled, acpConfig.AveragingCount, acpConfig.AveragingType);
         }
 
+        /// <summary>Configures common settings for the CHP measurement and selects the measurement.</summary>
+        /// <param name="nr">Specifies the NR signal to configure.</param>
+        /// <param name="chpConfig">Specifies the CHP settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureChp(RFmxNRMX nr, ChpConfiguration chpConfig, string selectorString = "")
         {
             nr.SelectMeasurements(selectorString, RFmxNRMXMeasurementTypes.Chp, false);
             nr.Chp.Configuration.ConfigureSweepTime(selectorString, chpConfig.SweepTimeAuto, chpConfig.SweepTimeInterval_s);
             nr.Chp.Configuration.ConfigureAveraging(selectorString, chpConfig.AveragingEnabled, chpConfig.AveragingCount, chpConfig.AveragingType);
         }
+
+        /// <summary>Performs actions to initiate acquisition and measurement.<para></para> Enables the specified measurement(s) before optionally 
+        /// automatically adjusting the reference level before beginning measurements. Finally, initiates the acquisition and measurement(s).</summary>
+        /// <param name="nr">Specifies the NR signal to configure.</param>
+        /// <param name="measurements">Specifies one or more previously configured measurements to enable for this acquisition.</param>
+        /// <param name="autoLevelConfig">Specifies the configuration for the optional AutoLevel process which will automatically set the analyzer's reference level.</param>
+        /// <param name="enableTraces">(Optional) Specifies whether traces should be enabled for the measurement(s).</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
+        /// <param name="resultName">(Optional) Specifies the name to be associated with measurement results. Provide a unique name, such as "r1" to enable 
+        /// fetching of multiple measurement results and traces. See the RFmx help for more documentation of this parameter.</param>
         public static void SelectAndInitiateMeasurements(RFmxNRMX nr, RFmxNRMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
             bool enableTraces = false, string selectorString = "", string resultName = "")
         {
@@ -289,6 +344,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Results
+
+        /// <summary>Fetches common results from the ModAcc measurement.</summary>
+        /// <param name="nr">Specifies the NR signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
         public static ModAccResults FetchModAcc(RFmxNRMX nr, string selectorString = "")
         {
             nr.ComponentCarrier.GetNumberOfComponentCarriers(selectorString, out int numComponentCarriers);
@@ -311,6 +370,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return modaccResults;
         }
 
+        /// <summary>Fetches common results from the ACP measurement.</summary>
+        /// <param name="nr">Specifies the NR signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
         public static AcpResults FetchAcp(RFmxNRMX nr, string selectorString = "")
         {
             double[] lowerRelativePower = null;
@@ -353,6 +415,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return results;
         }
 
+        /// <summary>Fetches common results from the CHP measurement.</summary>
+        /// <param name="nr">Specifies the NR signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
         public static ChpResults FetchChp(RFmxNRMX nr, string selectorString = "")
         {
             ChpResults results;
