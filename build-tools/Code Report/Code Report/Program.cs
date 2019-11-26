@@ -255,7 +255,7 @@ namespace Code_Report
                         returnValue = Regex.Replace(returnValue, "[\n\r]", "");
                         results.MethodDocumentation.ReturnValueDescription = returnValue;
                     }
-                    catch (System.NullReferenceException e) { }
+                    catch (System.NullReferenceException) { }
 
                     List<XElement> parameters = documentation.Elements("param").ToList();
                     foreach (XElement param in parameters)
@@ -269,7 +269,7 @@ namespace Code_Report
 
                 }
                 // If no leading syntax is found, we catch the exception here and will return an empty struct
-                catch (System.InvalidOperationException e) { }
+                catch (System.InvalidOperationException) { }
             }
             return results;
         }
