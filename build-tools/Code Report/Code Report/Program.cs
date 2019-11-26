@@ -14,6 +14,7 @@ namespace Code_Report
 {
     class Program
     {
+        #region Types
         public class Options
         {
             [Option("SearchPath", Required = true, HelpText = "Directory to search for .cs files", Separator = '=')]
@@ -24,13 +25,29 @@ namespace Code_Report
             public bool RecursiveSearch { get; set; }
             [Option("ListParams", HelpText = "Determines if function inputs/outputs and type parameters should be listed in the report", Required = false, Default = false, Separator = '=')]
             public bool ListParameters { get; set; }
+            [Option("ListDocs", HelpText = "Determines if documetnation should be listed in the report", Required = false)]
+            public bool ListDescriptions { get; set; }
             [Option("ExludedPaths", Default = new string[] { "bin", "obj", "Solution", "Assembly" }, Required = false, Separator = '=')]
             public string[] ExcludedPaths { get; set; }
         }
-        /*private static string SearchPath;
-        private static string ReportPath = "Report.xml";
-        private static bool RecursiveSearch = true;
-        private static bool ListParameters = false;*/
+        internal enum MemberTypes { Method, Type }
+        internal struct MemberData
+        {
+            internal MemberTypes MemberType;
+            internal string Description;
+            internal SortedList<string, string> paramList;
+        }
+        internal struct MethodDocumentationParsingResults
+        {
+            internal string ReturnValueDescription;
+            internal SortedList<string, string> ParameterDescriptions;
+        }
+        internal struct DocumentationParsingResults
+        {
+            internal string MemberDescription;
+            internal MethodDocumentationParsingResults MethodDocumentation;
+        }
+        #endregion
         public static void Main(string[] args)
         {
             Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(o =>
@@ -38,6 +55,7 @@ namespace Code_Report
                PerformSearch(o);
            });
         }
+        #region Parsing Functions
         public static void PerformSearch(Options o)
         {
             SearchOption searchMode = o.RecursiveSearch ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
@@ -81,11 +99,6 @@ namespace Code_Report
             xml.Flush();
             xml.Close();
         }
-        internal struct MemberData
-        {
-            internal string MemberTypeName;
-            internal SortedList<string, string> paramList;
-        }
         static void ParseNamespace(MemberDeclarationSyntax member, XmlWriter xml, Options o)
         {
             NamespaceDeclarationSyntax nameSpace = (NamespaceDeclarationSyntax)member;
@@ -106,23 +119,25 @@ namespace Code_Report
             foreach (MemberDeclarationSyntax member in members)
             {
                 paramList = new SortedList<string, string>();
+                DocumentationParsingResults memberDocumentation = ParseDocumentation(member);
                 switch (member.Kind())
                 {
                     case SyntaxKind.MethodDeclaration:
                         MethodDeclarationSyntax method = (MethodDeclarationSyntax)member;
                         // Get the return data type
                         TypeSyntax returnType = method.ReturnType;
-                        if (returnType.Kind() == SyntaxKind.IdentifierName)
+                        if (returnType.ToString().ToLower() != "void")
                         {
-                            IdentifierNameSyntax returnValue = (IdentifierNameSyntax)returnType;
-                            paramList.Add(returnValue.Identifier.ToString(), "Param");
+                            paramList.Add("ReturnValue;Type=" + returnType.ToString(), memberDocumentation.MethodDocumentation.ReturnValueDescription);
                         }
                         // Get all input and output parameters
                         foreach (ParameterSyntax param in method.ParameterList.Parameters)
                         {
-                            paramList.Add(param.Identifier.ToString(), "Param");
+                            string parameterName = param.Identifier.ToString();
+                            memberDocumentation.MethodDocumentation.ParameterDescriptions.TryGetValue(parameterName, out string parameterDescription);
+                            paramList.Add(param.Identifier.ToString(), parameterDescription);
                         }
-                        memData = new MemberData { MemberTypeName = "Method", paramList = paramList };
+                        memData = new MemberData { MemberType = MemberTypes.Method, Description = memberDocumentation.MemberDescription, paramList = paramList };
                         membersList.Add(method.Identifier.ToString(), memData);
                         break;
                     case SyntaxKind.StructDeclaration:
@@ -134,25 +149,21 @@ namespace Code_Report
                             if (structMem.Kind() == SyntaxKind.FieldDeclaration)
                             {
                                 FieldDeclarationSyntax param = (FieldDeclarationSyntax)structMem;
+                                DocumentationParsingResults paramDoc = ParseDocumentation(param);
                                 for (int i = 0; i < param.Declaration.Variables.Count; i++)
                                 {
-                                    paramList.Add(param.Declaration.Variables[i].Identifier.ToString(), "Param");
-                                    // Starting point for reading documentation from parameters
-                                    /*if (param.HasLeadingTrivia)
-                                    {
-                                        var triva = param.GetLeadingTrivia().Single(t => 
-                                            t.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia || t.Kind() == SyntaxKind.MultiLineCommentTrivia);
-                                    }*/
+                                    var variableDeclaration = param.Declaration.Variables[i];
+                                    paramList.Add(variableDeclaration.Identifier.ToString(), paramDoc.MemberDescription);
                                 }
                             }
                         }
-                        memData = new MemberData { MemberTypeName = "Type", paramList = paramList };
+                        memData = new MemberData { MemberType = MemberTypes.Type, Description = memberDocumentation.MemberDescription, paramList = paramList };
                         membersList.Add(myStruct.Identifier.ToString(), memData);
                         break;
                     case SyntaxKind.EnumDeclaration:
                         // A few enums are defined in the class modules
                         EnumDeclarationSyntax myEnum = (EnumDeclarationSyntax)member;
-                        memData = new MemberData { MemberTypeName = "Type", paramList = paramList };
+                        memData = new MemberData { MemberType = MemberTypes.Type, Description = memberDocumentation.MemberDescription, paramList = paramList };
                         membersList.Add(myEnum.Identifier.ToString(), memData);
                         break;
                     case SyntaxKind.ClassDeclaration:
@@ -171,20 +182,99 @@ namespace Code_Report
                         break;
                 }
             }
-            // Now, write all the data we have gathered for this class that has been sorted to the file
-            foreach (KeyValuePair<string, MemberData> pair in membersList)
+            if (membersList.Count > 0)
             {
-                xmlWriter.WriteStartElement(pair.Value.MemberTypeName);
-                xmlWriter.WriteAttributeString("Name", pair.Key);
-                if (o.ListParameters)
+                // Now, write all the data we have gathered for this class that has been sorted to the file
+                for (int i = 0; i < 2; i++)
                 {
-                    foreach (KeyValuePair<string, string> paramPair in pair.Value.paramList)
+                    if (i == 0) xmlWriter.WriteStartElement("Methods");
+                    else xmlWriter.WriteStartElement("Types");
+                    foreach (KeyValuePair<string, MemberData> pair in membersList)
                     {
-                        xmlWriter.WriteElementString(paramPair.Value, paramPair.Key);
+                        if ((i == 0 && pair.Value.MemberType == MemberTypes.Method) ||
+                            (i == 1 && pair.Value.MemberType == MemberTypes.Type))
+                        {
+                            xmlWriter.WriteStartElement(pair.Value.MemberType.ToString());
+                            xmlWriter.WriteAttributeString("Name", pair.Key);
+                            if (o.ListDescriptions) xmlWriter.WriteElementString("Description", pair.Value.Description);
+                            if (o.ListParameters)
+                            {
+                                xmlWriter.WriteStartElement("Parameters");
+                                foreach (KeyValuePair<string, string> paramPair in pair.Value.paramList)
+                                {
+                                    xmlWriter.WriteStartElement("Parameter");
+                                    xmlWriter.WriteAttributeString("Name", paramPair.Key);
+                                    if (o.ListDescriptions) xmlWriter.WriteElementString("Description", paramPair.Value);
+                                    xmlWriter.WriteEndElement();
+                                    //xmlWriter.WriteElementString(paramPair.Value, paramPair.Key);
+                                }
+                                xmlWriter.WriteEndElement();
+                            }
+                            xmlWriter.WriteEndElement();
+                        }
                     }
+                    xmlWriter.WriteEndElement();
                 }
-                xmlWriter.WriteEndElement();
             }
+
         }
+        public static DocumentationParsingResults ParseDocumentation(CSharpSyntaxNode member)
+        {
+            DocumentationParsingResults results = new DocumentationParsingResults();
+            results.MethodDocumentation.ParameterDescriptions = new SortedList<string, string>();
+            if (member.HasLeadingTrivia)
+            {
+                try
+                {
+                    var trivia = member.GetLeadingTrivia().Single(t =>
+                        t.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia || t.Kind() == SyntaxKind.MultiLineCommentTrivia);
+
+                    // Convert the trivia to a string, and strip out the tabs and /// 
+                    string rawTrivia = Regex.Replace(trivia.ToString(), @"^\s+\/\/\/", "", RegexOptions.Multiline);
+                    // Strip <see> tags from the text, but leave in place the referenced function or type
+                    // i.e. <see cref="DownloadWaveform(NIRfsg, Waveform)"/> becomes DownloadWaveform
+                    rawTrivia = Regex.Replace(rawTrivia, @"<see cref=""([\w\.]+)(?:\(.*\))?""\/>", "$1", RegexOptions.Multiline);
+                    // Strip <paramRef> tags from the text, leaving in place the referenced parameter name
+                    rawTrivia = Regex.Replace(rawTrivia, @"<paramref name=""(\w+)""\/>", "$1", RegexOptions.Multiline);
+                    // Clear <para> tags
+                    rawTrivia = Regex.Replace(rawTrivia, @"<\/*para>", "", RegexOptions.Multiline);
+
+                    // The XML structure of the documentation is "rootless", so adding simple root node avoids parser errors
+                    rawTrivia = "<root>" + rawTrivia + "</root>";
+                    // Parse the documentation XML
+                    XElement documentation = XElement.Parse(rawTrivia);
+
+                    // Get the summary element which contains the description for the function, parameter, or type
+                    string memberDescription = documentation.Element("summary").Value;
+                    // Remove newlines from the description
+                    memberDescription = Regex.Replace(memberDescription, "[\n\r]", "");
+                    results.MemberDescription = memberDescription;
+
+                    try
+                    {
+                        string returnValue = documentation.Element("returns").Value;
+                        // Remove newlines from the description
+                        returnValue = Regex.Replace(returnValue, "[\n\r]", "");
+                        results.MethodDocumentation.ReturnValueDescription = returnValue;
+                    }
+                    catch (System.NullReferenceException) { }
+
+                    List<XElement> parameters = documentation.Elements("param").ToList();
+                    foreach (XElement param in parameters)
+                    {
+                        string parameterName = param.Attribute("name").Value;
+                        string parameterDescription = param.Value;
+                        // Remove newlines from the description
+                        parameterDescription = Regex.Replace(parameterDescription, "[\n\r]", "");
+                        results.MethodDocumentation.ParameterDescriptions.Add(parameterName, parameterDescription);
+                    } 
+
+                }
+                // If no leading syntax is found, we catch the exception here and will return an empty struct
+                catch (System.InvalidOperationException) { }
+            }
+            return results;
+        }
+        #endregion
     }
 }

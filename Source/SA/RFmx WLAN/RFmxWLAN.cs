@@ -7,14 +7,18 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
     public static class RFmxWLAN
     {
-        //Structs were chosen over a basic class due to the ease of viewing function inputs inside of TestStand (avoiding encapsulation)
-        //This has the downside of requiring two steps to initialize the struct to the default values
-        #region Type_Definitionss
+        #region Type Definitions
+        
+        /// <summary>Defines common settings related to the standard of the measured WLAN signal.</summary>
         public struct StandardConfiguration
         {
+            /// <summary>Specifies the signal under analysis as defined under IEEE Standard 802.11. See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXStandard Standard;
+            /// <summary>Specifies the channel bandwidth in Hz. See the RFmx help for more documention of this parameter.</summary>
             public double ChannelBandwidth_Hz;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static StandardConfiguration GetDefault()
             {
                 return new StandardConfiguration
@@ -24,15 +28,20 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 };
             }
         }
-
-
-        #region Measurement Definitions
+        
+        /// <summary>Defines common settings for the TxP measurement.</summary>
         public struct TxPConfiguration
         {
+            /// <summary>Specifies whether to enable averaging for the TXP measurement. See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXTxpAveragingEnabled AveragingEnabled;
+            /// <summary>Specifies the number of acquisitions used for averaging, when you set the <see cref="AveragingEnabled"/> parameter to True.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public int AveragingCount;
+            /// <summary>Specifies the maximum measurement interval in seconds. See the RFmx help for more documention of this parameter.</summary>
             public double MaximumMeasurementInterval_s;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static TxPConfiguration GetDefault()
             {
                 return new TxPConfiguration
@@ -44,21 +53,39 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
-        #endregion
+        /// <summary>Defines common results of the TxP measurement.</summary>
         public struct TxPResults
         {
+            /// <summary>Specifies the average power of the acquired signal. This value is expressed in dBm. See the RFmx help for more documention of this parameter.</summary>
             public double AveragePowerMean_dBm;
+            /// <summary>Specifies the peak power of the acquired signal. This value is expressed in dBm. See the RFmx help for more documention of this parameter.</summary>
             public double PeakPowerMaximum_dBm;
         }
+
+        /// <summary>Defines common settings for the OFDM ModAcc measurement.</summary>
         public struct OFDMModAccConfiguration
         {
+            /// <summary>Specifies the length of the waveform to be acquired in seconds. See the RFmx help for more documention of this parameter.</summary>
             public double AcquisitionLength_s;
+            /// <summary>Specifies the number of data symbols to be ignored from the start of the data field for EVM computation. This value is expressed as a number of symbols.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public int MeasurementOffset_sym;
+            /// <summary>Specifies the maximum number of OFDM symbols that the measurement uses to compute EVM. This value is expressed as a number of symbols.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public int MaximumMeasurementLength_sym;
+            /// <summary>Specifies whether to optimize the analyzer's dynamic range for the EVM measurement. See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled OptimizeDynamicRangeForEvmEnabled;
+            /// <summary>Specifies the margin above the reference level you specify when you set <see cref="OptimizeDynamicRangeForEvmEnabled"/> to True. This value is expressed in dB.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public double OptimizeDynamicRangeForEVMMargin_dB;
+            /// <summary>Specifies whether to enable averaging for OFDMModAcc measurements. See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXOfdmModAccAveragingEnabled AveragingEnabled;
+            /// <summary>Specifies the number of acquisitions used for averaging, when you set <see cref="AveragingEnabled"/> to True.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public int AveragingCount;
+
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static OFDMModAccConfiguration GetDefault()
             {
                 return new OFDMModAccConfiguration
@@ -74,23 +101,44 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common results of the OFDM ModAcc measurement.</summary>
         public struct OFDMModAccResults
         {
+            /// <summary>Specifies the RMS EVM of all subcarriers in all OFDM symbols. This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double CompositeRMSEVMMean_dB;
+            /// <summary>Specifies the RMS EVM of data-subcarriers in all OFDM symbols. This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double CompositeDataRMSEVMMean_dB;
+            /// <summary>Specifies the RMS EVM of pilot-subcarriers in all OFDM symbols. This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double CompositePilotRMSEVMMean_dB;
+            /// <summary>Specifies the number of OFDM symbols used by the measurement.</summary>
             public int NumberOfSymbolsUsed;
         }
 
+        /// <summary>Defines common settings for the SEM measurement.</summary>
         public struct SEMConfiguration
         {
+            /// <summary>Specifies whether the sweep time for the SEM measurement is computed automatically by the measurement or is configured manually.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXSemSweepTimeAuto SweepTimeAuto;
+            /// <summary>Specifies the sweep time for the SEM measurement. This value is expressed in seconds.  
+            /// This property is ignored when <see cref="SweepTimeAuto"/> is True. See the RFmx help for more documention of this parameter.</summary>
             public double SweepTime_s;
+            /// <summary>Specifies whether the frequency range of the spectrum used for the SEM measurement is computed automatically by the measurement or manually.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXSemSpanAuto SpanAuto;
+            /// <summary>specifies the frequency range of the spectrum that is used for the SEM measurement. This value is expressed in Hz. 
+            /// This parameter is applicable only when you set <see cref="SpanAuto"/> to False. See the RFmx help for more documention of this parameter.</summary>
             public double Span_Hz;
+            /// <summary>Specifies whether to enable averaging for the SEM measurement. See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXSemAveragingEnabled AveragingEnabled;
+            /// <summary>Specifies the number of acquisitions used for averaging when you set <see cref="AveragingEnabled"/> to True. See the RFmx help for more documention of this parameter.</summary>
             public int AveragingCount;
+            /// <summary>Specifies the averaging type for averaging multiple spectrum acquisitions. The averaged spectrum is used for SEM measurement.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXSemAveragingType AveragingType;
+
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static SEMConfiguration GetDefault()
             {
                 return new SEMConfiguration
@@ -106,22 +154,45 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common results of the SEM measurement.</summary>
         public struct SEMResults
         {
+            /// <summary>Specifies  the overall measurement status, indicating whether the spectrum exceeds the SEM measurement mask limits in any of the offset segments.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXSemMeasurementStatus measurementStatus;
+            /// <summary>Specifies the average power of the carrier channel over the bandwidth indicated by the SEM Carrier IBW property. This value is expressed in dBm.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public double AbsolutePower_dBm;
+            /// <summary>Specifies the average power of the carrier channel, relative to the peak power of the carrier channel, over the bandwidth indicated by the SEM Carrier IBW property.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public double RelativePower_dB;
-
+            /// <summary>Specifies the upper (positive) offset segment measurement status, indicating whether the spectrum exceeds the SEM measurement mask limits in the upper offset segments.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXSemUpperOffsetMeasurementStatus[] upperOffsetMeasurementStatus;
+            /// <summary>Specifies the array of margins from the SEM measurement mask for the upper offset. This value is expressed in dB. 
+            /// Margin is defined as the maximum difference between the spectrum and the mask. See the RFmx help for more documention of this parameter.</summary>
             public double[] UpperOffsetMargin_dB;
+            /// <summary>Specifies the array of frequencies corresponding to the margins for the upper (positive) offsets. See the RFmx help for more documention of this parameter.</summary>
             public double[] UpperOffsetMarginFrequency_Hz;
+            /// <summary>Specifies the array of absolute powers corresponding to the margins for the upper offsets. This value is expressed in dBm.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public double[] UpperOffsetMarginAbsolutePower_dBm;
+            /// <summary> Specifies the array of relative powers corresponding to the margins for the upper offsets. The relative powers are 
+            /// relative to the peak power of the carrier channel.This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double[] UpperOffsetMarginRelativePower_dB;
-
+            /// <summary>Specifies the array of lower (negative) offset segment measurement status, indicating whether the spectrum exceeds the SEM measurement mask limits in the lower offset segments.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXSemLowerOffsetMeasurementStatus[] lowerOffsetMeasurementStatus;
+            /// <summary>Margin returns the array of margins from the SEM measurement mask for the lower offset. This value is expressed in dB. 
+            /// Margin is defined as the maximum difference between the spectrum and the mask. See the RFmx help for more documention of this parameter.</summary>
             public double[] LowerOffsetMargin_dB;
+            /// <summary>Specifies the array of frequencies corresponding to the margins for the lower (negative) offsets. See the RFmx help for more documention of this parameter.</summary>
             public double[] LowerOffsetMarginFrequency_Hz;
+            /// <summary>Specifies the array of absolute powers corresponding to the margins for the lower offsets. This value is expressed in dBm.
+            ///  See the RFmx help for more documention of this parameter.</summary>
             public double[] LowerOffsetMarginAbsolutePower_dBm;
+            /// <summary> Specifies the array of relative powers corresponding to the margins for the lower offsets. The relative powers are 
+            /// relative to the peak power of the carrier channel.This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double[] LowerOffsetMarginRelativePower_dB;
 
         }
@@ -149,6 +220,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Instrument Configuration
+
+        /// <summary>Configures common measurement settings for the personality.</summary>
+        /// <param name="wlanSignal">Specifies the WLAN signal to configure.</param>
+        /// <param name="commonConfig">Specifies the common settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used.
+        /// See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureCommon(RFmxWlanMX wlanSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
             wlanSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
@@ -159,12 +236,21 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         }
         #endregion
         #region Measurement Configuration
+
+        /// <summary>Configures common settings related to the WLAN standard of the measured signal.</summary>
+        /// <param name="wlanSignal">Specifies the WLAN signal to configure.</param>
+        /// <param name="standardConfig">Specifies the WLAN standard settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used.See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureStandard(RFmxWlanMX wlanSignal, StandardConfiguration standardConfig, string selectorString = "")
         {
             wlanSignal.ConfigureStandard(selectorString, standardConfig.Standard);
             wlanSignal.ConfigureChannelBandwidth(selectorString, standardConfig.ChannelBandwidth_Hz);
         }
 
+        /// <summary>Configures common settings for the TxP measurement and selects the measurement.</summary>
+        /// <param name="wlanSignal">Specifies the WLAN signal to configure.</param>
+        /// <param name="txPConfig">Specifies the TxP settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used.See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureTxP(RFmxWlanMX wlanSignal, TxPConfiguration txPConfig, string selectorString = "")
         {
 
@@ -175,6 +261,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             wlanSignal.Txp.Configuration.ConfigureAveraging(selectorString, txPConfig.AveragingEnabled, txPConfig.AveragingCount);
             wlanSignal.Txp.Configuration.ConfigureMaximumMeasurementInterval(selectorString, txPConfig.MaximumMeasurementInterval_s);
         }
+
+        /// <summary>Configures common settings for the OFDM ModAcc measurement and selects the measurement.</summary>
+        /// <param name="wlanSignal">Specifies the WLAN signal to configure.</param>
+        /// <param name="modAccConfig">Specifies the OFDM ModAcc settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used.See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureOFDMModAcc(RFmxWlanMX wlanSignal, OFDMModAccConfiguration modAccConfig, string selectorString = "")
         {
             wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.OfdmModAcc, false);
@@ -256,6 +347,31 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
             return servoResults;
         }
+
+        /// <summary>Configures common settings for the SEM measurement and selects the measurement.</summary>
+        /// <param name="wlanSignal">Specifies the WLAN signal to configure.</param>
+        /// <param name="semConfig">Specifies the SEM settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used.See the RFmx help for more documention of this parameter.</param>
+        public static void ConfigureSEM(RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
+        {
+            wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.Sem, false);
+            wlanSignal.Sem.Configuration.ConfigureSweepTime(selectorString, semConfig.SweepTimeAuto, semConfig.SweepTime_s);
+            wlanSignal.Sem.Configuration.ConfigureAveraging(selectorString, semConfig.AveragingEnabled, semConfig.AveragingCount, semConfig.AveragingType);
+            wlanSignal.Sem.Configuration.ConfigureSpan(selectorString, semConfig.SpanAuto, semConfig.Span_Hz);
+
+            // Support for custom masks has not been implemented in this module
+            wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, RFmxWlanMXSemMaskType.Standard);
+        }
+
+        /// <summary>Performs actions to initiate acquisition and measurement.<para></para> Enables the specified measurement(s) before optionally 
+        /// automatically adjusting the reference level before beginning measurements. Finally, initiates the acquisition and measurement(s).</summary>
+        /// <param name="wlanSignal">Specifies the WLAN signal to configure.</param>
+        /// <param name="measurements">Specifies one or more previously configured measurements to enable for this acquisition.</param>
+        /// <param name="autoLevelConfig">Specifies the configuration for the optional AutoLevel process which will automatically set the analyzer's reference level.</param>
+        /// <param name="enableTraces">(Optional) Specifies whether traces should be enabled for the measurement(s). See the RFmx help for more documention of this parameter.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used.See the RFmx help for more documention of this parameter.</param>
+        /// <param name="resultName">(Optional) Specifies the name to be associated with measurement results. Provide a unique name, such as "r1" to enable 
+        /// fetching of multiple measurement results and traces. See the RFmx help for more documentation of this parameter.</param>
         public static void SelectAndInitiateMeasurements(RFmxWlanMX wlanSignal, RFmxWlanMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
             bool enableTraces = false, string selectorString = "", string resultName = "")
         {
@@ -272,27 +388,25 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             // Initiate acquisition and measurement for the selected measurements
             wlanSignal.Initiate(selectorString, resultName);
         }
-        public static void ConfigureSEM(RFmxWlanMX wlanSignal, SEMConfiguration semConfig, string selectorString = "")
-        {
-            wlanSignal.SelectMeasurements(selectorString, RFmxWlanMXMeasurementTypes.Sem, false);
-            wlanSignal.Sem.Configuration.ConfigureSweepTime(selectorString, semConfig.SweepTimeAuto, semConfig.SweepTime_s);
-            wlanSignal.Sem.Configuration.ConfigureAveraging(selectorString, semConfig.AveragingEnabled, semConfig.AveragingCount, semConfig.AveragingType);
-            wlanSignal.Sem.Configuration.ConfigureSpan(selectorString, semConfig.SpanAuto, semConfig.Span_Hz);
-
-            // Support for custom masks has not been implemented in this module
-            wlanSignal.Sem.Configuration.ConfigureMaskType(selectorString, RFmxWlanMXSemMaskType.Standard);
-        }
         #endregion
         #region Measurement Results
+
+        /// <summary>Fetches common results from the TxP measurement.</summary>
+        /// <param name="wlanSignal">Specifies the WLAN signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common TxP measurement results.</returns>
         public static TxPResults FetchTxP(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             TxPResults txpResults = new TxPResults();
-
             wlanSignal.Txp.Results.FetchMeasurement(selectorString, 10, out txpResults.AveragePowerMean_dBm, out txpResults.PeakPowerMaximum_dBm);
 
             return txpResults;
         }
 
+        /// <summary>Fetches common results from the OFDM ModAcc measurement.</summary>
+        /// <param name="wlanSignal">Specifies the WLAN signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common OFDM ModAcc measurement results.</returns>
         public static OFDMModAccResults FetchOFDMModAcc(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             OFDMModAccResults modAccResults = new OFDMModAccResults();
@@ -303,6 +417,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return modAccResults;
         }
 
+        /// <summary>Fetches common results from the SEM measurement.</summary>
+        /// <param name="wlanSignal">Specifies the WLAN signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common SEM measurement results.</returns>
         public static SEMResults FetchSEM(RFmxWlanMX wlanSignal, string selectorString = "")
         {
             SEMResults semResults = new SEMResults();

@@ -6,6 +6,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
     public static class RFmxSpecAn
     {
         #region Type Definitions
+
+        /// <summary>Defines common settings for the TxP measurement.</summary>
         public struct TxpConfiguration
         {
             public double MeasurementInterval_s;
@@ -17,6 +19,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public int AveragingCount;
             public RFmxSpecAnMXTxpAveragingType AveragingType;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static TxpConfiguration GetDefault()
             {
                 return new TxpConfiguration
@@ -32,6 +36,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common settings for the ACP measurement for a single component carrier.</summary>
         public struct AcpComponentCarrierConfiguration
         {
             public double IntegrationBandwidth_Hz;
@@ -40,6 +45,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double RrcAlpha;
             public RFmxSpecAnMXAcpCarrierMode Mode;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static AcpComponentCarrierConfiguration GetDefault()
             {
                 return new AcpComponentCarrierConfiguration
@@ -53,6 +60,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common settings for the ACP measurement for a single offset channel.</summary>
         public struct AcpOffsetChannelConfiguration
         {
             public double IntegrationBandwidth_Hz;
@@ -65,6 +73,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public RFmxSpecAnMXAcpOffsetRrcFilterEnabled RrcFilterEnabled;
             public double RrcAlpha;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static AcpOffsetChannelConfiguration GetDefault()
             {
                 return new AcpOffsetChannelConfiguration
@@ -82,6 +92,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common settings for the ACP measurement.</summary>
         public struct AcpConfiguration
         {
             public RFmxSpecAnMXAcpPowerUnits PowerUnits;
@@ -100,6 +111,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public AcpComponentCarrierConfiguration[] ComponentCarrierConfiguration;
             public AcpOffsetChannelConfiguration[] OffsetChannelConfiguration;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static AcpConfiguration GetDefault()
             {
                 return new AcpConfiguration
@@ -121,6 +134,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common settings for the AMPM measurement.</summary>
         public struct AmpmConfiguration
         {
             public double MeasurementInterval_s;
@@ -128,6 +142,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public Waveform ReferenceWaveform;
             public RFmxSpecAnMXAmpmSignalType SignalType;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static AmpmConfiguration GetDefault()
             {
                 return new AmpmConfiguration
@@ -140,6 +156,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Defines common results of the TXP measurement.</summary>
         public struct TxpResults
         {
             public double AverageMeanPower_dBm;
@@ -148,6 +165,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double MinimumPower_dBm;
         }
 
+        /// <summary>Defines common results of the ACP measurement for a single defined offset.</summary>
         public struct AcpOffsetResults
         {
             public double LowerAbsolutePower_dBm;
@@ -158,6 +176,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double IntegrationBandwidth_Hz;
         }
 
+        /// <summary>Defines common results of the ACP measurement for a single component carrier.</summary>
         public struct AcpComponentCarrierResults
         {
             public double AbsolutePower_dBm_or_dBmHz;
@@ -166,6 +185,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double IntegrationBandwidth_Hz;
         }
 
+        /// <summary>Defines common results of the ACP measurement.</summary>
         public struct AcpResults
         {
             public double TotalCarrierPower_dBm_or_dBmHz;
@@ -173,6 +193,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public AcpComponentCarrierResults[] ComponentCarrierResults;
         }
 
+        /// <summary>Defines common results of the AMPM measurement.</summary>
         public struct AmpmResults
         {
             public double MeanLinearGain_dB;
@@ -184,6 +205,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Instrument Configurations
+
+        /// <summary>Configures common measurement settings for the personality.</summary>
+        /// <param name="specAnSignal">Specifies the SpecAn signal to configure.</param>
+        /// <param name="commonConfig">Specifies the common settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
+        /// See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureCommon(RFmxSpecAnMX specAnSignal, CommonConfiguration commonConfig, string selectorString = "")
         {
             specAnSignal.SetSelectedPorts(selectorString, commonConfig.SelectedPorts);
@@ -191,6 +218,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             specAnSignal.ConfigureDigitalEdgeTrigger(selectorString, commonConfig.DigitalTriggerSource, RFmxSpecAnMXDigitalEdgeTriggerEdge.Rising, commonConfig.TriggerDelay_s, commonConfig.TriggerEnabled);
         }
 
+        /// <summary>Configures common settings for the TxP measurement and selects the measurement.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="txpConfig">Specifies the TxP settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureTxp(RFmxSpecAnMX specAn, TxpConfiguration txpConfig, string selectorString = "")
         {
             specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Txp, false);
@@ -199,6 +230,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             specAn.Txp.Configuration.ConfigureAveraging(selectorString, txpConfig.AveragingEnabled, txpConfig.AveragingCount, txpConfig.AveragingType);
         }
 
+        /// <summary>Configures common settings for the ACP measurement and selects the measurement.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="acpConfig">Specifies the ACP settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureAcp(RFmxSpecAnMX specAn, AcpConfiguration acpConfig, string selectorString = "")
         {
             specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Acp, false);
@@ -232,6 +267,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             }
         }
 
+        /// <summary>Configures common settings for the AMPM measurement and selects the measurement.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="ampmConfig">Specifies the AMPM settings to apply.</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureAmpm(RFmxSpecAnMX specAn, AmpmConfiguration ampmConfig, string selectorString = "")
         {
             specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Ampm, false);
@@ -240,6 +279,17 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent idleDurationPresent = ampmConfig.ReferenceWaveform.IdleDurationPresent ? RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent.False;
             specAn.Ampm.Configuration.ConfigureReferenceWaveform(selectorString, ampmConfig.ReferenceWaveform.Data, idleDurationPresent, ampmConfig.SignalType);
         }
+
+        /// <summary>Performs actions to initiate acquisition and measurement.<para></para> Enables the specified measurement(s) before optionally 
+        /// automatically adjusting the reference level before beginning measurements. Finally, initiates the acquisition and measurement(s).</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
+        /// <param name="measurements">Specifies one or more previously configured measurements to enable for this acquisition.</param>
+        /// <param name="autoLevelConfig">Specifies the configuration for the optional AutoLevel process which will automatically set the analyzer's reference level.</param>
+        /// <param name="autoLevelBandwidth_Hz">Specifies the bandwidth, in hertz (Hz), of the signal to be analyzed. See the RFmx help for more documentation of this parameter.</param>
+        /// <param name="enableTraces">(Optional) Specifies whether traces should be enabled for the measurement(s).</param>
+        /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
+        /// <param name="resultName">(Optional) Specifies the name to be associated with measurement results. Provide a unique name, such as "r1" to enable 
+        /// fetching of multiple measurement results and traces. See the RFmx help for more documentation of this parameter.</param>
         public static void SelectAndInitiateMeasurements(RFmxSpecAnMX specAn, RFmxSpecAnMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig, double autoLevelBandwidth_Hz,
             bool enableTraces = false, string selectorString = "", string resultName = "")
         {
@@ -259,6 +309,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         #endregion
 
         #region Measurement Results
+
+        /// <summary>Fetches common results from the TxP measurement.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common TxP measurement results.</returns>
         public static TxpResults FetchTxp(RFmxSpecAnMX specAn, string selectorString = "")
         {
             TxpResults txpResults = new TxpResults();
@@ -267,6 +322,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return txpResults;
         }
 
+        /// <summary>Fetches common results from the ACP measurement.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common ACP measurement results.</returns>
         public static AcpResults FetchAcp(RFmxSpecAnMX specAn, string selectorString = "")
         {
             double[] lowerRelativePower = null;
@@ -308,6 +367,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             return results;
         }
 
+        /// <summary>Fetches common results from the AMPM measurement.</summary>
+        /// <param name="specAn">Specifies the SpecAn signal to fetch results from.</param>
+        /// <param name="selectorString">(Optional) Specifies the result name. See the RFmx help for more documentation of this parameter.</param>
+        /// <returns>Common AMPM measurement results.</returns>
         public static AmpmResults FetchAmpm(RFmxSpecAnMX specAn, string selectorString = "")
         {
             AmpmResults ampmResults = new AmpmResults();

@@ -9,12 +9,15 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
 {
     public static class EnvelopeTracking
     {
-
         #region Type Definitions
+
+        /// <summary>Defines common settings for a configuring the envelope generator.</summary>
         public struct EnvelopeGeneratorConfiguration
         {
             public string ReferenceClockSource;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static EnvelopeGeneratorConfiguration GetDefault()
             {
                 return new EnvelopeGeneratorConfiguration()
@@ -24,6 +27,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
+        /// <summary>Defines common settings about the tracker used for modulating the power supply voltage.</summary>
         public struct TrackerConfiguration
         {
             public double InputImpedance_Ohms;
@@ -31,6 +35,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public double Gain_VperV;
             public double OutputOffset_V;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static TrackerConfiguration GetDefault()
             {
                 return new TrackerConfiguration()
@@ -43,12 +49,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
+        /// <summary>Defines different mathemtical methods to use for creating the detrough envelope waveform.</summary>
         public enum DetroughType { 
             Exponential, 
             Cosine, 
             Power
         };
 
+        /// <summary>Defines common settings used for creating the detrough envelope waveform.</summary>
         public struct DetroughConfiguration
         {
             public DetroughType Type;
@@ -56,6 +64,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public double MaximumVoltage_V;
             public double Exponent;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static DetroughConfiguration GetDefault()
             {
                 return new DetroughConfiguration()
@@ -68,6 +78,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
+        /// <summary>Defines common settings used for creating the lookup table envelope waveform.</summary>
         public struct LookUpTableConfiguration
         {
             public double DutAverageInputPower_dBm;
@@ -75,11 +86,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public float[] SupplyVoltage_V;
         }
 
+        /// <summary>Defines common settings used for synchronizing the RF and envelope signal generators.</summary>
         public struct SynchronizationConfiguration
         {
             public double RFDelayRange_s;
             public double RFDelay_s;
 
+            /// <summary>Returns the struct with default values set.</summary>
+            /// <returns>The struct with default values set.</returns>
             public static SynchronizationConfiguration GetDefault()
             {
                 return new SynchronizationConfiguration()
@@ -92,6 +106,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         #endregion
 
         #region Envelope Creation
+
+        /// <summary>Creates an envelope waveform utilizing the detrough method.</summary>
+        /// <param name="referenceWaveform">Specifies the waveform used for RF signal generation.</param>
+        /// <param name="detroughConfig">Specifies common settings for creating the detrough envelope waveform.</param>
+        /// <returns>The detrough envelope waveform.</returns>
         public static Waveform CreateDetroughEnvelopeWaveform(Waveform referenceWaveform, DetroughConfiguration detroughConfig)
         {
             Waveform envelopeWaveform = CloneAndConditionReferenceWaveform(referenceWaveform);
@@ -140,6 +159,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             return envelopeWaveform;
         }
 
+        /// <summary>Creates an envelope waveform utilizing the lookup table method.</summary>
+        /// <param name="referenceWaveform">Specifies the waveform used for RF signal generation.</param>
+        /// <param name="lookUpTableConfig">Specifies common settings for creating the lookup table envelope waveform.</param>
+        /// <returns>The lookup table envelope waveform.</returns>
         public static Waveform CreateLookUpTableEnvelopeWaveform(Waveform referenceWaveform, LookUpTableConfiguration lookUpTableConfig)
         {
             ComplexSingle[] iq = referenceWaveform.Data.GetRawData(); // get copy of iq samples
@@ -181,6 +204,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         #endregion
 
         #region Instrument Configuration
+
+        /// <summary>Configures common instrument settings for the envelope generator.</summary>
+        /// <param name="envVsg">The open RFSG session to configure.</param>
+        /// <param name="envVsgConfig">The common settings to apply to the envelope generator.</param>
+        /// <param name="trackerConfig">The common settings pertaining to the tracker that is used to modulate the power supply voltage.</param>
         public static void ConfigureEnvelopeGenerator(NIRfsg envVsg, EnvelopeGeneratorConfiguration envVsgConfig, TrackerConfiguration trackerConfig)
         {
             // all function calls assume a differential terminal configuration since that is the only option supported by the PXIe-5820
@@ -190,6 +218,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             envVsg.IQOutPort[""].CommonModeOffset = trackerConfig.CommonModeOffset_V;
         }
 
+        /// <summary>Scales the envelope waveform data based on the settings in <paramref name="trackerConfig"/>, and downloads the waveform to the envelope generator.</summary>
+        /// <param name="envVsg">The open RFSG session to configure.</param>
+        /// <param name="envelopeWaveform">The envelope waveform created by <see cref="CreateDetroughEnvelopeWaveform(Waveform, DetroughConfiguration)"/> or 
+        /// <see cref="CreateLookUpTableEnvelopeWaveform(Waveform, LookUpTableConfiguration)"/> that is to be generated.</param>
+        /// <param name="trackerConfig">The common settings pertaining to the tracker that is used to modulate the power supply voltage.</param>
+        /// <returns>The envelope waveform with data scaled according to the tracker configuration.</returns>
         public static Waveform ScaleAndDownloadEnvelopeWaveform(NIRfsg envVsg, Waveform envelopeWaveform, TrackerConfiguration trackerConfig)
         {
             // grab the raw envelope so we can use linq to get statistics on it
@@ -237,6 +271,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             return scaledEnvelopeWaveform; // return the waveform as it will appear coming out of the front end of the envelope generator
         }
 
+        /// <summary>Synchronizes the RF and envelope signal generators, and initiates generation.</summary>
+        /// <param name="rfVsg">The open RFSG session corresponding to the RF signal generator.</param>
+        /// <param name="envVsg">The open RFSG session corresponding to the envelope signal generator.</param>
+        /// <param name="syncConfig">Specifies common settings used for synchronizing the RF and envelope signal generators.</param>
         public static void InitiateSynchronousGeneration(NIRfsg rfVsg, NIRfsg envVsg, SynchronizationConfiguration syncConfig)
         {   
             TClock tclk = new TClock(new ITClockSynchronizableDevice[] { rfVsg, envVsg });
@@ -248,6 +286,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         }
         #endregion
 
+        /// <summary>Duplicates <paramref name="referenceWaveform"/>, updates the name, and sets appropriate values for the waveform.</summary>
+        /// <param name="referenceWaveform">Specfies the waveform to clone and condition.</param>
+        /// <returns>The cloned and conditioned waveform.</returns>
         private static Waveform CloneAndConditionReferenceWaveform(Waveform referenceWaveform)
         {
             Waveform envelopeWaveform = referenceWaveform;
@@ -264,6 +305,12 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             return envelopeWaveform;
         }
 
+        /// <summary>Performs one-dimensional interpolation using a selected method based on the lookup table defined by <paramref name="x"/> and <paramref name="y"/>.</summary>
+        /// <param name="x">Specifies the array of tabulated values of the independent variable.</param>
+        /// <param name="y">Specifies the array of tabulated values of the dependent variable.</param>
+        /// <param name="xi">Specifies the array of values of the independent variable at which the interpolated values (yi) of the dependent variable are computed.</param>
+        /// <param name="monotonic">Specifies whether the values in <paramref name="x"/> are increasing monotonically with the index.</param>
+        /// <returns>The output array of interpolated values (yi) that correspond to the <paramref name="xi"/> independent variable values.</returns>
         private static float[] LinearInterpolation1D(float[] x, float[] y, float[] xi, bool monotonic = false)
         {
             // assumes x and y are the same length and lengths are > 1
