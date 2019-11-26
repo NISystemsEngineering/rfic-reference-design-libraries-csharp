@@ -240,7 +240,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         /// <summary>Configures common settings related to the NR standard of the measured signal.</summary>
         /// <param name="nr">Specifies the NR signal to configure.</param>
-        /// <param name="standardConfig">Specifies the WLAN standard settings to apply.</param>
+        /// <param name="standardConfig">Specifies the NR standard settings to apply.</param>
         /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         public static void ConfigureStandard(RFmxNRMX nr, StandardConfiguration standardConfig, string selectorString = "")
         {
