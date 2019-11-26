@@ -60,7 +60,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
-        /// <summary>Defines common settings for the application of DPD, regardless of which method is used.</summary>
+        /// <summary>Defines common settings for the application of DPD, regardless of which model is used.</summary>
         public struct CommonConfiguration
         {
             public double MeasurementInterval_s;
@@ -114,7 +114,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
-        /// <summary>Defines commmon settings for the application of lookup table based DPD.</summary>
+        /// <summary>Defines commmon settings for lookup table based DPD.</summary>
         public struct LookupTableConfiguration
         {
             public RFmxSpecAnMXDpdLookupTableType Type;
@@ -140,7 +140,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             }
         }
 
-        /// <summary>Defines commmon settings for the application of memory polynomial based DPD.</summary>
+        /// <summary>Defines commmon settings for memory polynomial based DPD.</summary>
         public struct MemoryPolynomialConfiguration
         {
             public RFmxSpecAnMXDpdApplyDpdMemoryModelCorrectionType CorrectionType;
@@ -241,7 +241,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             return preDpdCfrWaveform;
         }
 
-        /// <summary>Configures common settings for the application of DPD, regardless of which method is used.</summary>
+        /// <summary>Configures common settings for the application of DPD, regardless of which model is used.</summary>
         /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
         /// <param name="commonConfig">Specifies the common settings to apply.</param>
         /// <param name="referenceWaveform">Specifies the <see cref="Waveform"/> whose data defines the complex baseband equivalent of the RF signal applied at the input 
@@ -278,7 +278,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             specAn.Dpd.ApplyDpd.SetCfrShapingThreshold(selectorString, applyDpdCfrConfig.ShapingThreshold_dB);
         }
 
-        /// <summary>Configures common settings for the application of lookup table based DPD.</summary>
+        /// <summary>Configures common settings for lookup table based DPD.</summary>
         /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
         /// <param name="lutConfig">Specifies the common lookup table settings to apply.</param>
         /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
@@ -292,7 +292,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             specAn.Dpd.ApplyDpd.ConfigureLookupTableCorrectionType(selectorString, lutConfig.CorrectionType);
         }
 
-        /// <summary>Configures common settings for the application of memory polynomial based DPD.</summary>
+        /// <summary>Configures common settings for memory polynomial based DPD.</summary>
         /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
         /// <param name="mpConfig">Specifies the memory polynomial settings to apply.</param>
         /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
@@ -311,10 +311,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
 
         #region PerformDPD
 
-        /// <summary>Acquires the incoming signal, applies lookup table based digital predistortion to the reference waveform, and downloads the predistorted waveform to the generator.
-        ///  If generation is in progress when this function is called, generation will be continued with the predistorted waveform.</summary>
+        /// <summary>Acquires the incoming signal, trains the DPD model, applies the lookup table to the reference waveform, and downloads the predistorted waveform to the generator.
+        ///  If generation is in progress when this function is called, generation will resume with the predistorted waveform.</summary>
         /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
-        /// <param name="rfsgSession">Specifies the open RFSG session to </param>
+        /// <param name="rfsgSession">Specifies the open RFSG session to configure.</param>
         /// <param name="referenceWaveform">Specifies the <see cref="Waveform"/> whose data defines the complex baseband equivalent of the RF signal applied at the input 
         /// port of the device under test when performing the measurement. See the RFmx help for more documention of this parameter.</param>
         /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
@@ -355,10 +355,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             return lutResults;
         }
 
-        /// <summary>Acquires the incoming signal, applies memory polynomial based digital predistortion to the reference waveform, and downloads the predistorted waveform to the generator.
-        ///  If generation is in progress when this function is called, generation will be continued with the predistorted waveform.</summary>
+        /// <summary>Acquires the incoming signal, trains the DPD model, applies the memory polynomial to the reference waveform, and downloads the predistorted waveform to the generator.
+        ///  If generation is in progress when this function is called, generation will resume with the predistorted waveform.</summary>
         /// <param name="specAn">Specifies the SpecAn signal to configure.</param>
-        /// <param name="rfsgSession">Specifies the open RFSG session to </param>
+        /// <param name="rfsgSession">Specifies the open RFSG session to configure.</param>
         /// <param name="referenceWaveform">Specifies the <see cref="Waveform"/> whose data defines the complex baseband equivalent of the RF signal applied at the input 
         /// port of the device under test when performing the measurement. See the RFmx help for more documention of this parameter.</param>
         /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. 
