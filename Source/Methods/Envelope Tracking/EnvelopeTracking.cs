@@ -56,7 +56,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             Power
         };
 
-        /// <summary>Defines common settings used for creating the detrough envelope waveform..</summary>
+        /// <summary>Defines common settings used for creating the detrough envelope waveform.</summary>
         public struct DetroughConfiguration
         {
             public DetroughType Type;
