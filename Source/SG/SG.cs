@@ -187,7 +187,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             if (string.IsNullOrEmpty(waveformName))
             {
                 waveformName = Path.GetFileNameWithoutExtension(filePath);
-                waveformName = Utilities.FormatWaveformName(waveformName);
+                waveformName = FormatWaveformName(waveformName);
             }
 
             waveform.Name = waveformName;
@@ -526,6 +526,17 @@ namespace NationalInstruments.ReferenceDesignLibraries
             rfsgHandle.Close();
         }
 
+        /// <summary>Formats the waveform name in order to avoid any errors when used in a script or downloaded to the generator.</summary>
+        /// <param name="waveformName">The waveform name to format.</param>
+        /// <returns>The formatted waveform name.</returns>
+        public static string FormatWaveformName(string waveformName)
+        {
+            //The RFSG playback library and script compiler won't accept names with non-text/numeric characters
+            waveformName = System.Text.RegularExpressions.Regex.Replace(waveformName, "[^a-zA-Z0-9]", ""); //Remove all non-text/numeric characters
+            waveformName = string.Concat("Wfm", waveformName);
+            return waveformName.ToUpper();
+        }
+
         /// <summary>Converts samples to time based on the sample rate.</summary>
         /// <param name="time">Specifies the time in seconds.</param>
         /// <param name="sampleRate">Specifies the sample rate in samples/second.</param>
@@ -547,20 +558,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //Add one to arrive at the total number of samples
             //Divide by the sample rate to get the time in seconds
             return (BurstStopLocations[finalStopIndex] - BurstStartLocations[0] + 1) / SampleRate;
-        }
-
-        public static class Utilities
-        {
-            /// <summary>Formats the waveform name in order to avoid any errors when used in a script or downloaded to the generator.</summary>
-            /// <param name="waveformName">The waveform name to format.</param>
-            /// <returns>The formatted waveform name.</returns>
-            public static string FormatWaveformName(string waveformName)
-            {
-                //The RFSG playback library and script compiler won't accept names with non-text/numeric characters
-                waveformName = System.Text.RegularExpressions.Regex.Replace(waveformName, "[^a-zA-Z0-9]", ""); //Remove all non-text/numeric characters
-                waveformName = string.Concat("Wfm", waveformName);
-                return waveformName.ToUpper();
-            }
         }
     }
 
