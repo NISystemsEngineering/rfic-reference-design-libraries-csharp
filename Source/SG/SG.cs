@@ -333,6 +333,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 rfsgHandle.DeviceEvents.MarkerEvents[1].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(
                     paenConfig.PAEnableTriggerExportTerminal);
                 rfsgHandle.DeviceEvents.MarkerEvents[1].OutputBehaviour = paenConfig.PAEnableTriggerMode;
+
+                // Ensure that the initial state for the digital line is low when using toggle mode to ensure the DUT state is correct
+                rfsgHandle.DeviceEvents.MarkerEvents[1].ToggleInitialState = RfsgMarkerEventToggleInitialState.DigitalLow;
             }
             //Configure scriptTrigger0 for software triggering. This way, when it is time to abort we can stop
             //the loop and trigger the appropriate off command if PAEN mode is Static
