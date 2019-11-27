@@ -246,7 +246,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         /// <param name="resultName">(Optional) Specifies the name to be associated with measurement results. Provide a unique name, such as "r1" to enable 
         /// fetching of multiple measurement results and traces. See the RFmx help for more documentation of this parameter.</param>
-        public static void SelectAndInitiateMeasurements(RFmxLteMX lte, RFmxLteMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig,
+        public static void SelectAndInitiateMeasurements(RFmxLteMX lte, RFmxLteMXMeasurementTypes[] measurements, AutoLevelConfiguration autoLevelConfig = default,
             bool enableTraces = false, string selectorString = "", string resultName = "")
         {
             // Aggregate the selected measurements into a single value
