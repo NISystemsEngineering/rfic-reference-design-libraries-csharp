@@ -419,11 +419,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 rfsgHandle.DeviceEvents.MarkerEvents[1].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(
                     paenConfig.PAEnableTriggerExportTerminal);
                 rfsgHandle.DeviceEvents.MarkerEvents[1].OutputBehaviour = paenConfig.PAEnableTriggerMode;
-
-                //Configure scriptTrigger0 for software triggering. This way, when it is time to abort we can stop
-                //the loop and trigger the appropriate off command if PAEN mode is Static
-                rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
             }
+            //Configure scriptTrigger0 for software triggering. This way, when it is time to abort we can stop
+            //the loop and trigger the appropriate off command if PAEN mode is Static
+            rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
 
             //Configure the trigger to be generated on the first sample of each waveform generation,
             //denoted in the script below as "marker0"
