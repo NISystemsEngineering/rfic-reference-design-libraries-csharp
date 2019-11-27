@@ -14,7 +14,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
     {
         //Suppress warning for obselete code as LoadWaveformFromTDMS intentionally uses 
         //an outdated method in order to support older waveform files
-        #pragma warning disable CS0612
+#pragma warning disable CS0612
 
         #region Type Definitions
         /// <summary>Defines common instrument settings used for generation.</summary>
@@ -97,14 +97,14 @@ namespace NationalInstruments.ReferenceDesignLibraries
         }
 
         /// <summary>Defines different modes for controlling the DUT state when using bursted generation.</summary>
-        public enum PAENMode 
-        { 
+        public enum PAENMode
+        {
             /// <summary>Disables exporting a signal to control a DUT during generation.</summary>
-            Disabled, 
+            Disabled,
             /// <summary>Exports a signal to turn on a DUT at the start of generation, and exports a signal to turn off the DUT after <see cref="AbortGeneration(NIRfsg, int)"/> is called.</summary>
-            Static, 
+            Static,
             /// <summary>Exports a signal to dynamically turn on and off a DUT just before and just after each RF burst from the signal generator.</summary>
-            Dynamic 
+            Dynamic
         };
 
         /// <summary>Defines different parameters for controlling a DUT when using bursted generation.</summary>
@@ -142,7 +142,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
         #endregion
-        
+
         /// <summary>Configures common instrument settings for generation.</summary>
         /// <param name="rfsgHandle">The open RFSG session to configure.</param>
         /// <param name="instrConfig">The common instrument settings to configure.</param>
@@ -175,7 +175,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //Do nothing; any configuration for LOs with standalone VSGs should be configured manually. 
             //Baseband instruments don't have LOs. Unsupported VSTs must be configured manually.
         }
-        
+
         /// <summary>Loads a waveform and relevant properties from a TDMS file.</summary>
         /// <param name="filePath">Specifies the absolute path to the .TDMS waveform file on disk.</param>
         /// <param name="waveformName">(Optional) Specifies the name to use to represent the waveform. The file name will be used by default.</param>
@@ -236,7 +236,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             return waveform;
         }
-        
+
         /// <summary>Downloads a previously loaded waveform to the instrument and sets associated properties.</summary>
         /// <param name="rfsgHandle">The open RFSG session to configure.</param>
         /// <param name="waveform">The waveform data and associated properties to download to the instrument. Use <see cref="LoadWaveformFromTDMS(string, string)"/> to load a waveform from a TDMS file.</param>
@@ -442,7 +442,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             if (string.IsNullOrEmpty(waveform.Script)) // default to continuous if no script in waveform
                 ConfigureContinuousGeneration(rfsgHandle, waveform);
             else
-            { 
+            {
                 IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
                 NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, waveform.Script);
             }
