@@ -477,33 +477,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
             return waveform;
         }
 
-        public static void TogglePFILine(NIRfsg rfsgHandle, RfsgMarkerEventToggleInitialState toggleDirection = RfsgMarkerEventToggleInitialState.DigitalLow)
-        {
-            rfsgHandle.Abort();
-
-            //Ensure that the terminal is configured to the proper toggle state
-            rfsgHandle.DeviceEvents.MarkerEvents[1].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.Pfi0;
-            rfsgHandle.DeviceEvents.MarkerEvents[1].OutputBehaviour = RfsgMarkerEventOutputBehaviour.Toggle;
-            rfsgHandle.DeviceEvents.MarkerEvents[1].ToggleInitialState = toggleDirection;
-
-            //Create a script that doesn't do anything, but ensures that the requested intitial toggle behavior
-            //is applied to the hardware to toggle the PFI line correctly
-            string cachedScriptName = rfsgHandle.Arb.Scripting.SelectedScriptName;
-            string toggleScript =
-                @"script toggleScript
-                    wait 10
-                end script";
-            rfsgHandle.Arb.Scripting.WriteScript(toggleScript);
-            rfsgHandle.Arb.Scripting.SelectedScriptName = "ToggleScript";
-
-            rfsgHandle.Initiate();
-            rfsgHandle.Abort();
-
-            //Return the active script to the previous
-            rfsgHandle.Arb.Scripting.SelectedScriptName = cachedScriptName;
-            rfsgHandle.Utility.Commit();
-        }
-
         /// <summary>Notifies running scripts configured with <see cref="ConfigureContinuousGeneration(NIRfsg, Waveform, string)"/> or 
         /// <see cref="ConfigureBurstedGeneration(NIRfsg, Waveform, WaveformTimingConfiguration, PAENConfiguration, out double, out double)"/>
         /// to enter the cleanup state, and then aborts generation. This function ensures that these scripts always reach a finished state before
