@@ -318,99 +318,13 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public static Waveform ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
-            string scriptName = string.Format("{0}{1}", waveform.Name, waveTiming.DutyCycle_Percent);
-
             if (waveTiming.DutyCycle_Percent <= 0)
             {
                 throw new ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
             }
 
-            //Calculate various timining information
-            double dutyCycle = waveTiming.DutyCycle_Percent / 100;
-            double totalBurstTime = waveTiming.PreBurstTime_s + waveform.BurstLength_s + waveTiming.PostBurstTime_s;
-            idleTime = (totalBurstTime / dutyCycle) - totalBurstTime;
-            period = totalBurstTime + idleTime;
-
-            //Convert all time based values to sample based values
-            long preBurstSamp, postBurstSamp, idleSamp, enableSamples, disableSamples;
-            preBurstSamp = TimeToSamples(waveTiming.PreBurstTime_s, waveform.SampleRate);
-            postBurstSamp = TimeToSamples(waveTiming.PostBurstTime_s, waveform.SampleRate);
-            idleSamp = TimeToSamples(idleTime, waveform.SampleRate);
-            enableSamples = TimeToSamples(paenConfig.CommandEnableTime_s, waveform.SampleRate);
-            disableSamples = TimeToSamples(paenConfig.CommandDisableTime_s, waveform.SampleRate);
-
-            //RFSG enforces a minimum wait time of 8 samples, so ensure that the minimum pre/post burst time
-            // and idle time are at least 8 samples long
-            if (preBurstSamp < 8) preBurstSamp = 8;
-            if (postBurstSamp < 8) postBurstSamp = 8;
-            if (idleSamp < 8) idleSamp = 8;
-
-            //Initialize the script StringBuilder with the first line of the script (name)
-            StringBuilder sb = new StringBuilder($"script {scriptName}");
-            sb.AppendLine();
-
-            #region Script Building
-            //If we have a static PA Enable mode, ensure that we trigger at the beginning of the script prior to looping.
-            if (paenConfig.PAEnableMode == PAENMode.Static)
-                sb.AppendLine("wait 8 marker1(7)");
-
-            //Configure for endless repeating
-            sb.AppendLine("Repeat until scriptTrigger0");
-
-            //Configure the idle time prior to each packet generation
-            sb.Append($"wait {idleSamp}");
-
-            //If PAEN Mode is dynamic we need to trigger the PA to enable
-            if (paenConfig.PAEnableMode == PAENMode.Dynamic)
-            {
-                //PA Enable is triggered at or before the last sample of the wait period
-                long PAEnableTriggerLoc = idleSamp - enableSamples - 1;
-                sb.Append($" marker1({PAEnableTriggerLoc})");
-            }
-
-            sb.AppendLine();
-
-            //Configure waiting for the pre-burst time
-            sb.AppendLine($"wait {preBurstSamp}");
-
-            //Configure generation of the selected waveform but only for the burst length; send a trigger at the beginning of each burst
-            sb.Append($"generate {waveform.Name} subset({waveform.BurstStartLocations[0]},{waveform.BurstStopLocations[0]}) marker0(0)");
-
-            //Check to see if the command time is longer than the post-burst time, which determines when the PA disable command needs sent
-            bool LongCommand = waveTiming.PostBurstTime_s <= paenConfig.CommandDisableTime_s;
-
-            if (paenConfig.PAEnableMode == PAENMode.Dynamic && LongCommand)
-            {
-                //Trigger is placed a number of samples from the end of the burst corresponding with
-                //how much longer than the post burst time it is
-                long PADisableTriggerLoc = waveform.BurstStopLocations[0] - (disableSamples - postBurstSamp) - 1;
-                sb.Append($" marker1({PADisableTriggerLoc})");
-            }
-            sb.AppendLine();
-
-            //Configure waiting for the post-burst time
-            sb.Append($"wait {postBurstSamp}");
-
-            //If the ommand time is shorter than the post-burst time, the disable trigger must be sent
-            //during the post-burst time 
-            if (paenConfig.PAEnableMode == PAENMode.Dynamic && !LongCommand)
-            {
-                long PADisableTriggerLoc = postBurstSamp - disableSamples - 1;
-                sb.Append($" marker1({PADisableTriggerLoc})");
-            }
-            sb.AppendLine();
-            //Close out the script
-            sb.AppendLine("end repeat");
-
-            //If we have a static PA Enable mode, ensure that we trigger at the end of the script prior to concluding.
-            if (paenConfig.PAEnableMode == PAENMode.Static)
-                sb.AppendLine("wait 10 marker1(0)");
-
-            sb.AppendLine("end script");
-            #endregion
-
             //Download the generation script to the generator for later initiation
-            waveform.Script = sb.ToString();
+            waveform.Script = GenerateBurstedScript(paenConfig, waveTiming, waveform, out period, out idleTime);
             ApplyWaveformAttributes(rfsgHandle, waveform);
 
             //Configure the triggering for PA enable if selected
@@ -535,6 +449,105 @@ namespace NationalInstruments.ReferenceDesignLibraries
             waveformName = System.Text.RegularExpressions.Regex.Replace(waveformName, "[^a-zA-Z0-9]", ""); //Remove all non-text/numeric characters
             waveformName = string.Concat("Wfm", waveformName);
             return waveformName.ToUpper();
+        }
+
+        /// <summary>Creates the generation script used for bursted generation.</summary>
+        /// <param name="waveTiming">Specifies the timing parameters used to configure the bursted generation.</param>
+        /// <param name="paenConfig">Specifies parameters pertaining to how the DUT is controlled during generation.</param>
+        /// <param name="waveform">Specifies the waveform to generate; its burst length will be used in conjuction with the duty cycle to calculate the idle time.</param>
+        /// <param name="generationPeriod_s">Returns the total generation period, consisting of the waveform burst length, idle time, and any additional pre/post burst time configured.</param>
+        /// <param name="idleTime_s">Returns the computed idle time based upon the requested duty cycle.</param>
+        /// <returns>The script to implement the requested bursted generation timing.</returns>
+        private static string GenerateBurstedScript(PAENConfiguration paenConfig, WaveformTimingConfiguration waveTiming, Waveform waveform,
+            out double generationPeriod_s, out double idleTime_s)
+        {
+            string scriptName = string.Format("{0}{1}", waveform.Name, waveTiming.DutyCycle_Percent);
+
+            //Calculate various timining information
+            double dutyCycle = waveTiming.DutyCycle_Percent / 100;
+            double totalBurstTime = waveTiming.PreBurstTime_s + waveform.BurstLength_s + waveTiming.PostBurstTime_s;
+            idleTime_s = (totalBurstTime / dutyCycle) - totalBurstTime;
+            generationPeriod_s = totalBurstTime + idleTime_s;
+
+            //Convert all time based values to sample based values
+            long preBurstSamp, postBurstSamp, idleSamp, enableSamples, disableSamples;
+            preBurstSamp = TimeToSamples(waveTiming.PreBurstTime_s, waveform.SampleRate);
+            postBurstSamp = TimeToSamples(waveTiming.PostBurstTime_s, waveform.SampleRate);
+            idleSamp = TimeToSamples(idleTime_s, waveform.SampleRate);
+            enableSamples = TimeToSamples(paenConfig.CommandEnableTime_s, waveform.SampleRate);
+            disableSamples = TimeToSamples(paenConfig.CommandDisableTime_s, waveform.SampleRate);
+
+            //RFSG enforces a minimum wait time of 8 samples, so ensure that the minimum pre/post burst time
+            // and idle time are at least 8 samples long
+            if (preBurstSamp < 8) preBurstSamp = 8;
+            if (postBurstSamp < 8) postBurstSamp = 8;
+            if (idleSamp < 8) idleSamp = 8;
+
+            //Initialize the script StringBuilder with the first line of the script (name)
+            StringBuilder sb = new StringBuilder($"script {scriptName}");
+            sb.AppendLine();
+
+            #region Script Building
+            //If we have a static PA Enable mode, ensure that we trigger at the beginning of the script prior to looping.
+            if (paenConfig.PAEnableMode == PAENMode.Static)
+                sb.AppendLine("wait 8 marker1(7)");
+
+            //Configure for endless repeating
+            sb.AppendLine("Repeat until scriptTrigger0");
+
+            //Configure the idle time prior to each packet generation
+            sb.Append($"wait {idleSamp}");
+
+            //If PAEN Mode is dynamic we need to trigger the PA to enable
+            if (paenConfig.PAEnableMode == PAENMode.Dynamic)
+            {
+                //PA Enable is triggered at or before the last sample of the wait period
+                long PAEnableTriggerLoc = idleSamp - enableSamples - 1;
+                sb.Append($" marker1({PAEnableTriggerLoc})");
+            }
+
+            sb.AppendLine();
+
+            //Configure waiting for the pre-burst time
+            sb.AppendLine($"wait {preBurstSamp}");
+
+            //Configure generation of the selected waveform but only for the burst length; send a trigger at the beginning of each burst
+            sb.Append($"generate {waveform.Name} subset({waveform.BurstStartLocations[0]},{waveform.BurstStopLocations[0]}) marker0(0)");
+
+            //Check to see if the command time is longer than the post-burst time, which determines when the PA disable command needs sent
+            bool LongCommand = waveTiming.PostBurstTime_s <= paenConfig.CommandDisableTime_s;
+
+            if (paenConfig.PAEnableMode == PAENMode.Dynamic && LongCommand)
+            {
+                //Trigger is placed a number of samples from the end of the burst corresponding with
+                //how much longer than the post burst time it is
+                long PADisableTriggerLoc = waveform.BurstStopLocations[0] - (disableSamples - postBurstSamp) - 1;
+                sb.Append($" marker1({PADisableTriggerLoc})");
+            }
+            sb.AppendLine();
+
+            //Configure waiting for the post-burst time
+            sb.Append($"wait {postBurstSamp}");
+
+            //If the ommand time is shorter than the post-burst time, the disable trigger must be sent
+            //during the post-burst time 
+            if (paenConfig.PAEnableMode == PAENMode.Dynamic && !LongCommand)
+            {
+                long PADisableTriggerLoc = postBurstSamp - disableSamples - 1;
+                sb.Append($" marker1({PADisableTriggerLoc})");
+            }
+            sb.AppendLine();
+            //Close out the script
+            sb.AppendLine("end repeat");
+
+            //If we have a static PA Enable mode, ensure that we trigger at the end of the script prior to concluding.
+            if (paenConfig.PAEnableMode == PAENMode.Static)
+                sb.AppendLine("wait 10 marker1(0)");
+
+            sb.AppendLine("end script");
+            #endregion
+
+            return sb.ToString();
         }
 
         /// <summary>Converts samples to time based on the sample rate.</summary>
