@@ -318,9 +318,15 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public static Waveform ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
-            if (waveTiming.DutyCycle_Percent <= 0)
+            // Validate input parameters
+            if (waveTiming.DutyCycle_Percent <= 0 || waveTiming.DutyCycle_Percent >= 100)
             {
-                throw new ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
+                throw new ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0% and less than 100%. " +
+                    "For a duty cycle of 100%, use SG.ConfigureContinuous generation instead.");
+            }
+            if (waveTiming.PreBurstTime_s <= 0 || waveTiming.PostBurstTime_s <= 0)
+            {
+                throw new ArgumentOutOfRangeException("PreBurstTime | PostBurstTime", "PreBurstTime and PostBurstTime must be greater than 0 seconds");
             }
 
             //Download the generation script to the generator for later initiation
