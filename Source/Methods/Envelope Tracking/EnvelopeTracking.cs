@@ -242,12 +242,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             for (int i = 0; i < envelope.Length; i++)
                 scaledEnvelopeWaveformBuffer[i] = ComplexSingle.FromSingle(envelope[i]);
 
-            // get statistics on the waveform
-            float max = envelope.Max();
-            float min = envelope.Min();
-            float gain = (max - min) * 0.5f; // distance between middle of waveform and max/min
-            float offset = min + gain;
-            float absolutePeak = Math.Abs(offset) + gain; // peak voltage of the waveform with absolute value of offset
+            // get peak of the waveform
+            float absolutePeak = envelope.Max(i => Math.Abs(i)); // applies the absolute value function to each element and returns the max
 
             // scale waveform to peak voltage
             for (int i = 0; i < envelope.Length; i++)
