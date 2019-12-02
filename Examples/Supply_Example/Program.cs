@@ -23,7 +23,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             // Configure measurement related parameters
             MeasurementConfiguration measConfig = new MeasurementConfiguration
             {
-                MeasureWhenMode = DCPowerMeasurementWhen.AutomaticallyAfterSourceComplete;
+                MeasureWhenMode = DCPowerMeasurementWhen.AutomaticallyAfterSourceComplete,
                 SenseMode = DCPowerMeasurementSense.Remote,
                 // A MeasurementMode of "Record" acquires multiple smaples over the requested measurement 
                 // time at the supply's maximum sampling rate. "Single Point" will take a single measurement
