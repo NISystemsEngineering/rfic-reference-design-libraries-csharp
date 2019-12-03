@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>NR5G_DPD_AMPM_EVM_ACP_DL</RootNamespace>
     <AssemblyName>NR5G_DPD_AMPM_EVM_ACP_DL</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>

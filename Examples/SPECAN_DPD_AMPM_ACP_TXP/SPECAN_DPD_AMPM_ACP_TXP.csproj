@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>SPECAN_AMPM_ACP_TXP_DPD</RootNamespace>
     <AssemblyName>SPECAN_AMPM_ACP_TXP_DPD</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
