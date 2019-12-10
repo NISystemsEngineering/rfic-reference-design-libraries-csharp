@@ -65,7 +65,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Defines common settings for the OFDM ModAcc measurement.</summary>
         public struct OFDMModAccConfiguration
         {
-            /// <summary>Specifies the length of the waveform to be acquired in seconds. See the RFmx help for more documention of this parameter.</summary>
+            /// <summary>Specifies the length of the waveform to be acquired in seconds. If the default value of 0 is used,
+            /// <see cref="ConfigureOFDMModAcc(RFmxWlanMX, OFDMModAccConfiguration, string)"/> will set the acquisition length mode property to 
+            /// <see cref="RFmxWlanMXOfdmModAccAcquisitionLengthMode.Auto"/>. See the RFmx help for more documention of this parameter.</summary>
             public double AcquisitionLength_s;
             /// <summary>Specifies the number of data symbols to be ignored from the start of the data field for EVM computation. This value is expressed as a number of symbols.
             ///  See the RFmx help for more documention of this parameter.</summary>
