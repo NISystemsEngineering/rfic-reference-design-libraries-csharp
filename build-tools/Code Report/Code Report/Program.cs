@@ -171,6 +171,9 @@ namespace Code_Report
                         ClassDeclarationSyntax subClass = (ClassDeclarationSyntax)member;
                         xmlWriter.WriteStartElement("Class");
                         xmlWriter.WriteAttributeString("Name", subClass.Identifier.ToString());
+                        DocumentationParsingResults classDoc = ParseDocumentation(subClass);
+                        if (o.ListDescriptions)
+                            xmlWriter.WriteElementString("Description", classDoc.MemberDescription);
                         ParseMembers(subClass.Members, xmlWriter, o);
                         xmlWriter.WriteEndElement();
                         break;

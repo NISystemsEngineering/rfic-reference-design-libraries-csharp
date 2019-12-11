@@ -3,6 +3,7 @@ using NationalInstruments.RFmx.NRMX;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
+    /// <summary>Defines common types and methods for NI-RFmx NR measurements.</summary>
     public static class RFmxNR
     {
         #region Type Definitions

@@ -5,6 +5,7 @@ using System;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
+    /// <summary>Defines common types and methods for NI-RFmx WLAN measurements.</summary>
     public static class RFmxWLAN
     {
         #region Type Definitions

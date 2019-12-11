@@ -3,6 +3,7 @@ using NationalInstruments.RFmx.LteMX;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
+    /// <summary>Defines common types and methods for NI-RFmx LTE measurements.</summary>
     public static class RFmxLTE
     {
         #region Type Definitions

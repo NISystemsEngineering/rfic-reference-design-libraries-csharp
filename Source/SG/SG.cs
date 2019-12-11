@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
+    /// <summary>Defines common types and methods for generating waveforms with NI-RFSG.</summary>
     public static class SG
     {
         //Suppress warning for obselete code as LoadWaveformFromTDMS intentionally uses 

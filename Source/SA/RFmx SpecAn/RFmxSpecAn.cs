@@ -3,6 +3,7 @@ using NationalInstruments.RFmx.SpecAnMX;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
+    /// <summary>Defines common types and methods for NI-RFmx SpecAn measurements.</summary>
     public static class RFmxSpecAn
     {
         #region Type Definitions

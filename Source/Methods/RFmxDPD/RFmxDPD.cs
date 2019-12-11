@@ -4,6 +4,7 @@ using static NationalInstruments.ReferenceDesignLibraries.SG;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Methods
 {
+    /// <summary>Defines common types and methods for implementing DPD with NI-RFmx.</summary>
     public static class RFmxDPD
     {
         #region Type Definitions

@@ -5,6 +5,7 @@ using NationalInstruments.ModularInstruments.SystemServices.TimingServices;
 using System;
 using System.Linq;
 
+/// <summary>Defines common types and methods for implementing Envelope Tracking.</summary>
 namespace NationalInstruments.ReferenceDesignLibraries.Methods
 {
     public static class EnvelopeTracking
