@@ -122,7 +122,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public int MaxIterations;
             /// <summary>Specifies the target PAPR type. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdApplyDpdCfrTargetPaprType TargetPaprType;
-            /// <summary>Specifies the target PAPR when you set <see cref="TargetPaprType"/> to custom.
+            /// <summary>Specifies the target PAPR when you set <see cref="TargetPaprType"/> to Custom.
             /// See the RFmx help for more documention of this parameter.</summary>
             public double TargetPapr_dB;
             /// <summary>Specifies the window type to be used when you set <see cref="Method"/> to Peak Windowing.
