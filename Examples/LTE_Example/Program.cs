@@ -26,7 +26,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             //Analyzer Configuration 
             Console.WriteLine("Configure...\n");
             saInstrConfig = SA.RFmxInstr.InstrumentConfiguration.GetDefault();
-            saCommonConfig = saCommonConfig = SA.CommonConfiguration.GetDefault();
+            saCommonConfig = SA.CommonConfiguration.GetDefault();
             saCommonConfig.ExternalAttenuation_dB = 0;
             saCommonConfig.CenterFrequency_Hz = centerFrequency;
             saCommonConfig.ReferenceLevel_dBm = 0.0;
