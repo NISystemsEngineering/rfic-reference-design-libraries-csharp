@@ -329,3 +329,7 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+## Ignore TestStand Results
+**/Results*.csv
+**/TestStand*Report*.xml
