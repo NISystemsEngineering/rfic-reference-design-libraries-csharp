@@ -139,6 +139,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             public double MeasurementInterval_s;
             public double DutAverageInputPower_dBm;
+            public int AveragingCount;
+            public RFmxSpecAnMXAmpmAveragingEnabled AveragingEnabled;
             public Waveform ReferenceWaveform;
             public RFmxSpecAnMXAmpmSignalType SignalType;
 
@@ -150,6 +152,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 {
                     MeasurementInterval_s = 100e-6,
                     DutAverageInputPower_dBm = -20,
+                    AveragingEnabled = RFmxSpecAnMXAmpmAveragingEnabled.False,
+                    AveragingCount = 10,
                     ReferenceWaveform = new Waveform(),
                     SignalType = RFmxSpecAnMXAmpmSignalType.Modulated
                 };

@@ -228,10 +228,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             for (int i = 0; i < AcpResultsSpecAn.OffsetResults.Length; i++)
             {
                 Console.WriteLine("Offset  {0}", i);
-                Console.WriteLine("Lower Relative Power (dB)    : {0:0.000}", AcpResultsSpecAn.OffsetResults[i].LowerRelativePower_dB);
-                Console.WriteLine("Upper Relative Power (dB)    : {0:0.000}", AcpResultsSpecAn.OffsetResults[i].UpperRelativePower_dB);
                 Console.WriteLine("Lower Absolute Power (dBm)   : {0:0.000}", AcpResultsSpecAn.OffsetResults[i].LowerAbsolutePower_dBm_or_dBmHz);
                 Console.WriteLine("Upper Absolute Power (dBm)   : {0:0.000}", AcpResultsSpecAn.OffsetResults[i].UpperAbsolutePower_dBm_or_dBmHz);
+                Console.WriteLine("Lower Relative Power (dB)    : {0:0.000}", AcpResultsSpecAn.OffsetResults[i].LowerRelativePower_dB);
+                Console.WriteLine("Upper Relative Power (dB)    : {0:0.000}", AcpResultsSpecAn.OffsetResults[i].UpperRelativePower_dB);
                 Console.WriteLine("-------------------------------------------------\n");
             }
         }
