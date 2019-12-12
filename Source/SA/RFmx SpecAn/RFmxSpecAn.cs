@@ -139,6 +139,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         {
             public double MeasurementInterval_s;
             public double DutAverageInputPower_dBm;
+            public int AveragingCount;
+            public RFmxSpecAnMXAmpmAveragingEnabled AveragingEnabled;
             public Waveform ReferenceWaveform;
             public RFmxSpecAnMXAmpmSignalType SignalType;
 
@@ -150,6 +152,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 {
                     MeasurementInterval_s = 100e-6,
                     DutAverageInputPower_dBm = -20,
+                    AveragingEnabled = RFmxSpecAnMXAmpmAveragingEnabled.False,
+                    AveragingCount = 10,
                     ReferenceWaveform = new Waveform(),
                     SignalType = RFmxSpecAnMXAmpmSignalType.Modulated
                 };
@@ -168,9 +172,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Defines common results of the ACP measurement for a single defined offset.</summary>
         public struct AcpOffsetResults
         {
-            public double LowerAbsolutePower_dBm;
+            public double LowerAbsolutePower_dBm_or_dBmHz;
             public double LowerRelativePower_dB;
-            public double UpperAbsolutePower_dBm;
+            public double UpperAbsolutePower_dBm_or_dBmHz;
             public double UpperRelativePower_dB;
             public double Frequency_Hz;
             public double IntegrationBandwidth_Hz;
@@ -347,8 +351,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 {
                     LowerRelativePower_dB = lowerRelativePower[i],
                     UpperRelativePower_dB = upperRelativePower[i],
-                    LowerAbsolutePower_dBm = lowerAbsolutePower[i],
-                    UpperAbsolutePower_dBm = upperAbsolutePower[i],
+                    LowerAbsolutePower_dBm_or_dBmHz = lowerAbsolutePower[i],
+                    UpperAbsolutePower_dBm_or_dBmHz = upperAbsolutePower[i],
                     Frequency_Hz = offsetFrequency,
                     IntegrationBandwidth_Hz = offsetIbw
                 };
