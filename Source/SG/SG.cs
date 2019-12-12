@@ -14,7 +14,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
     {
         //Suppress warning for obselete code as LoadWaveformFromTDMS intentionally uses 
         //an outdated method in order to support older waveform files
-        #pragma warning disable CS0612
+#pragma warning disable CS0612
 
         #region Type Definitions
         /// <summary>Defines common instrument settings used for generation.</summary>
@@ -97,14 +97,14 @@ namespace NationalInstruments.ReferenceDesignLibraries
         }
 
         /// <summary>Defines different modes for controlling the DUT state when using bursted generation.</summary>
-        public enum PAENMode 
-        { 
+        public enum PAENMode
+        {
             /// <summary>Disables exporting a signal to control a DUT during generation.</summary>
-            Disabled, 
+            Disabled,
             /// <summary>Exports a signal to turn on a DUT at the start of generation, and exports a signal to turn off the DUT after <see cref="AbortGeneration(NIRfsg, int)"/> is called.</summary>
-            Static, 
+            Static,
             /// <summary>Exports a signal to dynamically turn on and off a DUT just before and just after each RF burst from the signal generator.</summary>
-            Dynamic 
+            Dynamic
         };
 
         /// <summary>Defines different parameters for controlling a DUT when using bursted generation.</summary>
@@ -142,7 +142,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             }
         }
         #endregion
-        
+
         /// <summary>Configures common instrument settings for generation.</summary>
         /// <param name="rfsgHandle">The open RFSG session to configure.</param>
         /// <param name="instrConfig">The common instrument settings to configure.</param>
@@ -175,7 +175,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //Do nothing; any configuration for LOs with standalone VSGs should be configured manually. 
             //Baseband instruments don't have LOs. Unsupported VSTs must be configured manually.
         }
-        
+
         /// <summary>Loads a waveform and relevant properties from a TDMS file.</summary>
         /// <param name="filePath">Specifies the absolute path to the .TDMS waveform file on disk.</param>
         /// <param name="waveformName">(Optional) Specifies the name to use to represent the waveform. The file name will be used by default.</param>
@@ -187,7 +187,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             if (string.IsNullOrEmpty(waveformName))
             {
                 waveformName = Path.GetFileNameWithoutExtension(filePath);
-                waveformName = Utilities.FormatWaveformName(waveformName);
+                waveformName = FormatWaveformName(waveformName);
             }
 
             waveform.Name = waveformName;
@@ -236,7 +236,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             return waveform;
         }
-        
+
         /// <summary>Downloads a previously loaded waveform to the instrument and sets associated properties.</summary>
         /// <param name="rfsgHandle">The open RFSG session to configure.</param>
         /// <param name="waveform">The waveform data and associated properties to download to the instrument. Use <see cref="LoadWaveformFromTDMS(string, string)"/> to load a waveform from a TDMS file.</param>
@@ -318,24 +318,171 @@ namespace NationalInstruments.ReferenceDesignLibraries
         public static Waveform ConfigureBurstedGeneration(NIRfsg rfsgHandle, Waveform waveform, WaveformTimingConfiguration waveTiming,
             PAENConfiguration paenConfig, out double period, out double idleTime)
         {
-            string scriptName = string.Format("{0}{1}", waveform.Name, waveTiming.DutyCycle_Percent);
-
-            if (waveTiming.DutyCycle_Percent <= 0)
+            // Validate input parameters
+            if (waveTiming.DutyCycle_Percent <= 0 || waveTiming.DutyCycle_Percent >= 100)
             {
-                throw new ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0 %");
+                throw new ArgumentOutOfRangeException("DutyCycle_Percent", waveTiming.DutyCycle_Percent, "Duty cycle must be greater than 0% and less than 100%. " +
+                    "For a duty cycle of 100%, use SG.ConfigureContinuous generation instead.");
             }
+            if (waveTiming.PreBurstTime_s <= 0 || waveTiming.PostBurstTime_s <= 0)
+            {
+                throw new ArgumentOutOfRangeException("PreBurstTime | PostBurstTime", "PreBurstTime and PostBurstTime must be greater than 0 seconds");
+            }
+
+            //Download the generation script to the generator for later initiation
+            waveform.Script = GenerateBurstedScript(paenConfig, waveTiming, waveform, out period, out idleTime);
+            ApplyWaveformAttributes(rfsgHandle, waveform);
+
+            //Configure the triggering for PA enable if selected
+            if (paenConfig.PAEnableMode != PAENMode.Disabled)
+            {
+                rfsgHandle.DeviceEvents.MarkerEvents[1].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(
+                    paenConfig.PAEnableTriggerExportTerminal);
+                rfsgHandle.DeviceEvents.MarkerEvents[1].OutputBehaviour = paenConfig.PAEnableTriggerMode;
+
+                // Ensure that the initial state for the digital line is low when using toggle mode to ensure the DUT state is correct
+                rfsgHandle.DeviceEvents.MarkerEvents[1].ToggleInitialState = RfsgMarkerEventToggleInitialState.DigitalLow;
+            }
+            //Configure scriptTrigger0 for software triggering. This way, when it is time to abort we can stop
+            //the loop and trigger the appropriate off command if PAEN mode is Static
+            rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
+
+            //Configure the trigger to be generated on the first sample of each waveform generation,
+            //denoted in the script below as "marker0"
+            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal =
+                RfsgMarkerEventExportedOutputTerminal.FromString(waveTiming.BurstStartTriggerExport);
+
+            // Return updated waveform struct to caller
+            return waveform;
+        }
+
+        /// <summary>Calls <see cref="NIRfsgPlayback.SetScriptToGenerateSingleRfsg(IntPtr, string)"/>, which will download the script contained in <paramref name="waveform"/> and apply
+        /// all associated parameters.</summary>
+        /// <param name="rfsgHandle">The open RFSG session to configure.</param>
+        /// <param name="waveform">Specifies the waveform and its associated script that is to be used for generation.</param>
+        public static void ApplyWaveformAttributes(NIRfsg rfsgHandle, Waveform waveform)
+        {
+            if (string.IsNullOrEmpty(waveform.Script)) // default to continuous if no script in waveform
+                ConfigureContinuousGeneration(rfsgHandle, waveform);
+            else
+            {
+                IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+                NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, waveform.Script);
+            }
+        }
+
+        /// <summary>Retrieves waveform parameters from the <see cref="NIRfsgPlayback"/> waveform database based on the waveform name. 
+        /// NOTE - this does not return any value for <see cref="Waveform.Data"/>. This data cannot be retrieved from the database.</summary>
+        /// <param name="rfsgHandle">The open RFSG session.</param>
+        /// <param name="waveformName">Specifies the name of the waveform to use to lookup its properties.</param>
+        /// <returns>The waveform parameters associated with the specified name.</returns>
+        public static Waveform GetWaveformParametersByName(NIRfsg rfsgHandle, string waveformName)
+        {
+            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
+
+            Waveform waveform = new Waveform
+            {
+                Name = waveformName
+            };
+
+            NIRfsgPlayback.RetrieveWaveformSignalBandwidth(rfsgPtr, waveformName, out waveform.SignalBandwidth_Hz);
+            NIRfsgPlayback.RetrieveWaveformPapr(rfsgPtr, waveformName, out waveform.PAPR_dB);
+            NIRfsgPlayback.RetrieveWaveformSampleRate(rfsgPtr, waveformName, out waveform.SampleRate);
+            NIRfsgPlayback.RetrieveWaveformBurstStartLocations(rfsgPtr, waveformName, ref waveform.BurstStartLocations);
+            NIRfsgPlayback.RetrieveWaveformBurstStopLocations(rfsgPtr, waveformName, ref waveform.BurstStopLocations);
+            NIRfsgPlayback.RetrieveWaveformSize(rfsgPtr, waveformName, out int waveformSize);
+            waveform.IdleDurationPresent = waveform.BurstStopLocations.First() - waveform.BurstStartLocations.First() < waveformSize - 1;
+            NIRfsgPlayback.RetrieveWaveformRuntimeScaling(rfsgPtr, waveformName, out waveform.RuntimeScaling);
+
+            waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
+
+            return waveform;
+        }
+
+        /// <summary>Notifies running scripts configured with <see cref="ConfigureContinuousGeneration(NIRfsg, Waveform, string)"/> or 
+        /// <see cref="ConfigureBurstedGeneration(NIRfsg, Waveform, WaveformTimingConfiguration, PAENConfiguration, out double, out double)"/>
+        /// to enter the cleanup state, and then aborts generation. This function ensures that these scripts always reach a finished state before
+        /// aborting, so as to ensure the DUT is in the desired state at the end of generation.</summary>
+        /// <param name="rfsgHandle">The open RFSG session to configure.</param>
+        /// <param name="timeOut_ms">(Optional) The timeout to wait for generation to complete before manually aborting.</param>
+        public static void AbortGeneration(NIRfsg rfsgHandle, int timeOut_ms = 1000)
+        {
+            //This should trigger the generator to stop infinite generation and trigger any post
+            //generation commands. For the static PA enable case, this should trigger the requisite
+            //off command to disable the PA.
+            rfsgHandle.Triggers.ScriptTriggers[0].SendSoftwareEdgeTrigger();
+
+            int sleepTime_ms = 20;
+            int maxIterations = (int)Math.Ceiling((double)timeOut_ms / sleepTime_ms);
+            RfsgGenerationStatus genStatus = rfsgHandle.CheckGenerationStatus();
+
+            //Poll the generation status until it is complete or the timeout period is reached
+            if (genStatus == RfsgGenerationStatus.InProgress)
+            {
+                for (int i = 0; i < maxIterations; i++)
+                {
+                    genStatus = rfsgHandle.CheckGenerationStatus();
+                    if (genStatus == RfsgGenerationStatus.Complete)
+                        break;
+                    else
+                        Thread.Sleep(sleepTime_ms);
+                }
+
+                //This will only be true if we time out
+                if (genStatus == RfsgGenerationStatus.InProgress)
+                {
+                    //If we timeed out then we need to call an explicit abort
+                    rfsgHandle.Abort();
+                    throw new System.ComponentModel.WarningException("Generation did not complete in the specified timeout period, so post-script actions did not complete." +
+                        " If using bursted generation, you may need to manually disable the PA control line." +
+                        " Increase the timeout period or ensure that scripTrigger0 is properly configured to stop generation");
+                }
+            }
+        }
+
+        /// <summary>Aborts generation, disables the output, and closes the instrument session.</summary>
+        /// <param name="rfsgHandle">The open RFSG session to close.</param>
+        public static void CloseInstrument(NIRfsg rfsgHandle)
+        {
+            rfsgHandle.Abort();
+            rfsgHandle.RF.OutputEnabled = false;
+            rfsgHandle.Close();
+        }
+
+        /// <summary>Formats the waveform name in order to avoid any errors when used in a script or downloaded to the generator.</summary>
+        /// <param name="waveformName">The waveform name to format.</param>
+        /// <returns>The formatted waveform name.</returns>
+        public static string FormatWaveformName(string waveformName)
+        {
+            //The RFSG playback library and script compiler won't accept names with non-text/numeric characters
+            waveformName = System.Text.RegularExpressions.Regex.Replace(waveformName, "[^a-zA-Z0-9]", ""); //Remove all non-text/numeric characters
+            waveformName = string.Concat("Wfm", waveformName);
+            return waveformName.ToUpper();
+        }
+
+        /// <summary>Creates the generation script used for bursted generation.</summary>
+        /// <param name="waveTiming">Specifies the timing parameters used to configure the bursted generation.</param>
+        /// <param name="paenConfig">Specifies parameters pertaining to how the DUT is controlled during generation.</param>
+        /// <param name="waveform">Specifies the waveform to generate; its burst length will be used in conjuction with the duty cycle to calculate the idle time.</param>
+        /// <param name="generationPeriod_s">Returns the total generation period, consisting of the waveform burst length, idle time, and any additional pre/post burst time configured.</param>
+        /// <param name="idleTime_s">Returns the computed idle time based upon the requested duty cycle.</param>
+        /// <returns>The script to implement the requested bursted generation timing.</returns>
+        private static string GenerateBurstedScript(PAENConfiguration paenConfig, WaveformTimingConfiguration waveTiming, Waveform waveform,
+            out double generationPeriod_s, out double idleTime_s)
+        {
+            string scriptName = string.Format("{0}{1}", waveform.Name, waveTiming.DutyCycle_Percent);
 
             //Calculate various timining information
             double dutyCycle = waveTiming.DutyCycle_Percent / 100;
             double totalBurstTime = waveTiming.PreBurstTime_s + waveform.BurstLength_s + waveTiming.PostBurstTime_s;
-            idleTime = (totalBurstTime / dutyCycle) - totalBurstTime;
-            period = totalBurstTime + idleTime;
+            idleTime_s = (totalBurstTime / dutyCycle) - totalBurstTime;
+            generationPeriod_s = totalBurstTime + idleTime_s;
 
             //Convert all time based values to sample based values
             long preBurstSamp, postBurstSamp, idleSamp, enableSamples, disableSamples;
             preBurstSamp = TimeToSamples(waveTiming.PreBurstTime_s, waveform.SampleRate);
             postBurstSamp = TimeToSamples(waveTiming.PostBurstTime_s, waveform.SampleRate);
-            idleSamp = TimeToSamples(idleTime, waveform.SampleRate);
+            idleSamp = TimeToSamples(idleTime_s, waveform.SampleRate);
             enableSamples = TimeToSamples(paenConfig.CommandEnableTime_s, waveform.SampleRate);
             disableSamples = TimeToSamples(paenConfig.CommandDisableTime_s, waveform.SampleRate);
 
@@ -409,149 +556,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             sb.AppendLine("end script");
             #endregion
 
-            //Download the generation script to the generator for later initiation
-            waveform.Script = sb.ToString();
-            ApplyWaveformAttributes(rfsgHandle, waveform);
-
-            //Configure the triggering for PA enable if selected
-            if (paenConfig.PAEnableMode != PAENMode.Disabled)
-            {
-                rfsgHandle.DeviceEvents.MarkerEvents[1].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.FromString(
-                    paenConfig.PAEnableTriggerExportTerminal);
-                rfsgHandle.DeviceEvents.MarkerEvents[1].OutputBehaviour = paenConfig.PAEnableTriggerMode;
-
-                //Configure scriptTrigger0 for software triggering. This way, when it is time to abort we can stop
-                //the loop and trigger the appropriate off command if PAEN mode is Static
-                rfsgHandle.Triggers.ScriptTriggers[0].ConfigureSoftwareTrigger();
-            }
-
-            //Configure the trigger to be generated on the first sample of each waveform generation,
-            //denoted in the script below as "marker0"
-            rfsgHandle.DeviceEvents.MarkerEvents[0].ExportedOutputTerminal =
-                RfsgMarkerEventExportedOutputTerminal.FromString(waveTiming.BurstStartTriggerExport);
-
-            // Return updated waveform struct to caller
-            return waveform;
-        }
-
-        /// <summary>Calls <see cref="NIRfsgPlayback.SetScriptToGenerateSingleRfsg(IntPtr, string)"/>, which will download the script contained in <paramref name="waveform"/> and apply
-        /// all associated parameters.</summary>
-        /// <param name="rfsgHandle">The open RFSG session to configure.</param>
-        /// <param name="waveform">Specifies the waveform and its associated script that is to be used for generation.</param>
-        public static void ApplyWaveformAttributes(NIRfsg rfsgHandle, Waveform waveform)
-        {
-            if (string.IsNullOrEmpty(waveform.Script)) // default to continuous if no script in waveform
-                ConfigureContinuousGeneration(rfsgHandle, waveform);
-            else
-            { 
-                IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
-                NIRfsgPlayback.SetScriptToGenerateSingleRfsg(rfsgPtr, waveform.Script);
-            }
-        }
-
-        /// <summary>Retrieves waveform parameters from the <see cref="NIRfsgPlayback"/> waveform database based on the waveform name. 
-        /// NOTE - this does not return any value for <see cref="Waveform.Data"/>. This data cannot be retrieved from the database.</summary>
-        /// <param name="rfsgHandle">The open RFSG session.</param>
-        /// <param name="waveformName">Specifies the name of the waveform to use to lookup its properties.</param>
-        /// <returns>The waveform parameters associated with the specified name.</returns>
-        public static Waveform GetWaveformParametersByName(NIRfsg rfsgHandle, string waveformName)
-        {
-            IntPtr rfsgPtr = rfsgHandle.GetInstrumentHandle().DangerousGetHandle();
-
-            Waveform waveform = new Waveform
-            {
-                Name = waveformName
-            };
-
-            NIRfsgPlayback.RetrieveWaveformSignalBandwidth(rfsgPtr, waveformName, out waveform.SignalBandwidth_Hz);
-            NIRfsgPlayback.RetrieveWaveformPapr(rfsgPtr, waveformName, out waveform.PAPR_dB);
-            NIRfsgPlayback.RetrieveWaveformSampleRate(rfsgPtr, waveformName, out waveform.SampleRate);
-            NIRfsgPlayback.RetrieveWaveformBurstStartLocations(rfsgPtr, waveformName, ref waveform.BurstStartLocations);
-            NIRfsgPlayback.RetrieveWaveformBurstStopLocations(rfsgPtr, waveformName, ref waveform.BurstStopLocations);
-            NIRfsgPlayback.RetrieveWaveformSize(rfsgPtr, waveformName, out int waveformSize);
-            waveform.IdleDurationPresent = waveform.BurstStopLocations.First() - waveform.BurstStartLocations.First() < waveformSize - 1;
-            NIRfsgPlayback.RetrieveWaveformRuntimeScaling(rfsgPtr, waveformName, out waveform.RuntimeScaling);
-
-            waveform.BurstLength_s = CalculateWaveformDuration(waveform.BurstStartLocations, waveform.BurstStopLocations, waveform.SampleRate);
-
-            return waveform;
-        }
-
-        public static void TogglePFILine(NIRfsg rfsgHandle, RfsgMarkerEventToggleInitialState toggleDirection = RfsgMarkerEventToggleInitialState.DigitalLow)
-        {
-            rfsgHandle.Abort();
-
-            //Ensure that the terminal is configured to the proper toggle state
-            rfsgHandle.DeviceEvents.MarkerEvents[1].ExportedOutputTerminal = RfsgMarkerEventExportedOutputTerminal.Pfi0;
-            rfsgHandle.DeviceEvents.MarkerEvents[1].OutputBehaviour = RfsgMarkerEventOutputBehaviour.Toggle;
-            rfsgHandle.DeviceEvents.MarkerEvents[1].ToggleInitialState = toggleDirection;
-
-            //Create a script that doesn't do anything, but ensures that the requested intitial toggle behavior
-            //is applied to the hardware to toggle the PFI line correctly
-            string cachedScriptName = rfsgHandle.Arb.Scripting.SelectedScriptName;
-            string toggleScript =
-                @"script toggleScript
-                    wait 10
-                end script";
-            rfsgHandle.Arb.Scripting.WriteScript(toggleScript);
-            rfsgHandle.Arb.Scripting.SelectedScriptName = "ToggleScript";
-
-            rfsgHandle.Initiate();
-            rfsgHandle.Abort();
-
-            //Return the active script to the previous
-            rfsgHandle.Arb.Scripting.SelectedScriptName = cachedScriptName;
-            rfsgHandle.Utility.Commit();
-        }
-
-        /// <summary>Notifies running scripts configured with <see cref="ConfigureContinuousGeneration(NIRfsg, Waveform, string)"/> or 
-        /// <see cref="ConfigureBurstedGeneration(NIRfsg, Waveform, WaveformTimingConfiguration, PAENConfiguration, out double, out double)"/>
-        /// to enter the cleanup state, and then aborts generation. This function ensures that these scripts always reach a finished state before
-        /// aborting, so as to ensure the DUT is in the desired state at the end of generation.</summary>
-        /// <param name="rfsgHandle">The open RFSG session to configure.</param>
-        /// <param name="timeOut_ms">(Optional) The timeout to wait for generation to complete before manually aborting.</param>
-        public static void AbortGeneration(NIRfsg rfsgHandle, int timeOut_ms = 1000)
-        {
-            //This should trigger the generator to stop infinite generation and trigger any post
-            //generation commands. For the static PA enable case, this should trigger the requisite
-            //off command to disable the PA.
-            rfsgHandle.Triggers.ScriptTriggers[0].SendSoftwareEdgeTrigger();
-
-            int sleepTime_ms = 20;
-            int maxIterations = (int)Math.Ceiling((double)timeOut_ms / sleepTime_ms);
-            RfsgGenerationStatus genStatus = rfsgHandle.CheckGenerationStatus();
-
-            //Poll the generation status until it is complete or the timeout period is reached
-            if (genStatus == RfsgGenerationStatus.InProgress)
-            {
-                for (int i = 0; i < maxIterations; i++)
-                {
-                    genStatus = rfsgHandle.CheckGenerationStatus();
-                    if (genStatus == RfsgGenerationStatus.Complete)
-                        break;
-                    else
-                        Thread.Sleep(sleepTime_ms);
-                }
-
-                //This will only be true if we time out
-                if (genStatus == RfsgGenerationStatus.InProgress)
-                {
-                    //If we timeed out then we need to call an explicit abort
-                    rfsgHandle.Abort();
-                    throw new System.ComponentModel.WarningException("Generation did not complete in the specified timeout period, so post-script actions did not complete." +
-                        " If using bursted generation, you may need to manually disable the PA control line." +
-                        " Increase the timeout period or ensure that scripTrigger0 is properly configured to stop generation");
-                }
-            }
-        }
-
-        /// <summary>Aborts generation, disables the output, and closes the instrument session.</summary>
-        /// <param name="rfsgHandle">The open RFSG session to close.</param>
-        public static void CloseInstrument(NIRfsg rfsgHandle)
-        {
-            rfsgHandle.Abort();
-            rfsgHandle.RF.OutputEnabled = false;
-            rfsgHandle.Close();
+            return sb.ToString();
         }
 
         /// <summary>Converts samples to time based on the sample rate.</summary>
@@ -575,20 +580,6 @@ namespace NationalInstruments.ReferenceDesignLibraries
             //Add one to arrive at the total number of samples
             //Divide by the sample rate to get the time in seconds
             return (BurstStopLocations[finalStopIndex] - BurstStartLocations[0] + 1) / SampleRate;
-        }
-
-        public static class Utilities
-        {
-            /// <summary>Formats the waveform name in order to avoid any errors when used in a script or downloaded to the generator.</summary>
-            /// <param name="waveformName">The waveform name to format.</param>
-            /// <returns>The formatted waveform name.</returns>
-            public static string FormatWaveformName(string waveformName)
-            {
-                //The RFSG playback library and script compiler won't accept names with non-text/numeric characters
-                waveformName = System.Text.RegularExpressions.Regex.Replace(waveformName, "[^a-zA-Z0-9]", ""); //Remove all non-text/numeric characters
-                waveformName = string.Concat("Wfm", waveformName);
-                return waveformName.ToUpper();
-            }
         }
     }
 
