@@ -7,7 +7,7 @@
     <ProjectGuid>{DA114941-68DF-472C-A7D8-FDEF0412A4C1}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Examples</RootNamespace>
-    <AssemblyName>LTE Example</AssemblyName>
+    <AssemblyName>WLAN_Example</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -35,6 +35,9 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>NationalInstruments.ReferenceDesignLibraries.Examples.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="NationalInstruments.RFmx.InstrMX.Fx40, Version=19.0.0.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -54,7 +57,6 @@
     <ProjectReference Include="..\..\Source\Common\Common.csproj">
       <Project>{8e7d5092-b685-4ad3-9da3-7c53e56f0f32}</Project>
       <Name>Common</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\SA\RFmx Instr\RFmxInstr.csproj">
       <Project>{ab49d5a9-9585-445a-ae8a-e4dd2b8956aa}</Project>

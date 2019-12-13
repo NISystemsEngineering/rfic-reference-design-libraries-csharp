@@ -28,7 +28,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 // A MeasurementMode of "Record" acquires multiple smaples over the requested measurement 
                 // time at the supply's maximum sampling rate. "Single Point" will take a single measurement
                 // over that duration and average the power and current results.
-                MeasurementMode = MeasurementModeConfiguration.Record,
+                MeasurementMode = MeasurementModeConfiguration.SinglePoint,
                 MeasurementTime_s = 2e-3,
                 MeasurementTriggerTerminal = "PXI_Trig0"
             };
