@@ -5,6 +5,7 @@ using System;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
+    /// <summary>Defines common types and methods for NI-RFmx WLAN measurements.</summary>
     public static class RFmxWLAN
     {
         #region Type Definitions
@@ -65,7 +66,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Defines common settings for the OFDM ModAcc measurement.</summary>
         public struct OFDMModAccConfiguration
         {
-            /// <summary>Specifies the length of the waveform to be acquired in seconds. See the RFmx help for more documention of this parameter.</summary>
+            /// <summary>Specifies the length of the waveform to be acquired in seconds. If the default value of 0 is used,
+            /// <see cref="ConfigureOFDMModAcc(RFmxWlanMX, OFDMModAccConfiguration, string)"/> will set the acquisition length mode property to 
+            /// <see cref="RFmxWlanMXOfdmModAccAcquisitionLengthMode.Auto"/>. See the RFmx help for more documention of this parameter.</summary>
             public double AcquisitionLength_s;
             /// <summary>Specifies the number of data symbols to be ignored from the start of the data field for EVM computation. This value is expressed as a number of symbols.
             ///  See the RFmx help for more documention of this parameter.</summary>
@@ -110,7 +113,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             public double CompositeDataRMSEVMMean_dB;
             /// <summary>Specifies the RMS EVM of pilot-subcarriers in all OFDM symbols. This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double CompositePilotRMSEVMMean_dB;
-            /// <summary>Specifies the number of OFDM symbols used by the measurement.</summary>
+            /// <summary>Specifies the number of OFDM symbols used by the measurement. See the RFmx help for more documention of this parameter.</summary>
             public int NumberOfSymbolsUsed;
         }
 
@@ -126,7 +129,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             /// <summary>Specifies whether the frequency range of the spectrum used for the SEM measurement is computed automatically by the measurement or manually.
             ///  See the RFmx help for more documention of this parameter.</summary>
             public RFmxWlanMXSemSpanAuto SpanAuto;
-            /// <summary>specifies the frequency range of the spectrum that is used for the SEM measurement. This value is expressed in Hz. 
+            /// <summary>Specifies the frequency range of the spectrum that is used for the SEM measurement. This value is expressed in Hz. 
             /// This parameter is applicable only when you set <see cref="SpanAuto"/> to False. See the RFmx help for more documention of this parameter.</summary>
             public double Span_Hz;
             /// <summary>Specifies whether to enable averaging for the SEM measurement. See the RFmx help for more documention of this parameter.</summary>
@@ -191,8 +194,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             /// <summary>Specifies the array of absolute powers corresponding to the margins for the lower offsets. This value is expressed in dBm.
             ///  See the RFmx help for more documention of this parameter.</summary>
             public double[] LowerOffsetMarginAbsolutePower_dBm;
-            /// <summary> Specifies the array of relative powers corresponding to the margins for the lower offsets. The relative powers are 
-            /// relative to the peak power of the carrier channel.This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
+            /// <summary>Specifies the array of relative powers corresponding to the margins for the lower offsets. The relative powers are 
+            /// relative to the peak power of the carrier channel. This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double[] LowerOffsetMarginRelativePower_dB;
 
         }

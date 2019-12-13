@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
+    /// <summary>Defines common types and methods for generating waveforms with NI-RFSG.</summary>
     public static class SG
     {
         //Suppress warning for obselete code as LoadWaveformFromTDMS intentionally uses 
@@ -20,15 +21,18 @@ namespace NationalInstruments.ReferenceDesignLibraries
         /// <summary>Defines common instrument settings used for generation.</summary>
         public struct InstrumentConfiguration
         {
-            /// <summary>Specifies the port to configure.</summary>
+            /// <summary>Specifies the port to configure. See the NI-RFSG help for more documentation of this parameter.</summary>
             public string SelectedPorts;
-            /// <summary>Specifies the source of the Reference Clock signal.</summary>
+            /// <summary>Specifies the source of the Reference Clock signal. See the NI-RFSG help for more documentation of this parameter.</summary>
             public string ReferenceClockSource;
-            /// <summary>Specifies the frequency of the generated RF signal in Hz. For arbitrary waveform generation, this property specifies the center frequency of the signal.</summary>
+            /// <summary>Specifies the frequency of the generated RF signal in Hz. For arbitrary waveform generation, this property specifies the center frequency of the signal.
+            /// See the NI-RFSG help for more documentation of this parameter.</summary>
             public double CarrierFrequency_Hz;
-            /// <summary>Specifies the desired average input power in dBm that the DUT should receive from the generator.</summary>
+            /// <summary>Specifies the desired average input power in dBm that the DUT should receive from the generator.
+            /// See the NI-RFSG help for more documentation of this parameter.</summary>
             public double DutAverageInputPower_dBm;
-            /// <summary>Specifies the external attenuation, if any, in dB between the RF signal generator and the device under test.</summary>
+            /// <summary>Specifies the external attenuation, if any, in dB between the RF signal generator and the device under test.
+            /// See the NI-RFSG help for more documentation of this parameter.</summary>
             public double ExternalAttenuation_dB;
             /// <summary>Defines the local oscillator sharing behavior for VST devices.</summary>
             public LocalOscillatorSharingMode LOSharingMode;

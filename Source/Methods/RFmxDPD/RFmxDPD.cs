@@ -4,6 +4,7 @@ using static NationalInstruments.ReferenceDesignLibraries.SG;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Methods
 {
+    /// <summary>Defines common types and methods for implementing DPD with NI-RFmx.</summary>
     public static class RFmxDPD
     {
         #region Type Definitions
@@ -11,7 +12,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         /// <summary>Defines commmon settings for the application of crest factor reduction on the reference waveform prior to applying DPD for a single carrier channel.</summary>
         public struct PreDpdCrestFactorReductionCarrierChannel
         {
+            /// <summary>Specifies the carrier offset relative to the center of the complex baseband equivalent of the RF signal.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double Offset_Hz;
+            /// <summary>Specifies the carrier bandwidth. See the RFmx help for more documention of this parameter.</summary>
             public double Bandwidth_Hz;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -29,15 +33,31 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         /// <summary>Defines commmon settings for the application of crest factor reduction on the reference waveform prior to applying DPD.</summary>
         public struct PreDpdCrestFactorReductionConfiguration
         {
+            /// <summary>Specifies whether to enable the crest factor reduction (CFR) when applying pre-DPD signal conditioning.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdPreDpdCfrEnabled Enabled;
+            /// <summary>Specifies the method used to perform crest factor reduction (CFR). See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdPreDpdCfrMethod Method;
+            /// <summary>Specifies the maximum number of iterations allowed to converge waveform PAPR to target PAPR.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public int MaxIterations;
+            /// <summary>Specifies the target peak-to-average power ratio. See the RFmx help for more documention of this parameter.</summary>
             public double TargetPapr_dB;
+            /// <summary>Specifies the window type to be used when you set <see cref="Method"/> to Peak Windowing.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdPreDpdCfrWindowType WindowType;
+            /// <summary>Specifies the maximum window length to be used when you set <see cref="Method"/> to Peak Windowing.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public int WindowLength;
+            /// <summary>Specifies the shaping factor to be used when you set <see cref="Method"/> to Sigmoid.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double ShapingFactor;
+            /// <summary>Specifies the shaping threshold to be used when you set <see cref="Method"/> to Sigmoid.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double ShapingThreshold_dB;
+            /// <summary>Specifies whether to enable the filtering operation. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdPreDpdCfrFilterEnabled FilterEnabled;
+            /// <summary>Specifies an array of carrier channel configurations for the signal.</summary>
             public PreDpdCrestFactorReductionCarrierChannel[] CarrierChannels;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -63,9 +83,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         /// <summary>Defines common settings for the application of DPD, regardless of which model is used.</summary>
         public struct CommonConfiguration
         {
+            /// <summary>Specifies the duration of the reference waveform considered for the DPD measurement. See the RFmx help for more documention of this parameter.</summary>
             public double MeasurementInterval_s;
+            /// <summary>Specifies whether the reference waveform is a modulated signal or a combination of one or more sinusoidal signals.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdSignalType SignalType;
+            /// <summary>Specifies the method used for synchronization of the acquired waveform with the reference waveform.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdSynchronizationMethod SynchronizationMethod;
+            /// <summary>Specifies the average power of the signal at the device under test input port. This value is expressed in dBm.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double DutAverageInputPower_dBm;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -85,14 +112,30 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         /// <summary>Defines commmon settings for the application of crest factor reduction on the predistorted waveform after DPD is applied.</summary>
         public struct ApplyDpdCrestFactorReductionConfiguration
         {
+            /// <summary>Specifies whether to enable the crest factor reduction (CFR) on the pre-distorted waveform.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdApplyDpdCfrEnabled Enabled;
+            /// <summary>Specifies the method used to perform the crest factor reduction (CFR). See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdApplyDpdCfrMethod Method;
+            /// <summary>Specifies the maximum number of iterations allowed to converge waveform PAPR to target PAPR.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public int MaxIterations;
+            /// <summary>Specifies the target PAPR type. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdApplyDpdCfrTargetPaprType TargetPaprType;
+            /// <summary>Specifies the target PAPR when you set <see cref="TargetPaprType"/> to Custom.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double TargetPapr_dB;
+            /// <summary>Specifies the window type to be used when you set <see cref="Method"/> to Peak Windowing.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdApplyDpdCfrWindowType WindowType;
+            /// <summary>Specifies the maximum window length to be used when you set <see cref="Method"/> to Peak Windowing.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public int WindowLength;
+            /// <summary>Specifies the shaping factor to be used when you set <see cref="Method"/> to Sigmoid.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double ShapingFactor;
+            /// <summary>Specifies the shaping threshold to be used when you set <see cref="Method"/> to Sigmoid.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double ShapingThreshold_dB;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -117,11 +160,20 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         /// <summary>Defines commmon settings for lookup table based DPD.</summary>
         public struct LookupTableConfiguration
         {
+            /// <summary>Specifies the type of the DPD lookup table (LUT). See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdLookupTableType Type;
+            /// <summary>Specifies the predistortion type. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdApplyDpdLookupTableCorrectionType CorrectionType;
+            /// <summary>Specifies whether to enable thresholding of the acquired samples to be used for the DPD measurement.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdLookupTableThresholdEnabled ThresholdEnabled;
+            /// <summary>Specifies the reference for the power level used for thresholding. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdLookupTableThresholdType ThresholdType;
+            /// <summary>Specifies either the relative or absolute threshold power level based on the value of <see cref="ThresholdType"/>.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double ThresholdLevel_dB;
+            /// <summary>Specifies the step size of the input power levels in the predistortion lookup table.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double StepSize_dB;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -143,9 +195,26 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         /// <summary>Defines commmon settings for memory polynomial based DPD.</summary>
         public struct MemoryPolynomialConfiguration
         {
+            /// <summary>Specifies the predistortion type. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXDpdApplyDpdMemoryModelCorrectionType CorrectionType;
+            /// <summary>Specifies the number of iterations over which DPD polynomial is computed using indirect-learning architecture.</summary>
             public int NumberOfIterations;
-            public int Order, Depth, LeadOrder, LagOrder, LeadMemoryDepth, LagMemoryDepth, MaximumLead, MaximumLag;
+            /// <summary>Specifies the order of the DPD polynomial. See the RFmx help for more documention of this parameter.</summary>
+            public int Order;
+            /// <summary>Specifies the memory depth of the DPD polynomial. See the RFmx help for more documention of this parameter.</summary>
+            public int Depth;
+            /// <summary>Specifies the lead order cross term of the DPD polynomial. See the RFmx help for more documention of this parameter.</summary>
+            public int LeadOrder;
+            /// <summary>Specifies the lag order cross term of the DPD polynomial. See the RFmx help for more documention of this parameter.</summary>
+            public int LagOrder;
+            /// <summary>Specifies the lead memory depth cross term of the DPD polynomial. See the RFmx help for more documention of this parameter.</summary>
+            public int LeadMemoryDepth;
+            /// <summary>Specifies the lag memory depth cross term of the DPD polynomial. See the RFmx help for more documention of this parameter.</summary>
+            public int LagMemoryDepth;
+            /// <summary>Specifies the maximum lead stagger cross term of the DPD polynomial. See the RFmx help for more documention of this parameter.</summary>
+            public int MaximumLead;
+            /// <summary>Specifies the maximum lag stagger cross term of the DPD polynomial. See the RFmx help for more documention of this parameter.</summary>
+            public int MaximumLag;
 
             /// <summary>Returns the struct with default values set.</summary>
             /// <returns>The struct with default values set.</returns>
@@ -170,25 +239,42 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         /// <summary>Defines common power results after the application of DPD.</summary>
         public struct PowerResults
         {
+            /// <summary>Returns the change in the average power in the waveform due to applying digital predistion. This value is expressed in dB.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double WaveformPowerOffset_dB;
+            /// <summary>Returns the actual PAPR for the pre-distorted waveform. The PAPR of the pre-distorted waveform is set to this value plus
+            ///  <see cref="WaveformPowerOffset_dB"/> so that the user-specified power level of the generator is not modified. This behavior
+            ///  ensures that the user does not have to change the power level to switch between the original and pre-distorted waveforms,
+            ///  while ensuring the pre-distorted waveform is generated correctly.</summary>
             public double WaveformTruePapr_dB;
+            /// <summary>Returns the power level of the signal generator during DPD model training.</summary>
             public double TrainingPower_dBm;
         }
 
         /// <summary>Defines common results after the application of lookup table based DPD.</summary>
         public struct LookupTableResults
         {
+            /// <summary>Returns the <see cref="Waveform"/> whose data represents the complex baseband equivalent of the RF signal
+            /// after applying digital pre-distortion. See the RFmx help for more documention of this parameter.</summary>
             public Waveform PredistortedWaveform;
+            /// <summary>Returns the lookup table power levels, in dBm. See the RFmx help for more documention of this parameter.</summary>
             public float[] InputPowers_dBm;
+            /// <summary>Returns the lookup table complex gain values, in dB, for magnitude and phase predistortion.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public ComplexSingle[] ComplexGains_dB;
+            /// <summary>Returns common power results after digital predistortion.</summary>
             public PowerResults PowerResults;
         }
 
         /// <summary>Defines common results after the application of memory polynomial based DPD.</summary>
         public struct MemoryPolynomialResults
         {
+            /// <summary>Returns the <see cref="Waveform"/> whose data represents the complex baseband equivalent of the RF signal
+            /// after applying digital pre-distortion. See the RFmx help for more documention of this parameter.</summary>
             public Waveform PredistortedWaveform;
+            /// <summary>Returns the memory polynomial or generalized memory polynomial coefficients. See the RFmx help for more documention of this parameter.</summary>
             public ComplexSingle[] Polynomial;
+            /// <summary>Returns common power results after digital predistortion.</summary>
             public PowerResults PowerResults;
         }
         #endregion

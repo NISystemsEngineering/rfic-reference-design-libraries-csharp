@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
+    /// <summary>Defines common types and methods for configuring instruments with NI-RFmx.</summary>
     public static class RFmxInstr
     {
         #region Type Definitions

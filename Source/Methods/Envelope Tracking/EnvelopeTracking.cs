@@ -5,6 +5,7 @@ using NationalInstruments.ModularInstruments.SystemServices.TimingServices;
 using System;
 using System.Linq;
 
+/// <summary>Defines common types and methods for implementing Envelope Tracking.</summary>
 namespace NationalInstruments.ReferenceDesignLibraries.Methods
 {
     public static class EnvelopeTracking
@@ -14,6 +15,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         /// <summary>Defines common settings for a configuring the envelope generator.</summary>
         public struct EnvelopeGeneratorConfiguration
         {
+            /// <summary>Specifies the source of the Reference Clock signal. For envelope tracking, the RF generator and envelope generator must
+            /// use the same reference clock. See the NI-RFSG help for more documentation of this parameter.</summary>
             public string ReferenceClockSource;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -30,9 +33,15 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         /// <summary>Defines common settings about the tracker used for modulating the power supply voltage.</summary>
         public struct TrackerConfiguration
         {
+            /// <summary>Specifies the input impedance of the power modulator (tracker) being used. This value is expressed in Ohms.</summary>
             public double InputImpedance_Ohms;
+            /// <summary>Specifies the common mode offset of the power modulator (tracker) being used. This value is expressed in Volts.</summary>
             public double CommonModeOffset_V;
+            /// <summary>Specifies the linear gain that will be applied by the power modulator (tracker) to the envelope waveform.
+            /// This value is expressed in Volts per Volts (V/V).</summary>
             public double Gain_VperV;
+            /// <summary>Specifies the ouptut offset that will be applied by the power modulator (tracker) to the envelope waveform.
+            /// This value is expressed in Volts.</summary>
             public double OutputOffset_V;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -50,18 +59,25 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         }
 
         /// <summary>Defines different mathemtical methods to use for creating the detrough envelope waveform.</summary>
-        public enum DetroughType { 
-            Exponential, 
-            Cosine, 
+        public enum DetroughType {
+            /// <summary>Specifies an exponential detrough function: F(x) = x+d*e^(-x/d), where d = Vmin/Vmax</summary>
+            Exponential,
+            /// <summary>Specifies a cosine detrough function: F(x) = 1-(1-d)*cos(x*pi/2), where d = Vmin/Vmax</summary>
+            Cosine,
+            /// <summary>Specifies a power detrough function: F(x) = d+(1-d)*x^a, where d = Vmin/Vmax</summary>
             Power
         };
 
         /// <summary>Defines common settings used for creating the detrough envelope waveform.</summary>
         public struct DetroughConfiguration
         {
+            /// <summary>Specifies the detrough function to use.</summary>
             public DetroughType Type;
+            /// <summary>Specifies the minimum voltage that should be maintained by the power modulator (tracker).</summary>
             public double MinimumVoltage_V;
+            /// <summary>Specifies the maximum voltage that should be maintained by the power modulator (tracker).</summary>
             public double MaximumVoltage_V;
+            /// <summary>Specifies the exponent 'a' when <see cref="Type"/> is set to <see cref="DetroughType.Power"/>.</summary>
             public double Exponent;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -81,15 +97,24 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         /// <summary>Defines common settings used for creating the lookup table envelope waveform.</summary>
         public struct LookUpTableConfiguration
         {
+            /// <summary>Specifies the desired average input power in dBm that the DUT should receive from the generator.</summary>
             public double DutAverageInputPower_dBm;
+            /// <summary>Specifies the array of DUT input powers which will be paired with the supply voltage values to create the lookup table.</summary>
             public float[] DutInputPower_dBm;
+            /// <summary>Specifies the array of supply voltages which will be paired with the DUT input powers to create the lookup table.</summary>
             public float[] SupplyVoltage_V;
         }
 
         /// <summary>Defines common settings used for synchronizing the RF and envelope signal generators.</summary>
         public struct SynchronizationConfiguration
         {
+            /// <summary>Specifies the absolute value of the largest expected delay range between the two generators. For example, for a maximum delay of
+            /// +/-1us, set this value to 2. This value is expressed in seconds.</summary>
             public double RFDelayRange_s;
+            /// <summary>Specifies the delay between the RF signal and the modulated power supplly signal at the DUT plane. Even though the two signal 
+            /// generators are synchronized with sub-nanosecond accuracy, this delay is necessary to compensate for the inherent differences between the signal chains
+            /// from the RF signal generator to the DUT input port, and from the envelope signal generator to the DUT voltage supply pins.
+            /// This delay can be characterized using a delay sweep to find the optimal delay.</summary>
             public double RFDelay_s;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -274,7 +299,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         public static void InitiateSynchronousGeneration(NIRfsg rfVsg, NIRfsg envVsg, SynchronizationConfiguration syncConfig)
         {   
             TClock tclk = new TClock(new ITClockSynchronizableDevice[] { rfVsg, envVsg });
-            tclk.DevicesToSynchronize[0].SampleClockDelay = -syncConfig.RFDelayRange_s / 2.0; // The VST2 can only apply positive delays so we have to establish an inital delay of -RFDelayRange/2 for TCLK to handle negative shifts as well
+            // The PXIe-5840 can only apply positive delays so we have to establish an inital delay of -RFDelayRange/2 for TCLK to handle negative shifts as well
+            tclk.DevicesToSynchronize[0].SampleClockDelay = -syncConfig.RFDelayRange_s / 2.0; 
             rfVsg.Arb.RelativeDelay = syncConfig.RFDelayRange_s / 2.0 + syncConfig.RFDelay_s;
             tclk.ConfigureForHomogeneousTriggers();
             tclk.Synchronize();

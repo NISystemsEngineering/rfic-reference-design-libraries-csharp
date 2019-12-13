@@ -3,6 +3,7 @@ using NationalInstruments.RFmx.SpecAnMX;
 
 namespace NationalInstruments.ReferenceDesignLibraries.SA
 {
+    /// <summary>Defines common types and methods for NI-RFmx SpecAn measurements.</summary>
     public static class RFmxSpecAn
     {
         #region Type Definitions
@@ -10,13 +11,23 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Defines common settings for the TxP measurement.</summary>
         public struct TxpConfiguration
         {
+            /// <summary>Specifies the acquisition time for the TXP measurement. This value is expressed in seconds. See the RFmx help for more documention of this parameter.</summary>
             public double MeasurementInterval_s;
+            /// <summary>Specifies the bandwidth of the resolution bandwidth (RBW) filter used to measure the signal. This value is expressed in Hz.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double Rbw_Hz;
+            /// <summary>Specifies the shape of the digital resolution bandwidth (RBW) filter. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXTxpRbwFilterType RbwFilterType;
+            /// <summary>Specifies the roll-off factor for the root-raised-cosine (RRC) filter. See the RFmx help for more documention of this parameter.</summary>
             public double RrcAlpha;
-
+            
+            /// <summary>Specifies whether to enable averaging for the TXP measurement. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXTxpAveragingEnabled AveragingEnabled;
+            /// <summary>Specifies the number of acquisitions used for averaging when you set <see cref="AveragingEnabled"/> to True.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public int AveragingCount;
+            /// <summary>Specifies the averaging type for the TXP measurement. The averaged power trace is used for the measurement.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXTxpAveragingType AveragingType;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -39,10 +50,18 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Defines common settings for the ACP measurement for a single component carrier.</summary>
         public struct AcpComponentCarrierConfiguration
         {
+            /// <summary>Specifies the frequency range over which the measurement integrates the carrier power. This value is expressed in Hz.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double IntegrationBandwidth_Hz;
+            /// <summary>Specifies the center frequency of the carrier, relative to the RF center frequency. This value is expressed in Hz.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double Frequency_Hz;
+            /// <summary>Specifies whether to apply the root-raised-cosine (RRC) filter on the acquired carrier channel before measuring the carrier channel power.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpCarrierRrcFilterEnabled RrcFilterEnabled;
+            /// <summary>Specifies the roll-off factor for the root-raised-cosine (RRC) filter. See the RFmx help for more documention of this parameter.</summary>
             public double RrcAlpha;
+            /// <summary>Specifies whether to consider the carrier power as part of the total carrier power measurement. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpCarrierMode Mode;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -63,14 +82,29 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Defines common settings for the ACP measurement for a single offset channel.</summary>
         public struct AcpOffsetChannelConfiguration
         {
+            /// <summary>Specifies the frequency range, over which the measurement integrates the offset channel power. This value is expressed in Hz.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double IntegrationBandwidth_Hz;
+            /// <summary>Specifies the center or edge frequency of the offset channel, relative to the center frequency of the closest carrier.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double Frequency_Hz;
+            /// <summary>Specifies whether to enable the offset channel for ACP measurement. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpOffsetEnabled Enabled;
+            /// <summary>Specifies whether the offset channel is present on one side, or on both sides of the carrier. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpOffsetSideband SideBand;
+            /// <summary>Specifies the carrier to be used as power reference to measure the offset channel relative power. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpOffsetPowerReferenceCarrier PowerReferenceCarrier;
+            /// <summary>Specifies the index of the carrier to be used as the reference carrier. The power measured in this carrier is used as the power reference
+            /// for measuring the offset channel relative power, when you set <see cref="PowerReferenceCarrier"/> to Specific.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public int PowerReferenceSpecificIndex;
+            /// <summary>Specifies the attenuation relative to the external attenuation specified by the External Attenuation property.
+            /// This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double RelativeAttenuation_dB;
+            /// <summary>Specifies whether to apply the root-raised-cosine (RRC) filter on the acquired offset channel before measuring the offset channel power.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpOffsetRrcFilterEnabled RrcFilterEnabled;
+            /// <summary>Specifies the roll-off factor for the root-raised-cosine (RRC) filter See the RFmx help for more documention of this parameter.</summary>
             public double RrcAlpha;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -95,20 +129,38 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Defines common settings for the ACP measurement.</summary>
         public struct AcpConfiguration
         {
+            /// <summary>Specifies the units for the absolute power. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpPowerUnits PowerUnits;
+            /// <summary>Specifies whether to enable averaging for the ACP measurement. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpAveragingEnabled AveragingEnabled;
+            /// <summary>Specifies the number of acquisitions used for averaging when you set the <see cref="AveragingEnabled"/> to True.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public int AveragingCount;
+            /// <summary>Specifies the averaging type for averaging multiple spectrum acquisitions. The averaged spectrum is used for ACP measurement.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpAveragingType AveragingType;
+            /// <summary>Specifies the FFT window type to use to reduce spectral leakage. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpFftWindow FftWindow;
+            /// <summary>Specifies the factor by which the time-domain waveform is zero-padded before fast Fourier transform (FFT).
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double FftPadding;
 
+            /// <summary>Specifies whether the measurement computes the resolution bandwidth (RBW).  See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpRbwAutoBandwidth RbwAuto;
+            /// <summary>Specifies the bandwidth of the resolution bandwidth (RBW) filter used to sweep the acquired signal, when you set <see cref="RbwAuto"/> to False.
+            /// This value is expressed in Hz. See the RFmx help for more documention of this parameter.</summary>
             public double Rbw_Hz;
+            /// <summary>Specifies the shape of the digital resolution bandwidth (RBW) filter. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpRbwFilterType RbwFilterType;
 
+            /// <summary>Specifies whether the measurement computes the sweep time. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAcpSweepTimeAuto SweepTimeAuto;
+            /// <summary>Specifies the sweep time when you set the <see cref="SweepTimeAuto"/> property to False. This value is expressed in seconds.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double SweepTimeInterval_s;
+            /// <summary>Specifies the array of common ACP configurations for each component carrier in the signal.</summary>
             public AcpComponentCarrierConfiguration[] ComponentCarrierConfiguration;
+            /// <summary>Specifies the array of common ACP configurations for each desired ACP offset.</summary>
             public AcpOffsetChannelConfiguration[] OffsetChannelConfiguration;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -137,11 +189,21 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Defines common settings for the AMPM measurement.</summary>
         public struct AmpmConfiguration
         {
+            /// <summary>Specifies the duration of the reference waveform considered for the AMPM measurement. See the RFmx help for more documention of this parameter.</summary>
             public double MeasurementInterval_s;
+            /// <summary>Specifies the average power of the signal at the input port of the device under test. This value is expressed in dBm.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double DutAverageInputPower_dBm;
+            /// <summary>Specifies the number of acquisitions used for averaging when you set <see cref="AveragingEnabled"/> to True.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public int AveragingCount;
+            /// <summary>Specifies whether to enable averaging for the AMPM measurement. See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAmpmAveragingEnabled AveragingEnabled;
+            /// <summary>Specifies the <see cref="Waveform"/> whose data is the complex baseband equivalent of the RF signal applied at the input port
+            /// of the device under test when performing the measurement. See the RFmx help for more documention of this parameter.</summary>
             public Waveform ReferenceWaveform;
+            /// <summary>Specifies whether the reference waveform is a modulated signal or a combination of one or more sinusoidal signals.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public RFmxSpecAnMXAmpmSignalType SignalType;
 
             /// <summary>Returns the struct with default values set.</summary>
@@ -163,47 +225,84 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
         /// <summary>Defines common results of the TXP measurement.</summary>
         public struct TxpResults
         {
+            /// <summary>Returns the mean power of the signal. This value is expressed in dBm. See the RFmx help for more documention of this parameter.</summary>
             public double AverageMeanPower_dBm;
+            /// <summary>Returns the ratio of the peak power of the signal to the mean power. See the RFmx help for more documention of this parameter.</summary>
             public double PeakToAverageRatio_dB;
+            /// <summary>Returns the maximum power of the averaged power trace. This value is expressed in dBm.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double MaximumPower_dBm;
+            /// <summary>Returns the minimum power of the averaged power trace. This value is expressed in dBm.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double MinimumPower_dBm;
         }
 
         /// <summary>Defines common results of the ACP measurement for a single defined offset.</summary>
         public struct AcpOffsetResults
         {
+            /// <summary>Returns the lower offset channel power. See the RFmx help for more documention of this parameter.</summary>
             public double LowerAbsolutePower_dBm_or_dBmHz;
+            /// <summary>Returns the lower offset channel power measured relative to the integrated power of the power reference carrier. This value is expressed in dB.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double LowerRelativePower_dB;
+            /// <summary>Returns the upper offset channel power. See the RFmx help for more documention of this parameter.</summary>
             public double UpperAbsolutePower_dBm_or_dBmHz;
+            /// <summary>Returns the upper offset channel power measured relative to the integrated power of the power reference carrier.
+            /// This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double UpperRelativePower_dB;
+            /// <summary>Returns the center or edge frequency, in hertz (Hz), of the offset channel, relative to the center frequency of the closest carrier.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double Frequency_Hz;
+            /// <summary>contains the frequency range, in Hz, over which the measurement integrates the power.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double IntegrationBandwidth_Hz;
         }
 
         /// <summary>Defines common results of the ACP measurement for a single component carrier.</summary>
         public struct AcpComponentCarrierResults
         {
+            /// <summary>Returns the measured carrier power. See the RFmx help for more documention of this parameter.</summary>
             public double AbsolutePower_dBm_or_dBmHz;
+            /// <summary>Returns the carrier power measured relative to the total carrier power of all active carriers. This value is expressed in dB.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double TotalRelativePower_dB;
+            /// <summary>Returns the center frequency of the carrier relative to the Center Frequency of the signal. This value is expressed in Hz.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double Frequency_Hz;
+            /// <summary>Returns the frequency range, over which the measurement integrates the carrier power. This value is expressed in Hz.
+            /// See the RFmx help for more documention of this parameter.</summary>
             public double IntegrationBandwidth_Hz;
         }
 
         /// <summary>Defines common results of the ACP measurement.</summary>
         public struct AcpResults
         {
+            /// <summary>Returns the total integrated power, in dBm, or the power spectral density, in dBm/Hz depending on the unit selected
+            /// in <see cref="AcpConfiguration.PowerUnits"/>. See the RFmx help for more documention of this parameter.</summary>
             public double TotalCarrierPower_dBm_or_dBmHz;
+            /// <summary>Returns an array of ACP results for each configured offset.</summary>
             public AcpOffsetResults[] OffsetResults;
+            /// <summary>Returns an array of ACP results for each component carrier in the signal.</summary>
             public AcpComponentCarrierResults[] ComponentCarrierResults;
         }
 
         /// <summary>Defines common results of the AMPM measurement.</summary>
         public struct AmpmResults
         {
+            /// <summary>Returns the average linear gain of the device under test, computed by rejecting signal samples containing gain compression.
+            /// This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double MeanLinearGain_dB;
+            /// <summary>Returns the theoretical output power at which the device under test gain drops by 1 dB from its mean linear gain.
+            /// This value is expressed in dBm. See the RFmx help for more documention of this parameter.</summary>
             public double OnedBCompressionPoint_dBm;
+            /// <summary>Returns the ratio, as a percentage, of l^2 norm of difference between the normalized reference and acquired waveforms,
+            /// to the l^2 norm of the normalized reference waveform. See the RFmx help for more documention of this parameter.</summary>
             public double MeanRmsEvm_percent;
+            /// <summary>Returns the approximation error of the polynomial approximation of the measured device under test AM-to-AM characteristic.
+            /// This value is expressed in dB. See the RFmx help for more documention of this parameter.</summary>
             public double AmToAMResidual_dB;
+            /// <summary>Returns the approximation error of the polynomial approximation of the measured AM-to-PM characteristic of the device under test.
+            /// This value is expressed in degrees. See the RFmx help for more documention of this parameter.</summary>
             public double AmToPMResidual_deg;
         }
         #endregion
@@ -280,7 +379,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Ampm, false);
             specAn.Ampm.Configuration.ConfigureMeasurementInterval(selectorString, ampmConfig.MeasurementInterval_s);
             specAn.Ampm.Configuration.ConfigureDutAverageInputPower(selectorString, ampmConfig.DutAverageInputPower_dBm);
-            RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent idleDurationPresent = ampmConfig.ReferenceWaveform.IdleDurationPresent ? RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent.False;
+            RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent idleDurationPresent = ampmConfig.ReferenceWaveform.IdleDurationPresent ? 
+                RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXAmpmReferenceWaveformIdleDurationPresent.False;
             specAn.Ampm.Configuration.ConfigureReferenceWaveform(selectorString, ampmConfig.ReferenceWaveform.Data, idleDurationPresent, ampmConfig.SignalType);
         }
 
