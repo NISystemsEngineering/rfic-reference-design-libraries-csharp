@@ -33,6 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>NationalInstruments.ReferenceDesignLibraries.Examples.SGExample</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="NationalInstruments.ModularInstruments.NIRfsg.Fx45, Version=18.2.0.49152, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
