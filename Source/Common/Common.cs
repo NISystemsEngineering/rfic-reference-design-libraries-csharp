@@ -17,9 +17,9 @@
         public double BurstLength_s;
         /// <summary>Defines the sample rate of the waveform data in samples/second.</summary>
         public double SampleRate;
-        /// <summary>Defines the sample location where each burst within the waveform data begins. If no burst is prsent the first sample of the waveform will be used.</summary>
+        /// <summary>Defines the sample location where each burst within the waveform data begins. If no burst is present the first sample of the waveform will be used.</summary>
         public int[] BurstStartLocations;
-        /// <summary>Defines the sample location where each burst within the waveform data ends. If no burst is prsent the last sample of the waveform will be used.</summary>
+        /// <summary>Defines the sample location where each burst within the waveform data ends. If no burst is present the last sample of the waveform will be used.</summary>
         public int[] BurstStopLocations;
         /// <summary>Specifies whether there is any idle (off or null) time within the waveform data. This will be true if the burst start/stop locations are not the first/last 
         /// samples of the waveform.</summary>
