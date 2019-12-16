@@ -57,7 +57,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         {
             //shared Parameters
             resourceName = "5840";
-            centerFrequency = 5.412e9; //Hz
+            centerFrequency = 5.18e9; //Hz
             filePath = @"C:\Users\Public\Documents\National Instruments\RFIC Test Software\Waveforms\80211ax_80M_MCS11.tdms";
             signalStringSpecan = "specanSig0";
             signalStringWlan = "wlanSig0";
@@ -67,7 +67,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             //Generator Configuration
             sgInstrConfig = InstrumentConfiguration.GetDefault();
             sgInstrConfig.CarrierFrequency_Hz = centerFrequency;
-            sgInstrConfig.DutAverageInputPower_dBm = -20.0;
+            sgInstrConfig.DutAverageInputPower_dBm = -10.0;
             sgInstrConfig.ExternalAttenuation_dB = 0;
 
             // Analyzer Configuration
@@ -81,7 +81,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             saAutolevelConfig.Enabled = true;
 
             ampmConfigurationSpecAn = SA.RFmxSpecAn.AmpmConfiguration.GetDefault();
-
+            ampmConfigurationSpecAn.DutAverageInputPower_dBm = sgInstrConfig.DutAverageInputPower_dBm;
             // WLAN Configuration
             wlanStandardConfig = SA.RFmxWLAN.StandardConfiguration.GetDefault();
             wlanStandardConfig.ChannelBandwidth_Hz = 80e6; // Hz
