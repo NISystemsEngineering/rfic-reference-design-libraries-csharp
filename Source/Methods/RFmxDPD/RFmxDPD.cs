@@ -338,7 +338,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         {
             RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ?
                 RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.False;
-            specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Dpd, true);
+            specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Dpd, false);
             specAn.Dpd.Configuration.ConfigureReferenceWaveform(selectorString, referenceWaveform.Data, idlePresent, commonConfig.SignalType);
             specAn.Dpd.Configuration.ConfigureDutAverageInputPower(selectorString, commonConfig.DutAverageInputPower_dBm);
             specAn.Dpd.Configuration.ConfigureMeasurementInterval(selectorString, commonConfig.MeasurementInterval_s);
