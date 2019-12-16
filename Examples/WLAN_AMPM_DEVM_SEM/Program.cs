@@ -6,7 +6,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Example Application WLAN_DPD_CFR_AMPM_EVM_SEM\n");
+            Console.WriteLine("Example Application WLAN_AMPM_DEVM_SEM\n");
             WLAN_AMPM_DEVM_SEM wlanDpdCfrAmPmDevmSem = new WLAN_AMPM_DEVM_SEM();
             try
             {

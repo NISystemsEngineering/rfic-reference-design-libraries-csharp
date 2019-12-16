@@ -152,6 +152,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
         /// <param name="instrConfig">The common instrument settings to configure.</param>
         public static void ConfigureInstrument(NIRfsg rfsgHandle, InstrumentConfiguration instrConfig)
         {
+            rfsgHandle.Utility.Reset();
+
             rfsgHandle.SignalPath.SelectedPorts = instrConfig.SelectedPorts;
             rfsgHandle.RF.ExternalGain = -instrConfig.ExternalAttenuation_dB;
             rfsgHandle.RF.Configure(instrConfig.CarrierFrequency_Hz, instrConfig.DutAverageInputPower_dBm);
