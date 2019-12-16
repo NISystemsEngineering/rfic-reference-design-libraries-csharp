@@ -192,10 +192,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             for (int i = 0; i < AcpResultsLte.OffsetResults.Length; i++)
             {
                 Console.WriteLine("Offset  {0}", i);
-                Console.WriteLine("Lower Relative Power         (dB)  : {0:0.000}", AcpResultsLte.OffsetResults[i].LowerRelativePower_dB);
-                Console.WriteLine("Upper Relative Power         (dB)  : {0:0.000}", AcpResultsLte.OffsetResults[i].UpperRelativePower_dB);
                 Console.WriteLine("Lower Absolute Power         (dBm) : {0:0.000}", AcpResultsLte.OffsetResults[i].LowerAbsolutePower_dBm);
                 Console.WriteLine("Upper Absolute Power         (dBm) : {0:0.000}", AcpResultsLte.OffsetResults[i].UpperAbsolutePower_dBm);
+                Console.WriteLine("Lower Relative Power         (dB)  : {0:0.000}", AcpResultsLte.OffsetResults[i].LowerRelativePower_dB);
+                Console.WriteLine("Upper Relative Power         (dB)  : {0:0.000}", AcpResultsLte.OffsetResults[i].UpperRelativePower_dB);
                 Console.WriteLine("Offset Frequency             (Hz)  : {0:0.000}", AcpResultsLte.OffsetResults[i].Frequency_Hz);
                 Console.WriteLine("Offset Integration Bandwidth (Hz)  : {0:0.000}", AcpResultsLte.OffsetResults[i].IntegrationBandwidth_Hz);
                 Console.WriteLine("-------------------------------------------------\n");
