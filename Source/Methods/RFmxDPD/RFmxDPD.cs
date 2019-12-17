@@ -171,7 +171,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             public RFmxSpecAnMXDpdLookupTableThresholdType ThresholdType;
             /// <summary>Specifies either the relative or absolute threshold power level based on the value of <see cref="ThresholdType"/>.
             /// See the RFmx help for more documention of this parameter.</summary>
-            public double ThresholdLevel_dB;
+            public double ThresholdLevel_dB_or_dBm;
             /// <summary>Specifies the step size of the input power levels in the predistortion lookup table.
             /// See the RFmx help for more documention of this parameter.</summary>
             public double StepSize_dB;
@@ -186,7 +186,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                     CorrectionType = RFmxSpecAnMXDpdApplyDpdLookupTableCorrectionType.MagnitudeAndPhase,
                     ThresholdEnabled = RFmxSpecAnMXDpdLookupTableThresholdEnabled.True,
                     ThresholdType = RFmxSpecAnMXDpdLookupTableThresholdType.Relative,
-                    ThresholdLevel_dB = -20,
+                    ThresholdLevel_dB_or_dBm = -20,
                     StepSize_dB = 0.1
                 };
             }
@@ -338,7 +338,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         {
             RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent idlePresent = referenceWaveform.IdleDurationPresent ?
                 RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.True : RFmxSpecAnMXDpdReferenceWaveformIdleDurationPresent.False;
-            specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Dpd, true);
+            specAn.SelectMeasurements(selectorString, RFmxSpecAnMXMeasurementTypes.Dpd, false);
             specAn.Dpd.Configuration.ConfigureReferenceWaveform(selectorString, referenceWaveform.Data, idlePresent, commonConfig.SignalType);
             specAn.Dpd.Configuration.ConfigureDutAverageInputPower(selectorString, commonConfig.DutAverageInputPower_dBm);
             specAn.Dpd.Configuration.ConfigureMeasurementInterval(selectorString, commonConfig.MeasurementInterval_s);
@@ -373,7 +373,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
         {
             specAn.Dpd.Configuration.ConfigureDpdModel(selectorString, RFmxSpecAnMXDpdModel.LookupTable);
             specAn.Dpd.Configuration.ConfigureLookupTableType(selectorString, lutConfig.Type);
-            specAn.Dpd.Configuration.ConfigureLookupTableThreshold(selectorString, lutConfig.ThresholdEnabled, lutConfig.ThresholdLevel_dB, lutConfig.ThresholdType);
+            specAn.Dpd.Configuration.ConfigureLookupTableThreshold(selectorString, lutConfig.ThresholdEnabled, lutConfig.ThresholdLevel_dB_or_dBm, lutConfig.ThresholdType);
             specAn.Dpd.Configuration.ConfigureLookupTableStepSize(selectorString, lutConfig.StepSize_dB);
             specAn.Dpd.ApplyDpd.ConfigureLookupTableCorrectionType(selectorString, lutConfig.CorrectionType);
         }
@@ -389,7 +389,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             specAn.Dpd.Configuration.ConfigureMemoryPolynomial(selectorString, mpConfig.Order, mpConfig.Depth);
             specAn.Dpd.Configuration.ConfigureGeneralizedMemoryPolynomialCrossTerms(selectorString, mpConfig.LeadOrder,
                 mpConfig.LagOrder, mpConfig.LeadMemoryDepth, mpConfig.LagMemoryDepth, mpConfig.MaximumLead, mpConfig.MaximumLag);
-            RFmxSpecAnMXDpdIterativeDpdEnabled iterativeDpdEnabled = mpConfig.NumberOfIterations < 1 ? RFmxSpecAnMXDpdIterativeDpdEnabled.True : RFmxSpecAnMXDpdIterativeDpdEnabled.False;
+            RFmxSpecAnMXDpdIterativeDpdEnabled iterativeDpdEnabled = mpConfig.NumberOfIterations > 1 ? RFmxSpecAnMXDpdIterativeDpdEnabled.True : RFmxSpecAnMXDpdIterativeDpdEnabled.False;
             specAn.Dpd.Configuration.ConfigureIterativeDpdEnabled(selectorString, iterativeDpdEnabled);
             specAn.Dpd.ApplyDpd.ConfigureMemoryModelCorrectionType(selectorString, mpConfig.CorrectionType);
         }
