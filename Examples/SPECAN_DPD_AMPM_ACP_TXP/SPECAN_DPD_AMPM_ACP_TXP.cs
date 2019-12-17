@@ -171,7 +171,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 specAn.SelectMeasurements("", RFmxSpecAnMXMeasurementTypes.Dpd, true);
                 Methods.RFmxDPD.PerformMemoryPolynomial(specAn, nIRfsg, MemoryPolynomialConfiguration, waveform);
             }
-            specanMeasurements[0] = RFmxSpecAnMXMeasurementTypes.Ampm;
+            RFmxSpecAnMXMeasurementTypes[] specanMeasurements = new RFmxSpecAnMXMeasurementTypes[1] { RFmxSpecAnMXMeasurementTypes.Ampm };
             SA.RFmxSpecAn.SelectAndInitiateMeasurements(specAn, specanMeasurements, saAutolevelConfig, waveform.SignalBandwidth_Hz, false, "", resultStringSpecan);
             AmpmResultsSpecAn = SA.RFmxSpecAn.FetchAmpm(specAn, RFmxSpecAnMX.BuildResultString(resultStringSpecan));
             PrintAMPMResults();
