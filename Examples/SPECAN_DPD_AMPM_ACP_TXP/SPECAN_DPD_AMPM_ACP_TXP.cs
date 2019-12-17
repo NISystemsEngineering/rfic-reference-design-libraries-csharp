@@ -155,33 +155,22 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             SA.RFmxSpecAn.ConfigureTxp(specAn, TxpConfigurationSpecAn);
             SA.RFmxSpecAn.ConfigureAcp(specAn, AcpConfigurationSpecAn, "");
 
-            Methods.RFmxDPD.ConfigureCommon(specAn, CommonConfigurationDpd, waveform);
-            Methods.RFmxDPD.ConfigureMemoryPolynomial(specAn, MemoryPolynomialConfiguration);
-            Methods.RFmxDPD.ConfigureApplyDpdCrestFactorReduction(specAn, applyDpdCrestFactorReductionConfig);
+            if (EnableDpd)
+            {
+                Methods.RFmxDPD.ConfigureCommon(specAn, CommonConfigurationDpd, waveform);
+                Methods.RFmxDPD.ConfigureMemoryPolynomial(specAn, MemoryPolynomialConfiguration);
+                Methods.RFmxDPD.ConfigureApplyDpdCrestFactorReduction(specAn, applyDpdCrestFactorReductionConfig);
+            }
             #endregion
 
             #region Measure
-            Console.WriteLine("\n--------------------- PRE DPD Results ---------------------\n");
-
-            RFmxSpecAnMXMeasurementTypes[] specanMeasurements = new RFmxSpecAnMXMeasurementTypes[1] { RFmxSpecAnMXMeasurementTypes.Ampm };
-            SA.RFmxSpecAn.SelectAndInitiateMeasurements(specAn, specanMeasurements, saAutolevelConfig, waveform.SignalBandwidth_Hz, false, "", resultStringSpecan);
-            AmpmResultsSpecAn = SA.RFmxSpecAn.FetchAmpm(specAn, RFmxSpecAnMX.BuildResultString(resultStringSpecan));
-            PrintAMPMResults();
-
-            specanMeasurements[0] = RFmxSpecAnMXMeasurementTypes.Txp;
-            SA.RFmxSpecAn.SelectAndInitiateMeasurements(specAn, specanMeasurements, saAutolevelConfig, waveform.SignalBandwidth_Hz, false, "", resultStringSpecan);
-            TxpResultsSpecAn = SA.RFmxSpecAn.FetchTxp(specAn, RFmxSpecAnMX.BuildResultString(resultStringSpecan));
-            PrintTxPResults();
-
-            specanMeasurements[0] = RFmxSpecAnMXMeasurementTypes.Acp;
-            SA.RFmxSpecAn.SelectAndInitiateMeasurements(specAn, specanMeasurements, saAutolevelConfig, waveform.SignalBandwidth_Hz, false, "", resultStringSpecan);
-            AcpResultsSpecAn = SA.RFmxSpecAn.FetchAcp(specAn, RFmxSpecAnMX.BuildResultString(resultStringSpecan));
-            PrintACPResults();
-
-            Console.WriteLine("\n--------------------- POST DPD Results --------------------\n");
-            specAn.SelectMeasurements("", RFmxSpecAnMXMeasurementTypes.Dpd, true);
-            Methods.RFmxDPD.PerformMemoryPolynomial(specAn, nIRfsg, MemoryPolynomialConfiguration, waveform);
-
+            
+            Console.WriteLine("\n--------------------- Results --------------------\n");
+            if (EnableDpd)
+            {
+                specAn.SelectMeasurements("", RFmxSpecAnMXMeasurementTypes.Dpd, true);
+                Methods.RFmxDPD.PerformMemoryPolynomial(specAn, nIRfsg, MemoryPolynomialConfiguration, waveform);
+            }
             specanMeasurements[0] = RFmxSpecAnMXMeasurementTypes.Ampm;
             SA.RFmxSpecAn.SelectAndInitiateMeasurements(specAn, specanMeasurements, saAutolevelConfig, waveform.SignalBandwidth_Hz, false, "", resultStringSpecan);
             AmpmResultsSpecAn = SA.RFmxSpecAn.FetchAmpm(specAn, RFmxSpecAnMX.BuildResultString(resultStringSpecan));
