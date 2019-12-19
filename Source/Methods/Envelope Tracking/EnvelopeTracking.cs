@@ -141,7 +141,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             Waveform envelopeWaveform = CloneAndConditionReferenceWaveform(referenceWaveform);
             WritableBuffer<ComplexSingle> envWfmWriteBuffer = envelopeWaveform.Data.GetWritableBuffer();
 
-            double[] iqMagnitudes = referenceWaveform.Data.GetMagnitudeDataArray(false);
+            double[] envelope = envelopeWaveform.Data.GetMagnitudeDataArray(false);
             double detroughRatio = detroughConfig.MinimumVoltage_V / detroughConfig.MaximumVoltage_V;
 
             // Waveforms are assumed to be normalized in range [0, 1], so no normalization will happen here
@@ -149,36 +149,28 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
             {
                 case DetroughType.Exponential:
                     // Formula: e = IQmag + d*exp(-IQmag/d)
-                    double expScale = 1 + detroughRatio * Math.Exp(-1.0 / detroughRatio);
                     for (int i = 0; i < envWfmWriteBuffer.Size; i++)
-                    {
-                        double sampleValue = iqMagnitudes[i] + detroughRatio * Math.Exp(-iqMagnitudes[i] / detroughRatio);
-                        // Scale detrough to Vmax. Divide by detroughed waveform's max value to normalize. IQMagnitude's max value is 1
-                        envWfmWriteBuffer[i] = ComplexSingle.FromSingle((float)(detroughConfig.MaximumVoltage_V * sampleValue / expScale));
-                    }
+                        envelope[i] = envelope[i] + detroughRatio * Math.Exp(-envelope[i] / detroughRatio);
                     break;
                 case DetroughType.Cosine:
                     // Formula: e = 1 - (1-d)*cos(IQmag*pi/2)
-                    double cosScale = 1 - (1 - detroughRatio) * Math.Cos(Math.PI / 2);
                     for (int i = 0; i < envWfmWriteBuffer.Size; i++)
-                    {
-                        double sampleValue = 1 - (1 - detroughRatio) * Math.Cos(iqMagnitudes[i] * cosScale);
-                        // Scale detrough to Vmax. Divide by detroughed waveform's max value to normalize. IQMagnitude's max value is 1: 1-(1-d) *cos(1*pi/2)
-                        envWfmWriteBuffer[i] = ComplexSingle.FromSingle((float)(detroughConfig.MaximumVoltage_V * sampleValue / cosScale));
-                    }
+                        envelope[i] = 1.0 - (1.0 - detroughRatio) * Math.Cos(envelope[i] * Math.PI / 2.0);
                     break;
                 case DetroughType.Power:
-                    // Formula: e = (1-d) + IQmag^(exponent)*(1-d)
-                    double powScale = 2 - 2 * detroughRatio;
+                    // Formula: e = d + IQmag^(exponent)*(1-d)
                     for (int i = 0; i < envWfmWriteBuffer.Size; i++)
-                    {
-                        double sampleValue = (1 - detroughRatio) + (Math.Pow(iqMagnitudes[i], detroughConfig.Exponent) * (1 - detroughRatio));
-                        // Scale detrough to Vmax. Divide by detroughed waveform's max value. IQMagnitude's max value is 1: (1-d) + (1^exponent)*(1-d)
-                        envWfmWriteBuffer[i] = ComplexSingle.FromSingle((float)(detroughConfig.MaximumVoltage_V * sampleValue / powScale));
-                    }
+                        envelope[i] = detroughRatio + Math.Pow(envelope[i], detroughConfig.Exponent) * (1 - detroughRatio);
                     break;
                 default:
                     throw new ArgumentException("Detrough type not supported.\n");
+            }
+
+            double max = envelope.Max();
+            for (int i = 0; i < envelope.Length; i++)
+            {
+                envelope[i] *= detroughConfig.MaximumVoltage_V / max;
+                envWfmWriteBuffer[i] = ComplexSingle.FromSingle((float)envelope[i]);
             }
 
             return envelopeWaveform;
