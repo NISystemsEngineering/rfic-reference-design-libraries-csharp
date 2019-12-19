@@ -46,7 +46,9 @@ namespace EnvelopeTrackingExample
                     // Create envelope waveform
                     DetroughConfiguration detroughConfig = DetroughConfiguration.GetDefault();
                     detroughConfig.MinimumVoltage_V = 1.5;
-                    detroughConfig.Exponent = 3.5;
+                    detroughConfig.MaximumVoltage_V = 3.5;
+                    detroughConfig.Exponent = 1.2;
+                    detroughConfig.Type = DetroughType.Exponential;
                     envWfm = CreateDetroughEnvelopeWaveform(rfWfm, detroughConfig);
                     break;
                 case EnvelopeMode.LUT:
