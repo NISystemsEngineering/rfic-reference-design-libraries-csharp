@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29025.244
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2018
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxWLAN", "SA\RFmx WLAN\RFmxWLAN.csproj", "{9E8F4D28-AC1D-4A06-8C62-FC96097890B9}"
 EndProject
@@ -37,6 +37,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxInstr", "SA\RFmx Instr\RFmxInstr.csproj", "{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envelope Tracking", "Methods\Envelope Tracking\Envelope Tracking.csproj", "{724A8D0C-EE49-405C-AA33-884FDA656088}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusTuner", "FocusTuner\FocusTuner.csproj", "{8D21D9A9-5420-4D00-95FE-F2DE7CFBF157}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -92,6 +94,10 @@ Global
 		{724A8D0C-EE49-405C-AA33-884FDA656088}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{724A8D0C-EE49-405C-AA33-884FDA656088}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{724A8D0C-EE49-405C-AA33-884FDA656088}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D21D9A9-5420-4D00-95FE-F2DE7CFBF157}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D21D9A9-5420-4D00-95FE-F2DE7CFBF157}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D21D9A9-5420-4D00-95FE-F2DE7CFBF157}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D21D9A9-5420-4D00-95FE-F2DE7CFBF157}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +117,7 @@ Global
 		{8E7D5092-B685-4AD3-9DA3-7C53E56F0F32} = {9DF8AA31-0EBB-4E3D-ACAE-96F2350DA9F8}
 		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA} = {2B079B61-B71B-440E-BFF7-0DF80927B5C5}
 		{724A8D0C-EE49-405C-AA33-884FDA656088} = {3779EC48-73B9-4620-8E17-57340A70611A}
+		{8D21D9A9-5420-4D00-95FE-F2DE7CFBF157} = {9DF8AA31-0EBB-4E3D-ACAE-96F2350DA9F8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D020C05D-4EF8-45D5-8E12-D76DE5E66039}
