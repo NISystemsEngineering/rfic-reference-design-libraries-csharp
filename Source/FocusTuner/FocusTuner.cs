@@ -14,7 +14,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public Complex[][] DUTtoTunerSParameters;
             public Complex[] LoadTermination;
 
-            public CommonConfiguration GetDefault()
+            public static CommonConfiguration GetDefault()
             {
                 var commonConfiguration = new CommonConfiguration();
 
@@ -45,11 +45,11 @@ namespace NationalInstruments.ReferenceDesignLibraries
             iTuner.Close();
         }
 
-        public static double ConfigCommon(FocusITunerBroker iTuner, CommonConfiguration commonConfig)
+        public static double ConfigCommon(FocusITunerBroker iTuner, CommonConfiguration commonConfiguration)
         {
-            iTuner.ConfigureActiveCalibration(commonConfig.CalibrationID);
-            iTuner.ConfigureAdapter(commonConfig.DUTtoTunerSParameters);
-            iTuner.ConfigureTermination(commonConfig.LoadTermination);
+            iTuner.ConfigureActiveCalibration(commonConfiguration.CalibrationID);
+            iTuner.ConfigureAdapter(commonConfiguration.DUTtoTunerSParameters);
+            iTuner.ConfigureTermination(commonConfiguration.LoadTermination);
             List<double> frequencies = iTuner.QueryActiveFrequency();
             return frequencies[0];
         }
