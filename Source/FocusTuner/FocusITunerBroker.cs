@@ -543,8 +543,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
                 List<Complex> reflectionCoefficients = new List<Complex>();
                 if (info != null)
                 {
-
-
                     string[] returnLines = info.Split('\n');
                     foreach (string line in returnLines)
                     {
@@ -579,8 +577,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
 
                 if (info != null)
                 {
-
-
                     string[] returnLines = info.Split('\n');
                     foreach (string line in returnLines)
                     {
