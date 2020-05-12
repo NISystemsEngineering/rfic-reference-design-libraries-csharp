@@ -7,31 +7,43 @@ namespace NationalInstruments.ReferenceDesignLibraries
     public static class FocusTuner
     {
         #region Type Definitions
+        public struct SParameter
+        {
+            public Complex S11;
+            public Complex S21;
+            public Complex S12;
+            public Complex S22;
+
+            public static SParameter GetDefault()
+            {
+                return new SParameter 
+                {
+                    S11 = new Complex { Real = 0, Imaginary = 0 }, 
+                    S21 = new Complex { Real = 1, Imaginary = 0 },
+                    S12 = new Complex { Real = 1, Imaginary = 0 },
+                    S22 = new Complex { Real = 0, Imaginary = 0 },
+                };
+            }
+        }
+
         public struct CommonConfiguration
         {
             public TunerMode TunerMode;
             public int CalibrationID;
-            public Complex[][] DUTtoTunerSParameters;
+            public SParameter[] DUTtoTunerSParameters;
             public Complex[] LoadTermination;
 
             public static CommonConfiguration GetDefault()
             {
-                var commonConfiguration = new CommonConfiguration();
-
-                commonConfiguration.TunerMode = TunerMode.Load;
-                commonConfiguration.CalibrationID = 1;
-
-                // Ideal S-Parameters with S11 = 0 + 0i, S12 = 1 + 0i, S21 = 1 + 0i, S22 = 0 + 0i
-                commonConfiguration.DUTtoTunerSParameters = new Complex[1][];
-                commonConfiguration.DUTtoTunerSParameters[0] = new Complex[4];
-                commonConfiguration.DUTtoTunerSParameters[0][0] = new Complex(0.0, 0.0);
-                commonConfiguration.DUTtoTunerSParameters[0][1] = new Complex(1.0, 0.0);
-                commonConfiguration.DUTtoTunerSParameters[0][2] = new Complex(1.0, 0.0);
-                commonConfiguration.DUTtoTunerSParameters[0][3] = new Complex(0.0, 0.0);
-
-                // Ideal Termination 0 + 0i
-                commonConfiguration.LoadTermination = new Complex[1];
-                commonConfiguration.LoadTermination[0] = new Complex(0.0, 0.0);
+                var commonConfiguration = new CommonConfiguration
+                {
+                    TunerMode = TunerMode.Load,
+                    CalibrationID = 1,
+                    DUTtoTunerSParameters = new SParameter[1],
+                    LoadTermination = new Complex[1]
+                };
+                commonConfiguration.DUTtoTunerSParameters[0] = SParameter.GetDefault();
+                commonConfiguration.LoadTermination[0] = new Complex { Real = 0, Imaginary = 0 };
 
                 return commonConfiguration;
             }
@@ -47,28 +59,40 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
         public static double ConfigCommon(FocusITunerBroker iTuner, CommonConfiguration commonConfiguration)
         {
+            List<Complex[]> sParameters = new List<Complex[]>();
+            foreach (var element in commonConfiguration.DUTtoTunerSParameters)
+            {
+                Complex[] sParameter = new Complex[4];
+                //The order in the Focus driver is S11, S12, S21 and S22.
+                sParameter[0] = element.S11;
+                sParameter[1] = element.S12;
+                sParameter[2] = element.S21;
+                sParameter[3] = element.S22;
+                sParameters.Add(sParameter);
+            }
+            iTuner.ConfigureTunerMode(commonConfiguration.TunerMode);
             iTuner.ConfigureActiveCalibration(commonConfiguration.CalibrationID);
-            iTuner.ConfigureAdapter(commonConfiguration.DUTtoTunerSParameters);
+            iTuner.ConfigureAdapter(sParameters.ToArray());
             iTuner.ConfigureTermination(commonConfiguration.LoadTermination);
-            List<double> frequencies = iTuner.QueryActiveFrequency();
+            double[] frequencies = iTuner.QueryActiveFrequency();
             return frequencies[0];
         }
 
-        public static List<Complex> MoveTunerPerGamma(FocusITunerBroker iTuner, Complex gamma, short timeout = 60)
+        public static Complex[] MoveTunerPerGamma(FocusITunerBroker iTuner, Complex gamma, short timeout = 60)
         {
             iTuner.MoveTunerPerReflectionCoefficient(gamma);
             iTuner.WaitForOperationComplete(timeout);
             return iTuner.QueryReflectionCoefficientAllFrequencies();
         }
 
-        public static List<PhaseVSWR> MoveTunerPerVSWR(FocusITunerBroker iTuner, PhaseVSWR vswr, short timeout = 60)
+        public static PhaseVSWR[] MoveTunerPerVSWR(FocusITunerBroker iTuner, PhaseVSWR vswr, short timeout = 60)
         {
             iTuner.MoveTunerPerVSWR(vswr);
             iTuner.WaitForOperationComplete(timeout);
             return iTuner.QueryVSWRAllFrequencies();
         }
 
-        public static List<MotorPosition> MoveTunerMotorPosition(FocusITunerBroker iTuner, MotorPosition[] motorPositions, short timeout = 60)
+        public static MotorPosition[] MoveTunerMotorPosition(FocusITunerBroker iTuner, MotorPosition[] motorPositions, short timeout = 60)
         {
             iTuner.MoveTunerPerMotorPosition(motorPositions);
             iTuner.WaitForOperationComplete(timeout);

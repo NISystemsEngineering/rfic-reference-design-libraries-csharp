@@ -14,174 +14,28 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
 
     public struct MotorPosition
     {
-        private short _axis;
-        private int _position;
-
-        public MotorPosition(short axis, int position)
-        {
-            _axis = axis;
-            _position = position;
-        }
-
-        public short Axis
-        {
-            get
-            {
-                return _axis;
-            }
-            set
-            {
-                _axis = value;
-            }
-        }
-
-        public int Position
-        {
-            get
-            {
-                return _position;
-            }
-            set
-            {
-                _position = value;
-            }
-        }
+        public short Axis { get; set; }
+        public int Position { get; set; }
     }
 
     public struct Calibration
     {
-        private int _calibrationId;
-        private double _frequency;
-        private int _numberOfSecondaryFrequencies;
-        private int _numberOfCalibrationPoints;
-
-        public Calibration(int calibrationId, double frequency, int numberOfSecondaryFrequencies, int numberOfCalibrationPoints)
-        {
-            _calibrationId = calibrationId;
-            _frequency = frequency;
-            _numberOfSecondaryFrequencies = numberOfSecondaryFrequencies;
-            _numberOfCalibrationPoints = numberOfCalibrationPoints;
-        }
-
-        public int CalibrationId
-        {
-            get
-            {
-                return _calibrationId;
-            }
-            set
-            {
-                _calibrationId = value;
-            }
-        }
-
-        public double Frequency
-        {
-            get
-            {
-                return _frequency;
-            }
-            set
-            {
-                _frequency = value;
-            }
-        }
-
-        public int NumberOfSecondaryFrequencies
-        {
-            get
-            {
-                return _numberOfSecondaryFrequencies;
-            }
-            set
-            {
-                _numberOfSecondaryFrequencies = value;
-            }
-        }
-
-        public int NumberOfCalibrationPoints
-        {
-            get
-            {
-                return _numberOfCalibrationPoints;
-            }
-            set
-            {
-                _numberOfCalibrationPoints = value;
-            }
-        }
+        public int CalibrationId { get; set; }
+        public double Frequency { get; set; }
+        public int NumberOfSecondaryFrequencies { get; set; }
+        public int NumberOfCalibrationPoints { get; set; }
     }
 
     public struct PhaseVSWR
     {
-        private double _vswr;
-        private double _degreePhase;
-
-        public PhaseVSWR(double vswr, double degreePhase)
-        {
-            _vswr = vswr;
-            _degreePhase = degreePhase;
-        }
-
-        public double VSWR
-        {
-            get
-            {
-                return _vswr;
-            }
-            set
-            {
-                _vswr = value;
-            }
-        }
-
-        public double DegreePhase
-        {
-            get
-            {
-                return _degreePhase;
-            }
-            set
-            {
-                _degreePhase = value;
-            }
-        }
+        public double VSWR { get; set; }
+        public double DegreePhase { get; set; }
     }
 
     public struct Complex
     {
-        private double _real;
-        private double _imaginary;
-
-        public Complex(double real, double imaginary)
-        {
-            _real = real;
-            _imaginary = imaginary;
-        }
-
-        public double Real
-        {
-            get
-            {
-                return _real;
-            }
-
-            set
-            {
-                _real = value;
-            }
-        }
-        public double Imaginary
-        {
-            get
-            {
-                return _imaginary;
-            }
-            set
-            {
-                _imaginary = value;
-            }
-        }
+        public double Real { get; set; }
+        public double Imaginary { get; set; }
     }
 
     public class CustomTunerException : Exception
@@ -270,7 +124,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
         /// Gets the list of calibration data sets available in the tuner directory.
         /// </summary>
         /// <returns>The list of calibration data.</returns>
-        public List<Calibration> QueryCalibrationList()
+        public Calibration[] QueryCalibrationList()
         {
             string acknowledge = null;
             _tuner.SendCmd("DIR", ref acknowledge);
@@ -345,7 +199,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
         /// <returns>
         /// The list of all frequencies (including primary frequency and all secondary frequencies) of the active tuner calibration data set.
         /// </returns>
-        public List<double> QueryActiveFrequency()
+        public double[] QueryActiveFrequency()
         {
             string acknowledge = null;
             _tuner.SendCmd("FREQ?", ref acknowledge);
@@ -416,7 +270,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
         /// The estimated voltage standing wave ratio and the associated phase at the device reference plane for the current tuner position, at all frequencies of the active tuner calibration data set.
         /// The tuner calibration data, the adapter de-embedding data and the termination data are used to determine the voltage standing wave ratio and the associated phase.
         /// </returns>
-        public List<Complex> QueryReflectionCoefficientAllFrequencies()
+        public Complex[] QueryReflectionCoefficientAllFrequencies()
         {
             string acknowledge = null;
             _tuner.SendCmd("GAMMA? 0", ref acknowledge);
@@ -446,7 +300,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
         /// The estimated voltage standing wave ratio and the associated phase at the device reference plane for the current tuner position, at all frequencies of the active tuner calibration data set.
         /// The tuner calibration data, the adapter de-embedding data and the termination data are used to determine the voltage standing wave ratio and the associated phase.
         /// </returns>
-        public List<PhaseVSWR> QueryVSWRAllFrequencies()
+        public PhaseVSWR[] QueryVSWRAllFrequencies()
         {
             string acknowledge = null;
             _tuner.SendCmd("VSWR? 0", ref acknowledge);
@@ -475,7 +329,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
         /// Gets the current position of all tuner axes.
         /// </summary>
         /// <returns>The current position of each tuner motor axis.</returns>
-        public List<MotorPosition> QueryCurrentMotorPositionAll()
+        public MotorPosition[] QueryCurrentMotorPositionAll()
         {
             string acknowledge = null;
             _tuner.SendCmd("POS? 0", ref acknowledge);
@@ -605,28 +459,25 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
             }
         }
 
-        private List<double> ParseFrequencyString(string info)
+        private double[] ParseFrequencyString(string info)
         {
-            List<double> frequencies = new List<double>();
-            if (info == null)
-            {
-                return frequencies;
-            }
-
-            string[] returnLines = info.Split('\n');
-
             try
             {
-                foreach (string line in returnLines)
+                List<double> frequencies = new List<double>();
+                if (info != null)
                 {
-                    string[] items = Regex.Split(line, @"\s+");
-                    if (items[0].StartsWith("#"))
+                    string[] returnLines = info.Split('\n');
+                    foreach (string line in returnLines)
                     {
-                        double frequency = Convert.ToDouble(items[1].TrimEnd("MHz".ToCharArray())) / 1000;
-                        frequencies.Add(frequency);
+                        string[] items = Regex.Split(line, @"\s+");
+                        if (items[0].StartsWith("#"))
+                        {
+                            double frequency = Convert.ToDouble(items[1].TrimEnd("MHz".ToCharArray())) / 1000;
+                            frequencies.Add(frequency);
+                        }
                     }
                 }
-                return frequencies;
+                return frequencies.ToArray();
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException || ex is FormatException)
             {
@@ -635,45 +486,48 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
             }
         }
 
-        private List<Calibration> ParseCalibrationListString(string info)
+        private Calibration[] ParseCalibrationListString(string info)
         {
-            List<Calibration> calibrationList = new List<Calibration>();
-
-            if (info == null)
-            {
-                return calibrationList;
-            }
-
-            string[] returnLines = info.Split('\n');
-            List<int> calibrationId = new List<int>();
-            int calId, index;
-
             try
             {
-                foreach (string line in returnLines)
+                List<Calibration> calibrationList = new List<Calibration>();
+                if (info != null)
                 {
-                    if (line.StartsWith("#"))
+                    string[] returnLines = info.Split('\n');
+                    List<int> calibrationId = new List<int>();
+                    int calId, index;
+
+                    foreach (string line in returnLines)
                     {
-                        string[] items = Regex.Split(line, @"\s+");
-                        if (items[3] == "0")  //Is standard calibration type
+                        if (line.StartsWith("#"))
                         {
-                            calId = Convert.ToInt32(items[1]);
-                            index = calibrationId.IndexOf(calId);
-                            if (index < 0)
+                            string[] items = Regex.Split(line, @"\s+");
+                            if (items[3] == "0")  //Is standard calibration type
                             {
-                                calibrationId.Add(calId);
-                                Calibration calibration = new Calibration(calId, Convert.ToDouble(items[2]), 1, Convert.ToInt32(items[5]));
-                                calibrationList.Add(calibration);
-                            }
-                            else
-                            {
-                                Calibration calibration = calibrationList.ElementAt(index);
-                                calibration.NumberOfSecondaryFrequencies += 1;
+                                calId = Convert.ToInt32(items[1]);
+                                index = calibrationId.IndexOf(calId);
+                                if (index < 0)
+                                {
+                                    calibrationId.Add(calId);
+                                    Calibration calibration = new Calibration
+                                    {
+                                        CalibrationId = calId,
+                                        Frequency = Convert.ToDouble(items[2]),
+                                        NumberOfSecondaryFrequencies = 1,
+                                        NumberOfCalibrationPoints = Convert.ToInt32(items[5])
+                                    };
+                                    calibrationList.Add(calibration);
+                                }
+                                else
+                                {
+                                    Calibration calibration = calibrationList.ElementAt(index);
+                                    calibration.NumberOfSecondaryFrequencies += 1;
+                                }
                             }
                         }
                     }
                 }
-                return calibrationList;
+                return calibrationList.ToArray();
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException || ex is FormatException)
             {
@@ -682,30 +536,33 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
             }
         }
 
-        private List<Complex> ParseGammasString(string info)
+        private Complex[] ParseGammasString(string info)
         {
-            List<Complex> reflectionCoefficients = new List<Complex>();
-            if (info == null)
-            {
-                return reflectionCoefficients;
-            }
-
-            string[] returnLines = info.Split('\n');
-
             try
             {
-                foreach (string line in returnLines)
+                List<Complex> reflectionCoefficients = new List<Complex>();
+                if (info != null)
                 {
-                    string[] items = Regex.Split(line, @"\s+");
-                    if (items[0].Contains("MHz"))
+
+
+                    string[] returnLines = info.Split('\n');
+                    foreach (string line in returnLines)
                     {
-                        double r = Convert.ToDouble(items[2]);
-                        double theta = (Convert.ToDouble(items[3]) / 180) * Math.PI;
-                        Complex reflectionCoefficient = new Complex(r * Math.Cos(theta), r * Math.Sin(theta));
-                        reflectionCoefficients.Add(reflectionCoefficient);
+                        string[] items = Regex.Split(line, @"\s+");
+                        if (items[0].Contains("MHz"))
+                        {
+                            double r = Convert.ToDouble(items[2]);
+                            double theta = (Convert.ToDouble(items[3]) / 180) * Math.PI;
+                            Complex reflectionCoefficient = new Complex 
+                            {
+                                Real = r * Math.Cos(theta), 
+                                Imaginary = r * Math.Sin(theta) 
+                            };
+                            reflectionCoefficients.Add(reflectionCoefficient);
+                        }
                     }
                 }
-                return reflectionCoefficients;
+                return reflectionCoefficients.ToArray();
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException || ex is FormatException)
             {
@@ -714,29 +571,32 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
             }
         }
 
-        private List<PhaseVSWR> ParseVSWRString(string info)
+        private PhaseVSWR[] ParseVSWRString(string info)
         {
-            List<PhaseVSWR> phaseVSWRList = new List<PhaseVSWR>();
-
-            if (info == null)
-            {
-                return phaseVSWRList;
-            }
-
-            string[] returnLines = info.Split('\n');
-
             try
             {
-                foreach (string line in returnLines)
+                List<PhaseVSWR> phaseVSWRList = new List<PhaseVSWR>();
+
+                if (info != null)
                 {
-                    string[] items = Regex.Split(line, @"\s+");
-                    if (items[0].Contains("MHz"))
+
+
+                    string[] returnLines = info.Split('\n');
+                    foreach (string line in returnLines)
                     {
-                        PhaseVSWR phaseVSWR = new PhaseVSWR(Convert.ToDouble(items[2]), Convert.ToDouble(items[3]));
-                        phaseVSWRList.Add(phaseVSWR);
+                        string[] items = Regex.Split(line, @"\s+");
+                        if (items[0].Contains("MHz"))
+                        {
+                            PhaseVSWR phaseVSWR = new PhaseVSWR 
+                            {
+                                VSWR = Convert.ToDouble(items[2]), 
+                                DegreePhase = Convert.ToDouble(items[3]) 
+                            };
+                            phaseVSWRList.Add(phaseVSWR);
+                        }
                     }
                 }
-                return phaseVSWRList;
+                return phaseVSWRList.ToArray();
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException || ex is FormatException)
             {
@@ -745,34 +605,36 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
             }
         }
 
-        private List<MotorPosition> ParsePositionString(string info)
+        private MotorPosition[] ParsePositionString(string info)
         {
-            List<MotorPosition> currentPositions = new List<MotorPosition>();
-            if (info == null)
-            {
-                return currentPositions;
-            }
-
             string[] returnLines = info.Split('\n');
             try
             {
-                foreach (string line in returnLines)
+                List<MotorPosition> currentPositions = new List<MotorPosition>();
+                if (info != null)
                 {
-                    if (line.StartsWith("POS:"))
+                    foreach (string line in returnLines)
                     {
-                        string[] allPositionInfo = line.Substring(4).Trim().Split(new[] { 'A' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (string positionInfo in allPositionInfo)
+                        if (line.StartsWith("POS:"))
                         {
-                            string[] positions = positionInfo.Trim().Split('=');
-                            short axis = Convert.ToInt16(positions[0]);
-                            int position = Convert.ToInt32(positions[1]);
-                            MotorPosition motorPosition = new MotorPosition(axis, position);
-                            currentPositions.Add(motorPosition);
+                            string[] allPositionInfo = line.Substring(4).Trim().Split(new[] { 'A' }, StringSplitOptions.RemoveEmptyEntries);
+                            foreach (string positionInfo in allPositionInfo)
+                            {
+                                string[] positions = positionInfo.Trim().Split('=');
+                                short axis = Convert.ToInt16(positions[0]);
+                                int position = Convert.ToInt32(positions[1]);
+                                MotorPosition motorPosition = new MotorPosition 
+                                {
+                                    Axis = axis, 
+                                    Position = position 
+                                };
+                                currentPositions.Add(motorPosition);
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
-                return currentPositions;
+                return currentPositions.ToArray();
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException || ex is FormatException)
             {
