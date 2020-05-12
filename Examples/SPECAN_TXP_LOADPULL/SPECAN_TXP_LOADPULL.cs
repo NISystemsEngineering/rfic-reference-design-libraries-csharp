@@ -20,7 +20,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         //Tuner Configration
         public string tunerAddress;
         public FocusTuner.CommonConfiguration commonConfiguration;
-        List<Complex> gammaSweep;
+        Complex[] gammaSweep;
 
         //Waveform
         public string filePath;
@@ -133,7 +133,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         }
 
         #region Utilities
-        private List<Complex> GetConstantVSWR(double vswr, int numberOfPoints)
+        private Complex[] GetConstantVSWR(double vswr, int numberOfPoints)
         {
             List<Complex> gammaArray = new List<Complex>();
             double magnitude = (vswr - 1) / (vswr + 1);
@@ -142,7 +142,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
                 double theta = Math.PI * 2 * i / numberOfPoints;
                 gammaArray.Add(new Complex { Real = magnitude * Math.Cos(theta), Imaginary = magnitude * Math.Sin(theta) });
             }
-            return gammaArray;
+            return gammaArray.ToArray();
         }
 
         private void PrintTuneResults()

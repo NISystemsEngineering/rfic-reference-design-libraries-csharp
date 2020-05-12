@@ -481,7 +481,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException || ex is FormatException)
             {
-                ArgumentException argEx = new ArgumentException("Unable to parse Complex from the command return value.", ex);
+                ArgumentException argEx = new ArgumentException("Unable to parse frequencies from the command return value.", ex);
                 throw argEx;
             }
         }
@@ -551,10 +551,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
                         {
                             double r = Convert.ToDouble(items[2]);
                             double theta = (Convert.ToDouble(items[3]) / 180) * Math.PI;
-                            Complex reflectionCoefficient = new Complex 
+                            Complex reflectionCoefficient = new Complex
                             {
-                                Real = r * Math.Cos(theta), 
-                                Imaginary = r * Math.Sin(theta) 
+                                Real = r * Math.Cos(theta),
+                                Imaginary = r * Math.Sin(theta)
                             };
                             reflectionCoefficients.Add(reflectionCoefficient);
                         }
@@ -564,7 +564,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException || ex is FormatException)
             {
-                ArgumentException argEx = new ArgumentException("Unable to parse Complex from the command return value.", ex);
+                ArgumentException argEx = new ArgumentException("Unable to parse Gammas from the command return value.", ex);
                 throw argEx;
             }
         }
@@ -583,10 +583,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
                         string[] items = Regex.Split(line, @"\s+");
                         if (items[0].Contains("MHz"))
                         {
-                            PhaseVSWR phaseVSWR = new PhaseVSWR 
+                            PhaseVSWR phaseVSWR = new PhaseVSWR
                             {
-                                VSWR = Convert.ToDouble(items[2]), 
-                                DegreePhase = Convert.ToDouble(items[3]) 
+                                VSWR = Convert.ToDouble(items[2]),
+                                DegreePhase = Convert.ToDouble(items[3])
                             };
                             phaseVSWRList.Add(phaseVSWR);
                         }
@@ -596,7 +596,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException || ex is FormatException)
             {
-                ArgumentException argEx = new ArgumentException("Unable to parse PhaseVSWRList from the command return value.", ex);
+                ArgumentException argEx = new ArgumentException("Unable to parse VSWRs and Phases from the command return value.", ex);
                 throw argEx;
             }
         }
