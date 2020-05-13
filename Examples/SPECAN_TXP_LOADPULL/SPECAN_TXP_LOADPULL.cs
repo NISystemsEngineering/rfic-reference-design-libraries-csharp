@@ -90,7 +90,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             #endregion
 
             #region Configure Tuner
-            FocusTuner.ConfigCommon(iTuner, commonConfiguration);
+            FocusTuner.ConfigureCommon(iTuner, commonConfiguration);
             #endregion
 
             #region Configure Generation

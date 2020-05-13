@@ -77,7 +77,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         /// <param name="iTuner">Specifies a reference to the instrument.</param>
         /// <param name="commonConfiguration">Specifies the settings for load pull using the Focus tuner.</param>
         /// <returns>The primary frequency in GHz, of the active tuner calibration data set.</returns>
-        public static double ConfigCommon(FocusITunerBroker iTuner, CommonConfiguration commonConfiguration)
+        public static double ConfigureCommon(FocusITunerBroker iTuner, CommonConfiguration commonConfiguration)
         {
             List<Complex[]> sParameters = new List<Complex[]>();
             foreach (var element in commonConfiguration.DUTtoTunerSParameters)
