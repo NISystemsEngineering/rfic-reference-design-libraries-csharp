@@ -3,47 +3,57 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.IO;
 
 namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
 {
+    #region Type Definitions
     public enum TunerMode
     {
         Source = 0,
         Load = 1,
     }
 
+    /// <summary>Defines the single motor axis and position.</summary>
     public struct MotorPosition
     {
+        /// <summary>Specifies the motor axis.</summary>
         public short Axis { get; set; }
+        /// <summary>Specifies the motor position.</summary>
         public int Position { get; set; }
     }
 
+    /// <summary>Defines the calibration data set stored in tuner memory.</summary>
     public struct Calibration
     {
+        /// <summary>Specifies the calibration ID of the calibration data set.</summary>
         public int CalibrationId { get; set; }
+        /// <summary>Specifies the primary frequency (in GHz) of the calibration data set.</summary>
         public double Frequency { get; set; }
+        /// <summary>Specifies the number of secondary frequencies included in the calibration data set.</summary>
         public int NumberOfSecondaryFrequencies { get; set; }
+        /// <summary>Specifies the number of calibrated points in the calibration data set.</summary>
         public int NumberOfCalibrationPoints { get; set; }
     }
 
+    /// <summary>Defines the impedance by the voltage standing wave ratio (VSWR) and phase of the reflection coefficient.</summary>
     public struct PhaseVSWR
     {
+        /// <summary>Specifies the voltage standing wave ratio (VSWR) in the device reference plane.</summary>
         public double VSWR { get; set; }
+        /// <summary>Specifies the phase, in degrees, of the reflection coefficient in the device reference plane.</summary>
         public double DegreePhase { get; set; }
     }
 
+    /// <summary>Defines a complex with double-precision, floating-point.</summary>
     public struct Complex
     {
+        /// <summary>Specifies the real part of the complex.</summary>
         public double Real { get; set; }
+        /// <summary>Specifies the imaginary part of the complex.</summary>
         public double Imaginary { get; set; }
     }
-
-    public class CustomTunerException : Exception
-    {
-        public CustomTunerException(string errorMsg) : base(errorMsg)
-        {
-        }
-    }
+    #endregion
 
     /// <summary>
     /// Wrapper class for iTunerX ActiveX from Focus Mircowaves. It provides similar functions as "Focus iTuner Series" LabVIEW driver.
@@ -51,7 +61,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
     public class FocusITunerBroker
     {
         #region PublicMethods
-
         /// <summary>
         /// Creates a new ITunerXClass.
         /// </summary>
@@ -90,10 +99,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
                     ErrorQuery();
                 }
             }
-            catch (CustomTunerException)
+            catch (Exception)
             {
                 _tuner.CloseConnection();
-                throw new CustomTunerException(string.Format("Error {0}: The ID Query failed. This may mean that you selected the wrong instrument or your instrument did not respond.  " +
+                throw new IOException(string.Format("Error {0}: The ID Query failed. This may mean that you selected the wrong instrument or your instrument did not respond.  " +
                     "You may also be using a model that is not officially supported by this driver.  " +
                     "If you are sure that you have selected the correct instrument and it is responding, try disabling the ID Query.", -1074003951));
             }
@@ -371,7 +380,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
             short opc = _tuner.OPC(timeout);
             if (opc < 0)
             {
-                throw new CustomTunerException(string.Format("Error {0}: Timeout Error", -1073807339));
+                throw new TimeoutException(string.Format("Error {0}: Timeout Error", -1073807339));
             }
         }
 
@@ -415,15 +424,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
                     errorMsg = errorMsg + replyLines[i] + "\n";
                 }
 
-                CustomTunerException customTunerException = new CustomTunerException(string.Format("Error {0}: Instrument reports error code: {1}, error message: {2}", -1074000000, errorCode, errorMsg));
+                IOException customTunerException = new IOException(string.Format("Error {0}: Instrument reports error code: {1}, error message: {2}", -1074000000, errorCode, errorMsg));
                 throw (customTunerException);
             }
         }
-
         #endregion PublicMethods
 
         #region PrivateMethods
-
         private TunerMode ParseTunerModeString(string info)
         {
             try
@@ -449,7 +456,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
                 }
                 else
                 {
-                    throw new CustomTunerException("Unable to parse tuner mode from the command return value.");
+                    throw new ArgumentException("Unable to parse tuner mode from the command return value.");
                 }
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException || ex is FormatException)
@@ -655,7 +662,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.FocusITuner
         }
 
         private ITunerXClass _tuner = null;
-
         #endregion PrivateMethods
     }
 }

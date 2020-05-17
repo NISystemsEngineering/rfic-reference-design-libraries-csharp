@@ -127,7 +127,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         /// <param name="motorPositions">Specifies the positions to which one or more motors should move.</param>
         /// <param name="timeout">Specifies the maximum length of time, in seconds, to allow the operation to complete. The default is 60.</param>
         /// <returns>The current position of each tuner motor axis.</returns>
-        public static MotorPosition[] MoveTunerMotorPosition(FocusITunerBroker iTuner, MotorPosition[] motorPositions, short timeout = 60)
+        public static MotorPosition[] MoveTunerPerMotorPosition(FocusITunerBroker iTuner, MotorPosition[] motorPositions, short timeout = 60)
         {
             iTuner.MoveTunerPerMotorPosition(motorPositions);
             iTuner.WaitForOperationComplete(timeout);
