@@ -33,6 +33,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="FocusITunerBroker.cs" />
     <Compile Include="FocusTuner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
