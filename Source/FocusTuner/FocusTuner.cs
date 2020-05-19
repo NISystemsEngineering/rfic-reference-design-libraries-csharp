@@ -8,7 +8,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
     {
         #region Type Definitions
         /// <summary>Defines 2 ports S-parameter.</summary>
-        public struct SParameter
+        public struct SParameters
         {
             /// <summary>Specifies the reflected power ratio from tuner input.</summary>
             public Complex S11;
@@ -21,9 +21,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             /// <summary>Returns the struct with default values set.</summary>
             /// <returns>The struct with default values set.</returns>
-            public static SParameter GetDefault()
+            public static SParameters GetDefault()
             {
-                return new SParameter 
+                return new SParameters 
                 {
                     S11 = new Complex { Real = 0, Imaginary = 0 }, 
                     S21 = new Complex { Real = 1, Imaginary = 0 },
@@ -41,7 +41,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             /// <summary>Specifies the calibration ID of the calibration data set to load. Use the Query Calibration List VI to retrieve a list of valid calibration IDs.</summary>
             public int CalibrationID;
             /// <summary>Specifies the S-parameters of the adapter section between the DUT and the tuner at the primary frequency and up to four secondary frequencies.</summary>
-            public SParameter[] DUTtoTunerSParameters;
+            public SParameters[] DUTtoTunerSParameters;
             /// <summary>Specifies the reflection coefficient of the termination seen by the tuner at load side for the primary frequency and up to four secondary frequencies.</summary>
             public Complex[] LoadTermination;
 
@@ -53,10 +53,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 {
                     TunerMode = TunerMode.Load,
                     CalibrationID = 1,
-                    DUTtoTunerSParameters = new SParameter[1],
+                    DUTtoTunerSParameters = new SParameters[1],
                     LoadTermination = new Complex[1]
                 };
-                commonConfiguration.DUTtoTunerSParameters[0] = SParameter.GetDefault();
+                commonConfiguration.DUTtoTunerSParameters[0] = SParameters.GetDefault();
                 commonConfiguration.LoadTermination[0] = new Complex { Real = 0, Imaginary = 0 };
 
                 return commonConfiguration;
