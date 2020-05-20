@@ -1,5 +1,4 @@
 ﻿using NationalInstruments.ReferenceDesignLibraries.FocusITuner;
-using System.Collections.Generic;
 
 namespace NationalInstruments.ReferenceDesignLibraries
 {
@@ -7,7 +6,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
     public static class FocusTuner
     {
         #region Type Definitions
-        /// <summary>Defines 2 ports S-parameter.</summary>
+        /// <summary>Defines 2 port S-parameters.</summary>
         public struct SParameters
         {
             /// <summary>Specifies the reflected power ratio from tuner input.</summary>
@@ -38,7 +37,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             /// <summary>Specifies the tuner mode.</summary>
             public TunerMode TunerMode;
-            /// <summary>Specifies the calibration ID of the calibration data set to load. Use the Query Calibration List VI to retrieve a list of valid calibration IDs.</summary>
+            /// <summary>Specifies the calibration ID of the calibration data set to load. <see cref="FocusITunerBroker.QueryCalibrationList()"/> for a list of valid calibration IDs.</summary>
             public int CalibrationID;
             /// <summary>Specifies the S-parameters of the adapter section between the DUT and the tuner at the primary frequency and up to four secondary frequencies.</summary>
             public SParameters[] DUTtoTunerSParameters;
@@ -53,12 +52,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 {
                     TunerMode = TunerMode.Load,
                     CalibrationID = 1,
-                    DUTtoTunerSParameters = new SParameters[1],
-                    LoadTermination = new Complex[1]
+                    DUTtoTunerSParameters = new SParameters[] { SParameters.GetDefault() },
+                    LoadTermination = new Complex[] { new Complex { Real = 0, Imaginary = 0 } }
                 };
-                commonConfiguration.DUTtoTunerSParameters[0] = SParameters.GetDefault();
-                commonConfiguration.LoadTermination[0] = new Complex { Real = 0, Imaginary = 0 };
-
                 return commonConfiguration;
             }
         }
@@ -79,20 +75,15 @@ namespace NationalInstruments.ReferenceDesignLibraries
         /// <returns>The primary frequency in GHz, of the active tuner calibration data set.</returns>
         public static double ConfigureCommon(FocusITunerBroker iTuner, CommonConfiguration commonConfiguration)
         {
-            List<Complex[]> sParameters = new List<Complex[]>();
-            foreach (var element in commonConfiguration.DUTtoTunerSParameters)
+            Complex[][] sParameters = new Complex[commonConfiguration.DUTtoTunerSParameters.Length][];
+            for (int i = 0; i < sParameters.Length; i++)
             {
-                Complex[] sParameter = new Complex[4];
-                //The order in the Focus driver is S11, S12, S21 and S22.
-                sParameter[0] = element.S11;
-                sParameter[1] = element.S12;
-                sParameter[2] = element.S21;
-                sParameter[3] = element.S22;
-                sParameters.Add(sParameter);
+                SParameters element = commonConfiguration.DUTtoTunerSParameters[i];
+                sParameters[i] = new Complex[] { element.S11, element.S12, element.S21, element.S22 };
             }
             iTuner.ConfigureTunerMode(commonConfiguration.TunerMode);
             iTuner.ConfigureActiveCalibration(commonConfiguration.CalibrationID);
-            iTuner.ConfigureAdapter(sParameters.ToArray());
+            iTuner.ConfigureAdapter(sParameters);
             iTuner.ConfigureTermination(commonConfiguration.LoadTermination);
             double[] frequencies = iTuner.QueryActiveFrequency();
             return frequencies[0];
@@ -101,8 +92,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
         /// <summary>Sets the specified reflection coefficient in the device reference plane at fundamental frequency with timeout.</summary>
         /// <param name="iTuner">Specifies a reference to the instrument.</param>
         /// <param name="gamma">Specifies the desired reflection coefficient in the device reference plane. Valid Range is Real part: [-1, 1] and Imaginary part: [-1, 1].</param>
-        /// <param name="timeout">specifies the maximum length of time, in seconds, to allow the operation to complete. The default is 60.</param>
-        /// <returns>returns the estimated reflection coefficient at the device reference plane for the current tuner position at all frequencies of the active tuner calibration data set.</returns>
+        /// <param name="timeout">Specifies the maximum length of time, in seconds, to allow the operation to complete. The default is 60.</param>
+        /// <returns>The estimated reflection coefficient at the device reference plane for the current tuner position at all frequencies of the active tuner calibration data set.</returns>
         public static Complex[] MoveTunerPerGamma(FocusITunerBroker iTuner, Complex gamma, short timeout = 60)
         {
             iTuner.MoveTunerPerReflectionCoefficient(gamma);
@@ -114,7 +105,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         /// <param name="iTuner">Specifies a reference to the instrument.</param>
         /// <param name="phaseVswr">Specifies the desired voltage standing wave ratio (VSWR) and phase of the reflection coefficient.</param>
         /// <param name="timeout">Specifies the maximum length of time, in seconds, to allow the operation to complete. The default is 60.</param>
-        /// <returns>the estimated voltage standing wave ratio (VSWR) and the associated phase at the device reference plane for the current tuner position at all frequencies of the active tuner calibration data set.</returns>
+        /// <returns>The estimated voltage standing wave ratio (VSWR) and the associated phase at the device reference plane for the current tuner position at all frequencies of the active tuner calibration data set.</returns>
         public static PhaseVSWR[] MoveTunerPerVSWR(FocusITunerBroker iTuner, PhaseVSWR phaseVswr, short timeout = 60)
         {
             iTuner.MoveTunerPerVSWR(phaseVswr);

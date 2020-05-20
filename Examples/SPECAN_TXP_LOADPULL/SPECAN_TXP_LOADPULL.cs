@@ -3,8 +3,8 @@ using NationalInstruments.ReferenceDesignLibraries.FocusITuner;
 using NationalInstruments.RFmx.InstrMX;
 using NationalInstruments.RFmx.SpecAnMX;
 using System;
-using System.Collections.Generic;
 using static NationalInstruments.ReferenceDesignLibraries.SG;
+using NationalInstruments.ReferenceDesignLibraries.SA;
 
 namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
@@ -29,14 +29,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         SG.InstrumentConfiguration sgInstrConfig;
 
         //Analyzer Configuration 
-        public SA.RFmxInstr.InstrumentConfiguration saInstrConfig;
-        public SA.CommonConfiguration saCommonConfig;
-        public SA.AutoLevelConfiguration saAutolevelConfig;
+        public RFmxInstr.InstrumentConfiguration saInstrConfig;
+        public CommonConfiguration saCommonConfig;
+        public AutoLevelConfiguration saAutolevelConfig;
 
         //Measurements Configuration
         public Complex currentGamma;
-        public SA.RFmxSpecAn.TxpConfiguration txpConfigurationSpecAn;
-        public SA.RFmxSpecAn.TxpResults txpResultsSpecAn;
+        public RFmxSpecAn.TxpConfiguration txpConfigurationSpecAn;
+        public RFmxSpecAn.TxpResults txpResultsSpecAn;
         #endregion
 
         public SPECAN_TXP_LOADPULL()
@@ -66,16 +66,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             sgInstrConfig.ExternalAttenuation_dB = 0;
 
             //Analyzer Configuration
-            saInstrConfig = SA.RFmxInstr.InstrumentConfiguration.GetDefault();
-            saCommonConfig = SA.CommonConfiguration.GetDefault();
+            saInstrConfig = RFmxInstr.InstrumentConfiguration.GetDefault();
+            saCommonConfig = CommonConfiguration.GetDefault();
             saCommonConfig.ExternalAttenuation_dB = 0;
             saCommonConfig.CenterFrequency_Hz = centerFrequency;
             saCommonConfig.ReferenceLevel_dBm = 0.0;
 
-            saAutolevelConfig = SA.AutoLevelConfiguration.GetDefault();
+            saAutolevelConfig = AutoLevelConfiguration.GetDefault();
             saAutolevelConfig.Enabled = true;
             
-            txpConfigurationSpecAn = SA.RFmxSpecAn.TxpConfiguration.GetDefault();
+            txpConfigurationSpecAn = RFmxSpecAn.TxpConfiguration.GetDefault();
             txpConfigurationSpecAn.Rbw_Hz = 20e6;
         }
 
@@ -103,9 +103,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             #region Configure Analyzer
             saAutolevelConfig.MeasurementInterval_s = waveform.BurstLength_s;
-            SA.RFmxInstr.ConfigureInstrument(instr, saInstrConfig);
-            SA.RFmxSpecAn.ConfigureCommon(specAn, saCommonConfig);
-            SA.RFmxSpecAn.ConfigureTxp(specAn, txpConfigurationSpecAn);
+            RFmxInstr.ConfigureInstrument(instr, saInstrConfig);
+            RFmxSpecAn.ConfigureCommon(specAn, saCommonConfig);
+            RFmxSpecAn.ConfigureTxp(specAn, txpConfigurationSpecAn);
             #endregion
 
             #region Measure
@@ -117,8 +117,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
                 Console.WriteLine("\n--------------------- Results --------------------\n");
                 RFmxSpecAnMXMeasurementTypes[] specanMeasurements = new RFmxSpecAnMXMeasurementTypes[1] { RFmxSpecAnMXMeasurementTypes.Txp };
-                SA.RFmxSpecAn.SelectAndInitiateMeasurements(specAn, specanMeasurements, saAutolevelConfig, waveform.SignalBandwidth_Hz, false, "", resultStringSpecan);
-                txpResultsSpecAn = SA.RFmxSpecAn.FetchTxp(specAn, RFmxSpecAnMX.BuildResultString(resultStringSpecan));
+                RFmxSpecAn.SelectAndInitiateMeasurements(specAn, specanMeasurements, saAutolevelConfig, waveform.SignalBandwidth_Hz, false, "", resultStringSpecan);
+                txpResultsSpecAn = RFmxSpecAn.FetchTxp(specAn, RFmxSpecAnMX.BuildResultString(resultStringSpecan));
                 PrintTxPResults();
             }
             #endregion
@@ -135,14 +135,14 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         #region Utilities
         private Complex[] GetConstantVSWR(double vswr, int numberOfPoints)
         {
-            List<Complex> gammaArray = new List<Complex>();
+            Complex[] gammaArray = new Complex[numberOfPoints];
             double magnitude = (vswr - 1) / (vswr + 1);
             for(int i = 0; i<numberOfPoints; i++)
             {
                 double theta = Math.PI * 2 * i / numberOfPoints;
-                gammaArray.Add(new Complex { Real = magnitude * Math.Cos(theta), Imaginary = magnitude * Math.Sin(theta) });
+                gammaArray[i] =new Complex { Real = magnitude * Math.Cos(theta), Imaginary = magnitude * Math.Sin(theta) };
             }
-            return gammaArray.ToArray();
+            return gammaArray;
         }
 
         private void PrintTuneResults()
