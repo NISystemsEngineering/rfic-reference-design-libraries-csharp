@@ -37,7 +37,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             /// <summary>Specifies the tuner mode.</summary>
             public TunerMode TunerMode;
-            /// <summary>Specifies the calibration ID of the calibration data set to load. <see cref="FocusITunerBroker.QueryCalibrationList()"/> for a list of valid calibration IDs.</summary>
+            /// <summary>Specifies the calibration ID of the calibration data set to load. See <see cref="FocusITunerBroker.QueryCalibrationList()"/> for a list of valid calibration IDs.</summary>
             public int CalibrationID;
             /// <summary>Specifies the S-parameters of the adapter section between the DUT and the tuner at the primary frequency and up to four secondary frequencies.</summary>
             public SParameters[] DUTtoTunerSParameters;

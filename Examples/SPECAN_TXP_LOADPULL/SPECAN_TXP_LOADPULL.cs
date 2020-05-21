@@ -140,7 +140,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             for(int i = 0; i<numberOfPoints; i++)
             {
                 double theta = Math.PI * 2 * i / numberOfPoints;
-                gammaArray[i] =new Complex { Real = magnitude * Math.Cos(theta), Imaginary = magnitude * Math.Sin(theta) };
+                gammaArray[i] = new Complex { Real = magnitude * Math.Cos(theta), Imaginary = magnitude * Math.Sin(theta) };
             }
             return gammaArray;
         }
