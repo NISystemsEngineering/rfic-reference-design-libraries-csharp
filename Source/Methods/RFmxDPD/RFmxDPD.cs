@@ -103,7 +103,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Methods
                 {
                     MeasurementInterval_s = 100e-6,
                     SignalType = RFmxSpecAnMXDpdSignalType.Modulated,
-                    DutAverageInputPower_dBm = -20.0,
+                    DutAverageInputPower_dBm = -15.0,
                     SynchronizationMethod = RFmxSpecAnMXDpdSynchronizationMethod.Direct
                 };
             }

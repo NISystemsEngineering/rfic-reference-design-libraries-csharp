@@ -88,8 +88,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             wlanStandardConfig.Standard = RFmxWlanMXStandard.Standard802_11ax;
 
             modAccConfig = SA.RFmxWLAN.OFDMModAccConfiguration.GetDefault();
-            modAccConfig.OptimizeDynamicRangeForEvmEnabled = RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled.False;
-            modAccConfig.AveragingEnabled = RFmxWlanMXOfdmModAccAveragingEnabled.True;
 
             semConfig = SA.RFmxWLAN.SEMConfiguration.GetDefault();
 
@@ -97,6 +95,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             commonConfigurationDpd = Methods.RFmxDPD.CommonConfiguration.GetDefault();
             commonConfigurationDpd.DutAverageInputPower_dBm = sgInstrConfig.DutAverageInputPower_dBm;
             memoryPolynomialConfiguration = Methods.RFmxDPD.MemoryPolynomialConfiguration.GetDefault();
+            memoryPolynomialConfiguration.NumberOfIterations = 1;
             EnableDpd = true;
             preDpdCrestFactorReductionConfig = Methods.RFmxDPD.PreDpdCrestFactorReductionConfiguration.GetDefault();
             preDpdCrestFactorReductionConfig.Enabled = RFmxSpecAnMXDpdPreDpdCfrEnabled.False;

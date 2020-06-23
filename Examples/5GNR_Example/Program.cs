@@ -33,7 +33,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             saAutolevelConfig = SA.AutoLevelConfiguration.GetDefault();
             saAutolevelConfig.Enabled = true;
             StandardConfigNR = SA.RFmxNR.StandardConfiguration.GetDefault();
-            StandardConfigNR.ComponentCarrierConfigurations[0].PuschModulationType = RFmxNRMXPuschModulationType.Qam16;
+            StandardConfigNR.ComponentCarrierConfigurations[0].PuschModulationType = RFmxNRMXPuschModulationType.Qpsk;
             ModaccConfigNR = SA.RFmxNR.ModAccConfiguration.GetDefault();
 
             #region Configure Analyzer

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2018
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SG", "..\..\Source\SG\SG.csproj", "{89ABCAC5-CEDB-4535-BD58-E205A97834D9}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPECAN_TXP_LOADPULL", "SPECAN_TXP_LOADPULL.csproj", "{1D01E07A-8BA7-46C9-9603-EF1DE1798674}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusTuner", "..\..\Source\FocusTuner\FocusTuner.csproj", "{8D21D9A9-5420-4D00-95FE-F2DE7CFBF157}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{7A463769-1249-482B-B035-B5ED77824EF1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +50,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9} = {7A463769-1249-482B-B035-B5ED77824EF1}
+		{3D1BC0F6-273C-4A44-82F6-3BB933862FFB} = {7A463769-1249-482B-B035-B5ED77824EF1}
+		{8E7D5092-B685-4AD3-9DA3-7C53E56F0F32} = {7A463769-1249-482B-B035-B5ED77824EF1}
+		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA} = {7A463769-1249-482B-B035-B5ED77824EF1}
+		{8D21D9A9-5420-4D00-95FE-F2DE7CFBF157} = {7A463769-1249-482B-B035-B5ED77824EF1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A099083-51E4-42C9-ABDE-0E94869C7E25}

@@ -204,7 +204,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 return new AcpConfiguration
                 {
                     NumberOfUtraOffsets = 2,
-                    NumberOfEutraOffsets = 0,
+                    NumberOfEutraOffsets = 1,
                     NumberOfNrOffsets = 1,
                     NumberOfEndcOffsets = 0,
                     MeasurementMethod = RFmxNRMXAcpMeasurementMethod.Normal,
