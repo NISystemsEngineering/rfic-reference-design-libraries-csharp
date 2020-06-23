@@ -44,7 +44,6 @@
     <Reference Include="NationalInstruments.Common, Version=19.0.40.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298" />
     <Reference Include="NationalInstruments.ModularInstruments.NIRfsg.Fx45, Version=19.1.0.32770, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Program Files (x86)\IVI Foundation\IVI\Microsoft.NET\Framework32\v4.5.50709\NationalInstruments.ModularInstruments.NIRfsg 19.1.0\NationalInstruments.ModularInstruments.NIRfsg.Fx45.dll</HintPath>
     </Reference>
     <Reference Include="NationalInstruments.RFmx.InstrMX.Fx40, Version=3.0.0.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

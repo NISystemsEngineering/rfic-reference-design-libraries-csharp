@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "..\..\Source\Comm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxLTE", "..\..\Source\SA\RFmx LTE\RFmxLTE.csproj", "{1EB6F1AE-2EEA-4DC8-8CDB-09B5FADF2236}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{86158B80-4630-48D8-9832-3580674567A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA} = {86158B80-4630-48D8-9832-3580674567A4}
+		{8E7D5092-B685-4AD3-9DA3-7C53E56F0F32} = {86158B80-4630-48D8-9832-3580674567A4}
+		{1EB6F1AE-2EEA-4DC8-8CDB-09B5FADF2236} = {86158B80-4630-48D8-9832-3580674567A4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EC56EB3C-8FCD-4C89-B0AB-5D47091C2C74}

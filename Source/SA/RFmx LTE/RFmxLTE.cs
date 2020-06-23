@@ -79,7 +79,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     UplinkDownlinkConfiguration = RFmxLteMXUplinkDownlinkConfiguration.Configuration0,
                     Band = 1,
                     PuschAutoResourceBlockDetectionEnabled = RFmxLteMXAutoResourceBlockDetectionEnabled.True,
-                    AutoDmrsDetectionEnabled = RFmxLteMXAutoDmrsDetectionEnabled.True,
+                    AutoDmrsDetectionEnabled = RFmxLteMXAutoDmrsDetectionEnabled.False,
                     DownlinkAutoCellIDDetectionEnabled = RFmxLteMXDownlinkAutoCellIDDetectionEnabled.False,
                     ComponentCarrierConfigurations = new ComponentCarrierConfiguration[] { ComponentCarrierConfiguration.GetDefault() }
                 };
@@ -260,7 +260,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
 
         /// <summary>Configures common settings related to the LTE standard of the measured signal.</summary>
         /// <param name="lte">Specifies the LTE signal to configure.</param>
-        /// <param name="standardConfig">Specifies the LTE standard settings to apply.</param>
+        /// <param name="standardConfig">Speci fies the LTE standard settings to apply.</param>
         /// <param name="selectorString">Pass an empty string. The signal name that is passed when creating the signal configuration is used. See the RFmx help for more documention of this parameter.</param>
         #region Measurement Configuration
         public static void ConfigureStandard(RFmxLteMX lte, StandardConfiguration standardConfig, string selectorString = "")

@@ -95,7 +95,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             CommonConfigurationDpd = Methods.RFmxDPD.CommonConfiguration.GetDefault();
             CommonConfigurationDpd.DutAverageInputPower_dBm = SgInstrConfig.DutAverageInputPower_dBm;
             MemoryPolynomialConfiguration = Methods.RFmxDPD.MemoryPolynomialConfiguration.GetDefault();
-            MemoryPolynomialConfiguration.Order = 5;
+            MemoryPolynomialConfiguration.NumberOfIterations = 1;
             EnableDpd = true;
             preDpdCrestFactorReductionConfig = Methods.RFmxDPD.PreDpdCrestFactorReductionConfiguration.GetDefault();
             preDpdCrestFactorReductionConfig.Enabled = RFmxSpecAnMXDpdPreDpdCfrEnabled.False;

@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "..\..\Source\Comm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RFmxInstr", "..\..\Source\SA\RFmx Instr\RFmxInstr.csproj", "{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{894FDC00-DF08-4026-BB34-3CBB13CB96A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{89ABCAC5-CEDB-4535-BD58-E205A97834D9} = {894FDC00-DF08-4026-BB34-3CBB13CB96A1}
+		{3D1BC0F6-273C-4A44-82F6-3BB933862FFB} = {894FDC00-DF08-4026-BB34-3CBB13CB96A1}
+		{C725B272-463E-421D-8648-4E3F87868711} = {894FDC00-DF08-4026-BB34-3CBB13CB96A1}
+		{8E7D5092-B685-4AD3-9DA3-7C53E56F0F32} = {894FDC00-DF08-4026-BB34-3CBB13CB96A1}
+		{AB49D5A9-9585-445A-AE8A-E4DD2B8956AA} = {894FDC00-DF08-4026-BB34-3CBB13CB96A1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A099083-51E4-42C9-ABDE-0E94869C7E25}
