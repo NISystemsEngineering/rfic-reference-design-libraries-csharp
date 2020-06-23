@@ -18,7 +18,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 {
                     GainBandwidth = 5000,
                     CompensationFrequency = 50000,
-                    PoleZeroRatio = 0.16,
+                    PoleZeroRatio = 1,
                 };
             }
         }
@@ -40,10 +40,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
                 {
                     OutputFunction = DCPowerSourceOutputFunction.DCVoltage,
                     VoltageLevel_V = 3,
-                    CurrentLimit_A = 1e-3,
-                    CurrentLevel_A = 1,
-                    VoltageLimit_V = 3,
-                    TransientResponseMode = DCPowerSourceTransientResponse.Fast,
+                    CurrentLevel_A = 0.001,
+                    VoltageLimit_V = 1,
+                    CurrentLimit_A = 0.001,
+                    TransientResponseMode = DCPowerSourceTransientResponse.Normal,
                     CustomTransientConfig = CustomTransientResponse.GetDefault()
                 };
             }

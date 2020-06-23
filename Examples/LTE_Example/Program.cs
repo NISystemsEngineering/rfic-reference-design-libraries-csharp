@@ -33,8 +33,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             saAutolevelConfig = SA.AutoLevelConfiguration.GetDefault();
             saAutolevelConfig.Enabled = true;
             StandardConfigLte = SA.RFmxLTE.StandardConfiguration.GetDefault();
+            StandardConfigLte.AutoDmrsDetectionEnabled = RFmxLteMXAutoDmrsDetectionEnabled.True;
             StandardConfigLte.ComponentCarrierConfigurations[0].Bandwidth_Hz = 20.0e6;
-            StandardConfigLte.ComponentCarrierConfigurations[0].PuschModulationType = RFmxLteMXPuschModulationType.ModulationType256Qam;
             ModaccConfigLte = SA.RFmxLTE.ModAccConfiguration.GetDefault();
 
             #region Configure Analyzer

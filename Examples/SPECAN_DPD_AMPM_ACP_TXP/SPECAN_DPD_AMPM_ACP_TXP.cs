@@ -79,9 +79,11 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             AmpmConfigurationSpecAn = SA.RFmxSpecAn.AmpmConfiguration.GetDefault();
             
             TxpConfigurationSpecAn = SA.RFmxSpecAn.TxpConfiguration.GetDefault();
-            TxpConfigurationSpecAn.Rbw_Hz = 20e6;
+            TxpConfigurationSpecAn.RbwFilterType = RFmxSpecAnMXTxpRbwFilterType.None;
+            TxpConfigurationSpecAn.RrcAlpha = 0;
             AcpConfigurationSpecAn = SA.RFmxSpecAn.AcpConfiguration.GetDefault();
-            AcpConfigurationSpecAn.Rbw_Hz = 10e6;
+            AcpConfigurationSpecAn.Rbw_Hz = 10e3;
+            AcpConfigurationSpecAn.ComponentCarrierConfiguration[0].RrcFilterEnabled = RFmxSpecAnMXAcpCarrierRrcFilterEnabled.False;
             AcpConfigurationSpecAn.OffsetChannelConfiguration = new SA.RFmxSpecAn.AcpOffsetChannelConfiguration[NumberOfOffsets];
 
             //Define ACP offset configuration
@@ -116,6 +118,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             CommonConfigurationDpd = Methods.RFmxDPD.CommonConfiguration.GetDefault();
             CommonConfigurationDpd.DutAverageInputPower_dBm = SgInstrConfig.DutAverageInputPower_dBm;
             MemoryPolynomialConfiguration = Methods.RFmxDPD.MemoryPolynomialConfiguration.GetDefault();
+            MemoryPolynomialConfiguration.NumberOfIterations = 1;
             EnableDpd = true;
             preDpdCrestFactorReductionConfig = Methods.RFmxDPD.PreDpdCrestFactorReductionConfiguration.GetDefault();
             preDpdCrestFactorReductionConfig.Enabled = RFmxSpecAnMXDpdPreDpdCfrEnabled.False;
