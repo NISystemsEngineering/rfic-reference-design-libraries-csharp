@@ -7,8 +7,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
     class Program
     {
-
-
+        /// <summary>
+        /// This example illustrates how to use the RFmx and RFSG drivers and the WLAN toolkit to perform EVM measurements.
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("\n----------------------- WLAN Analyzer Example -----------------------\n");
@@ -61,7 +62,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             Console.WriteLine("Please press any key to close the application.\n");
             Console.ReadKey();
         }
-
     }
 }
 
