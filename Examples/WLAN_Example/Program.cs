@@ -8,7 +8,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
     class Program
     {
         /// <summary>
-        /// This example illustrates how to use the RFmx and RFSG drivers and the WLAN toolkit to perform EVM measurements.
+        /// This example demonstrates using the RFmxWLAN APIs to configure the analyzer to do OFDMModAcc measurement. 
+        /// You can use the Generator Basic example to generate the WLAN signal before running this example.
         /// </summary>
         static void Main(string[] args)
         {
