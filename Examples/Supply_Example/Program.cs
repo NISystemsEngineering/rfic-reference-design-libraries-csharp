@@ -6,6 +6,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
     class SupplyExample
     {
+        /// <summary>
+        /// This example illustrates how to use the NI-DCPower APIs to configure the SMU and measure the results.
+        /// </summary>
         static void Main()
         {
             string channelNames = "0";
