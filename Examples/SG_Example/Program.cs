@@ -9,6 +9,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
     class SGExample
     {
         public enum GenerationType { Bursted, Continuous };
+
+        /// <summary>
+        /// This example illustrates how to use RFSG drivers to generate burst or continuous waveform. 
+        /// </summary>
         static void Main()
         {
             string resourceName = "5840";
