@@ -11,7 +11,7 @@ namespace EnvelopeTrackingExample
         internal enum EnvelopeMode { Detrough, LUT };
 
         /// <summary>
-        /// This example illustrates how to use RFSG drivers and envelope tracking APIs to do envelope tracking configuration. 
+        /// This example illustrates how to use RFSG drivers and envelope tracking APIs to configure envelope tracking. 
         /// </summary>
         static void Main(string[] args)
         {
