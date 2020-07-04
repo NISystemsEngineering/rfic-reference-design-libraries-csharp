@@ -7,8 +7,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
     class Program
     {
-
-
+        /// <summary>
+        /// This example illustrates how to use the RFmxNR APIs to configure the analyzer to do ModAcc measurement. 
+        /// You can use the Generator Basic example to generate the NR signal before running this example.
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("\n----------------------- 5GNR Analyzer Example -----------------------\n");

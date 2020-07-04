@@ -7,8 +7,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
     class Program
     {
-
-
+        /// <summary>
+        /// This example illustrates how to use the RFmxWLAN APIs to configure the analyzer to do OFDMModAcc measurement. 
+        /// You can use the Generator Basic example to generate the WLAN signal before running this example.
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("\n----------------------- WLAN Analyzer Example -----------------------\n");
@@ -61,7 +63,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             Console.WriteLine("Please press any key to close the application.\n");
             Console.ReadKey();
         }
-
     }
 }
 

@@ -7,8 +7,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
     class Program
     {
-
-
+        /// <summary>
+        /// This example illustrates how to use the RFmxLTE APIs to configure the analyzer to do ModAcc measurement. 
+        /// You can use the Generator Basic example to generate the LTE signal before running this example.
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("\n----------------------- LTE Analyzer Example -----------------------\n");
