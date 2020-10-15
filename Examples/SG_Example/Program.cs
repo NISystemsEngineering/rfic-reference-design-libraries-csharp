@@ -11,7 +11,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         public enum GenerationType { Bursted, Continuous };
 
         /// <summary>
-        /// This example illustrates how to use RFSG drivers to generate burst or continuous waveform. 
+        /// This example illustrates how to use RFSG drivers to generate a bursted or continuous waveform. 
         /// </summary>
         static void Main()
         {

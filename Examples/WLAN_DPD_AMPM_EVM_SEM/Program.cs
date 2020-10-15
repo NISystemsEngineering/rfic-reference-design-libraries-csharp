@@ -5,7 +5,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
     class Program
     {
         /// <summary>
-        /// This example illustrates how to use the RFmx and RFSG drivers and the WLAN toolkit to perform SEM and EVM measurements with or without digital predistortion (DPD) of the waveform input to the DUT.
+        /// This example illustrates how to use the RFmx WLAN and RFSG drivers to perform SEM and EVM measurements with or without digital predistortion (DPD) of the waveform input to the DUT.
         /// Before executing this application, please check and ensure you have the right configurations in the InitializeParameters() function.
         /// </summary>
         static void Main(string[] args)

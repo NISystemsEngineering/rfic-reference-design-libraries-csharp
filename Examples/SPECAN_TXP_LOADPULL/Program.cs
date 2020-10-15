@@ -5,7 +5,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
     class Program
     {
         /// <summary>
-        /// This example illustrates how to use the RFmx SpecAn together with the RFSG drivers and Focus Tuner to perform TXP measurements with load pull. 
+        /// This example illustrates how to use the RFmx SpecAn, RFSG, and Focus Tuner drivers to perform TXP measurements with load pull. 
         /// Before executing this application, please check and ensure you have the right configurations in the InitializeParameters() function.
         /// </summary>
         static void Main(string[] args)
