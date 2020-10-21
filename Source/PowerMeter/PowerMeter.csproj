@@ -7,8 +7,8 @@
     <ProjectGuid>{208D1990-4992-458B-8DFC-6E4375010F9B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>568x</RootNamespace>
-    <AssemblyName>568x</AssemblyName>
+    <RootNamespace>NationalInstruments.ReferenceDesignLibraries.568x</RootNamespace>
+    <AssemblyName>NationalInstruments.ReferenceDesignLibraries.568x</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
