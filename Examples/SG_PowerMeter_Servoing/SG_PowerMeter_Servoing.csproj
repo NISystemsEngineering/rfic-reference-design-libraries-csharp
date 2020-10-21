@@ -33,7 +33,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NationalInstruments.Common, Version=17.5.40.49153, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\National Instruments\MeasurementStudioVS2010\DotNET\Assemblies\Current\NationalInstruments.Common.dll</HintPath>
     </Reference>
     <Reference Include="NationalInstruments.ModularInstruments.NIRfsg.Fx45, Version=20.0.0.32768, Culture=neutral, PublicKeyToken=4febd62461bf11a4, processorArchitecture=MSIL">

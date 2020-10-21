@@ -47,10 +47,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             instrConfig = InstrumentConfiguration.GetDefault();
             instrConfig.CarrierFrequency_Hz = centerFrequency;
-            instrConfig.DutAverageInputPower_dBm = paOutputPower_dBm - paGain_dB;
-            
+            instrConfig.DutAverageInputPower_dBm = paOutputPower_dBm - paGain_dB;            
 
-            powerMeterResourceName = "";
+            powerMeterResourceName = "COM3";
             commonConfiguration = PowerMeter.CommonConfiguration.GetDefault();
             commonConfiguration.Frequency = centerFrequency;
         }

@@ -31,9 +31,14 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public int Trigger_Source;
 
             /// <summary>
-            /// Specifies whether the NI-568x device automatically determines the optimal measurement range of power.
+            /// Specifies the polarity of the internal trigger slope.
             /// </summary>
-            public bool Range_Auto_Enabled;
+            public int Slope;
+
+            /// <summary>
+            /// Specifies the trigger level for the measurement signal.
+            /// </summary>
+            public double Trigger_Level;
 
             /// <summary>
             /// Specifies the filter function of a sensor on or off.
@@ -68,7 +73,8 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
                     Measurement_Mode = ni568xConstants.ContinuousMode,
                     Trigger_Source = ni568xConstants.Immediate,
-                    Range_Auto_Enabled = true,
+                    Slope = ni568xConstants.Positive,
+                    Trigger_Level = -20,
                     Averaging = true,
                     ApertureTime = 0.02,
                     Count = 4
@@ -88,8 +94,18 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             sensor.ConfigureAcquisitionMode(commonConfiguration.Channel_Name, commonConfiguration.Measurement_Mode);
             sensor.ConfigureUnits(commonConfiguration.Units);
-            sensor.ConfigureTriggerSource(commonConfiguration.Trigger_Source);
-            sensor.ConfigureRangeAutoEnabled(commonConfiguration.Channel_Name, commonConfiguration.Range_Auto_Enabled);
+
+            if (commonConfiguration.Trigger_Source == ni568xConstants.Immediate)
+            {
+                sensor.ConfigureTriggerSource(commonConfiguration.Trigger_Source);
+            }
+            else
+            {
+                sensor.ConfigureInternalTrigger(commonConfiguration.Channel_Name, commonConfiguration.Slope);
+                sensor.ConfigureInternalTriggerLevel(commonConfiguration.Trigger_Level);
+            }
+
+            sensor.ConfigureRangeAutoEnabled(commonConfiguration.Channel_Name, true);
             sensor.ConfigureCorrectionFrequency(commonConfiguration.Channel_Name, commonConfiguration.Frequency);
             if (commonConfiguration.Averaging)
             {
