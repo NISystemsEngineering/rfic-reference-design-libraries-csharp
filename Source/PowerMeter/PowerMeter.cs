@@ -94,12 +94,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
         {
             sensor.ConfigureAcquisitionMode(commonConfiguration.Channel_Name, commonConfiguration.Measurement_Mode);
             sensor.ConfigureUnits(commonConfiguration.Units);
+            sensor.ConfigureTriggerSource(commonConfiguration.Trigger_Source);
 
-            if (commonConfiguration.Trigger_Source == ni568xConstants.Immediate)
-            {
-                sensor.ConfigureTriggerSource(commonConfiguration.Trigger_Source);
-            }
-            else
+            if (commonConfiguration.Trigger_Source == ni568xConstants.Internal)
             {
                 sensor.ConfigureInternalTrigger(commonConfiguration.Channel_Name, commonConfiguration.Slope);
                 sensor.ConfigureInternalTriggerLevel(commonConfiguration.Trigger_Level);
