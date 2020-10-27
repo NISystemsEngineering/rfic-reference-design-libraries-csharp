@@ -41,7 +41,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             public double Trigger_Level;
 
             /// <summary>
-            /// Specifies the filter function of a sensor on or off.
+            /// Specifies whether auto-averaging mode is enabled or not.
             /// </summary>
             public bool Averaging;
 
@@ -120,14 +120,13 @@ namespace NationalInstruments.ReferenceDesignLibraries
         /// Initiates a measurement, waits until the measurement is complete and NI-568x returns to the Idle state, and then returns the measurement result in the result parameter.
         /// </summary>
         /// <param name="sensor">Specifies a reference to the instrument.</param>
-        /// <param name="coupling_dB">Specifies the coupling value in dB.</param>
         /// <param name="timeout">Specifies the maximum length of time, in milliseconds, to allow the read measurement operation to complete.</param>
         /// <returns>The measurement results, in dBm.</returns>
-        public static double ReadMeasurement(ni568x sensor, double coupling_dB, int timeout)
+        public static double ReadMeasurement(ni568x sensor, int timeout)
         {
             double result = 0.0;
             sensor.Read(timeout, out result);
-            return result + coupling_dB;
+            return result;
         }
         #endregion
     }

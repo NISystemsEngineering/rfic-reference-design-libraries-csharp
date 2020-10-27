@@ -75,7 +75,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             {
                 nIRfsg.Initiate();
                 
-                measuredPower = PowerMeter.ReadMeasurement(sensor, Coupling_dB, 10000);
+                measuredPower = PowerMeter.ReadMeasurement(sensor, 10000) + Coupling_dB;
                 Console.WriteLine("Servo step:                               {0}", currentServoStep);
                 Console.WriteLine("Measured power (dBm):                     {0:0.00}", measuredPower);
 
