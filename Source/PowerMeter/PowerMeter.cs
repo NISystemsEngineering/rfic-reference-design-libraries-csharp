@@ -43,7 +43,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
             /// <summary>
             /// Specifies whether auto-averaging mode is enabled or not.
             /// </summary>
-            public bool Averaging_Auto_Enabled;
+            public bool AveragingAutoEnabled;
 
             /// <summary>
             /// Specifies the frequency in Hz of the power to be measured since this frequency is not automatically determined.
@@ -75,7 +75,7 @@ namespace NationalInstruments.ReferenceDesignLibraries
                     Trigger_Source = ni568xConstants.Immediate,
                     Slope = ni568xConstants.Positive,
                     Trigger_Level = -20,
-                    Averaging_Auto_Enabled = true,
+                    AveragingAutoEnabled = true,
                     ApertureTime = 0.02,
                     Count = 4
                 };
@@ -104,9 +104,9 @@ namespace NationalInstruments.ReferenceDesignLibraries
 
             sensor.ConfigureRangeAutoEnabled(commonConfiguration.Channel_Name, true);
             sensor.ConfigureCorrectionFrequency(commonConfiguration.Channel_Name, commonConfiguration.Frequency);
-            if (commonConfiguration.Averaging_Auto_Enabled)
+            if (commonConfiguration.AveragingAutoEnabled)
             {
-                sensor.ConfigureAveragingAutoEnabled(commonConfiguration.Channel_Name, commonConfiguration.Averaging_Auto_Enabled);
+                sensor.ConfigureAveragingAutoEnabled(commonConfiguration.Channel_Name, commonConfiguration.AveragingAutoEnabled);
             }
             else
             {
