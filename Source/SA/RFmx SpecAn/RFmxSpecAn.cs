@@ -38,7 +38,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 {
                     MeasurementInterval_s = 1e-3,
                     Rbw_Hz = 20e6,
-                    RbwFilterType = RFmxSpecAnMXTxpRbwFilterType.None,
+                    RbwFilterType = RFmxSpecAnMXTxpRbwFilterType.Flat,
                     RrcAlpha = 0.01,
                     AveragingEnabled = RFmxSpecAnMXTxpAveragingEnabled.False,
                     AveragingCount = 10,
@@ -72,7 +72,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                 {
                     Frequency_Hz = 0.00,
                     IntegrationBandwidth_Hz = 18e6,
-                    RrcFilterEnabled = RFmxSpecAnMXAcpCarrierRrcFilterEnabled.False,
+                    RrcFilterEnabled = RFmxSpecAnMXAcpCarrierRrcFilterEnabled.True,
                     RrcAlpha = 0.22,
                     Mode = RFmxSpecAnMXAcpCarrierMode.Active
                 };

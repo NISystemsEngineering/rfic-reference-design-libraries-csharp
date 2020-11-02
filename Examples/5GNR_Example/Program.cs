@@ -7,8 +7,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
     class Program
     {
-
-
+        /// <summary>
+        /// This example illustrates how to use the RFmxNR APIs to configure the analyzer to perform a ModAcc measurement. 
+        /// You can use the Generator Basic example to generate the NR signal before running this example.
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("\n----------------------- 5GNR Analyzer Example -----------------------\n");
@@ -33,7 +35,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             saAutolevelConfig = SA.AutoLevelConfiguration.GetDefault();
             saAutolevelConfig.Enabled = true;
             StandardConfigNR = SA.RFmxNR.StandardConfiguration.GetDefault();
-            StandardConfigNR.ComponentCarrierConfigurations[0].PuschModulationType = RFmxNRMXPuschModulationType.Qam16;
+            StandardConfigNR.ComponentCarrierConfigurations[0].PuschModulationType = RFmxNRMXPuschModulationType.Qpsk;
             ModaccConfigNR = SA.RFmxNR.ModAccConfiguration.GetDefault();
 
             #region Configure Analyzer

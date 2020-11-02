@@ -40,7 +40,9 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NationalInstruments.RFmx.LteMX.Fx40, Version=19.1.0.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL" />
+    <Reference Include="NationalInstruments.RFmx.LteMX.Fx40, Version=19.1.0.49152, Culture=neutral, PublicKeyToken=dc6ad606294fc298, processorArchitecture=MSIL">
+	<SpecificVersion>False</SpecificVersion>
+	</Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>

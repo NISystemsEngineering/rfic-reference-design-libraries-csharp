@@ -7,8 +7,10 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
     class Program
     {
-
-
+        /// <summary>
+        /// This example illustrates how to use the RFmxWLAN APIs to configure the analyzer to perform an OFDMModAcc measurement. 
+        /// You can use the Generator Basic example to generate the WLAN signal before running this example.
+        /// </summary>
         static void Main(string[] args)
         {
             Console.WriteLine("\n----------------------- WLAN Analyzer Example -----------------------\n");
@@ -32,13 +34,13 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             saCommonConfig.ReferenceLevel_dBm = 0.0;
             saAutolevelConfig = SA.AutoLevelConfiguration.GetDefault();
             saAutolevelConfig.Enabled = true;
+            saAutolevelConfig.MeasurementInterval_s = 10e-3;
             wlanStandardConfig = SA.RFmxWLAN.StandardConfiguration.GetDefault();
             wlanStandardConfig.ChannelBandwidth_Hz = 80.0e6;
             wlanStandardConfig.Standard = RFmxWlanMXStandard.Standard802_11ax;
             modaccConfig = SA.RFmxWLAN.OFDMModAccConfiguration.GetDefault();
 
             #region Configure Analyzer
-            saAutolevelConfig.MeasurementInterval_s = 0.001;
             RFmxInstrMX instr = new RFmxInstrMX(resourceName, "");
             SA.RFmxInstr.ConfigureInstrument(instr, saInstrConfig);
             RFmxWlanMX wlan = instr.GetWlanSignalConfiguration(signalString);
@@ -61,7 +63,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             Console.WriteLine("Please press any key to close the application.\n");
             Console.ReadKey();
         }
-
     }
 }
 

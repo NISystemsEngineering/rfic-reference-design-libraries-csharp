@@ -27,8 +27,10 @@ namespace NationalInstruments.ReferenceDesignLibraries
             {
                 return new SourcePinConfiguration
                 {
+                    PinName = "",
                     PinOutputFunction = PpmuOutputFunction.DCVoltage,
                     Voltage_V = 1.8,
+                    Current_A = 0.2,
                 };
             }
         }
