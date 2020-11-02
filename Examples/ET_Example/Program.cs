@@ -9,6 +9,10 @@ namespace EnvelopeTrackingExample
     class Program
     {
         internal enum EnvelopeMode { Detrough, LUT };
+
+        /// <summary>
+        /// This example illustrates how to use RFSG drivers and envelope tracking APIs to configure envelope tracking. 
+        /// </summary>
         static void Main(string[] args)
         {
             #region Example Settings
@@ -62,7 +66,7 @@ namespace EnvelopeTrackingExample
             }
 
             ScaleAndDownloadEnvelopeWaveform(envVsg, envWfm, trackerConfig);
-            ConfigureContinuousGeneration(envVsg, envWfm, "");
+            ConfigureContinuousGeneration(envVsg, envWfm, "PFI0");
             #endregion
 
             // Start envelope tracking

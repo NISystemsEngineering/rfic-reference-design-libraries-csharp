@@ -6,6 +6,9 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 {
     class SupplyExample
     {
+        /// <summary>
+        /// This example illustrates how to use the NI-DCPower APIs to configure the SMU and measure the results.
+        /// </summary>
         static void Main()
         {
             string channelNames = "0";
@@ -16,22 +19,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
 
             supplyConfig.OutputFunction = DCPowerSourceOutputFunction.DCVoltage;
             supplyConfig.VoltageLevel_V = 3;
-            supplyConfig.CurrentLevel_A = 1;
+            supplyConfig.CurrentLevel_A = 0.001;
+            supplyConfig.VoltageLimit_V = 3;
+            supplyConfig.CurrentLimit_A = 0.001;
 
             ConfigureSupply(dcPower, supplyConfig, channelNames);
 
             // Configure measurement related parameters
-            MeasurementConfiguration measConfig = new MeasurementConfiguration
-            {
-                MeasureWhenMode = DCPowerMeasurementWhen.AutomaticallyAfterSourceComplete,
-                SenseMode = DCPowerMeasurementSense.Remote,
-                // A MeasurementMode of "Record" acquires multiple smaples over the requested measurement 
-                // time at the supply's maximum sampling rate. "Single Point" will take a single measurement
-                // over that duration and average the power and current results.
-                MeasurementMode = MeasurementModeConfiguration.SinglePoint,
-                MeasurementTime_s = 2e-3,
-                MeasurementTriggerTerminal = "PXI_Trig0"
-            };
+            MeasurementConfiguration measConfig = MeasurementConfiguration.GetDefault();
+            measConfig.MeasureWhenMode = DCPowerMeasurementWhen.AutomaticallyAfterSourceComplete;
+            measConfig.MeasurementTime_s = 2e-3;
 
             ConfigureMeasurement(dcPower, measConfig, channelNames);
 

@@ -24,7 +24,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
             {
                 return new StandardConfiguration
                 {
-                    Standard = RFmxWlanMXStandard.Standard802_11ac,
+                    Standard = RFmxWlanMXStandard.Standard802_11ag,
                     ChannelBandwidth_Hz = 20e6
                 };
             }

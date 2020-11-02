@@ -62,19 +62,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             sgInstrConfig.CarrierFrequency_Hz = centerFrequency;
             sgInstrConfig.DutAverageInputPower_dBm = -10.0;
             sgInstrConfig.ExternalAttenuation_dB = 0;
-            paEnableTiming = new SG.WaveformTimingConfiguration
-            {
-                DutyCycle_Percent = 60,
-                PreBurstTime_s = 500e-9,
-                PostBurstTime_s = 500e-9,
-                BurstStartTriggerExport = "PXI_Trig0"
-            };
-            paenConfig = new SG.PAENConfiguration
-            {
-                PAEnableMode = PAENMode.Dynamic,
-                PAEnableTriggerExportTerminal = "PFI0",
-                PAEnableTriggerMode = RfsgMarkerEventOutputBehaviour.Toggle
-            };
+            paEnableTiming = WaveformTimingConfiguration.GetDefault();
+            paenConfig = SG.PAENConfiguration.GetDefault();
 
             // Analyzer Configuration
             saInstrConfig = SA.RFmxInstr.InstrumentConfiguration.GetDefault();
@@ -95,8 +84,6 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             wlanStandardConfig.Standard = RFmxWlanMXStandard.Standard802_11ax;
 
             modAccConfig = SA.RFmxWLAN.OFDMModAccConfiguration.GetDefault();
-            modAccConfig.OptimizeDynamicRangeForEvmEnabled = RFmxWlanMXOfdmModAccOptimizeDynamicRangeForEvmEnabled.False;
-            modAccConfig.AveragingEnabled = RFmxWlanMXOfdmModAccAveragingEnabled.True;
 
             semConfig = SA.RFmxWLAN.SEMConfiguration.GetDefault();
         }

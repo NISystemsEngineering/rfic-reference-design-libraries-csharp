@@ -48,16 +48,16 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
         {
             //shared Parameters
             centerFrequency = 3e9; //Hz
-            resourceName="5841";
+            resourceName="5840";
             filePath = @"C:\Users\Public\Documents\National Instruments\RFIC Test Software\Waveforms\LTE_FDD_UL_1x20MHz_256QAM_OS4.tdms";
             signalStringSpecan = "specanSig0";
             resultStringSpecan = "specanResult0";
 
             //Tuner Configration
-            tunerAddress = "10.0.0.2";
+            tunerAddress = "10.0.0.1";
             commonConfiguration = FocusTuner.CommonConfiguration.GetDefault();
             commonConfiguration.CalibrationID = 1;
-            gammaSweep = GetConstantVSWR(2, 5);
+            gammaSweep = GetConstantVSWR(2, 20);
 
             //Generator Configuiration
             sgInstrConfig = SG.InstrumentConfiguration.GetDefault();
@@ -76,7 +76,8 @@ namespace NationalInstruments.ReferenceDesignLibraries.Examples
             saAutolevelConfig.Enabled = true;
             
             txpConfigurationSpecAn = RFmxSpecAn.TxpConfiguration.GetDefault();
-            txpConfigurationSpecAn.Rbw_Hz = 20e6;
+            txpConfigurationSpecAn.RbwFilterType = RFmxSpecAnMXTxpRbwFilterType.None;
+            txpConfigurationSpecAn.RrcAlpha = 0;
         }
 
         public void Run()
