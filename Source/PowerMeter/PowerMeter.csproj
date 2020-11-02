@@ -35,6 +35,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="ni568x.cs" />
     <Compile Include="PowerMeter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
