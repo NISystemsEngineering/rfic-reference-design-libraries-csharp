@@ -79,7 +79,7 @@ namespace NationalInstruments.ReferenceDesignLibraries.SA
                     UplinkDownlinkConfiguration = RFmxLteMXUplinkDownlinkConfiguration.Configuration0,
                     Band = 1,
                     PuschAutoResourceBlockDetectionEnabled = RFmxLteMXAutoResourceBlockDetectionEnabled.True,
-                    AutoDmrsDetectionEnabled = RFmxLteMXAutoDmrsDetectionEnabled.False,
+                    AutoDmrsDetectionEnabled = RFmxLteMXAutoDmrsDetectionEnabled.True,
                     DownlinkAutoCellIDDetectionEnabled = RFmxLteMXDownlinkAutoCellIDDetectionEnabled.False,
                     ComponentCarrierConfigurations = new ComponentCarrierConfiguration[] { ComponentCarrierConfiguration.GetDefault() }
                 };
