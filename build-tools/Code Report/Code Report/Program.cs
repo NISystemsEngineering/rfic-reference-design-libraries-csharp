@@ -27,8 +27,8 @@ namespace Code_Report
             public bool ListParameters { get; set; }
             [Option("ListDocs", HelpText = "Determines if documetnation should be listed in the report", Required = false)]
             public bool ListDescriptions { get; set; }
-            [Option("ExludedPaths", Default = new string[] { "bin", "obj", "Solution", "Assembly" }, Required = false, Separator = '=')]
-            public string[] ExcludedPaths { get; set; }
+            [Option("ExcludedPaths", Required = false, Separator = '=')]
+            public IEnumerable<string> ExcludedPaths { get; set; }
         }
         internal enum MemberTypes { Method, Type }
         internal struct MemberData
@@ -73,6 +73,8 @@ namespace Code_Report
             xml.WriteStartElement("Modules");
 
             string programText;
+            o.ExcludedPaths = o.ExcludedPaths.Concat(new string[] { "bin", "obj", "Solution", "Assembly" });
+
             string fileExclusionString = string.Join("|", o.ExcludedPaths);
 
             foreach (string filePath in csFiles)
