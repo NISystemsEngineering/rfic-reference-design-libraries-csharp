@@ -1,3 +1,6 @@
+# Announcement
+**This repository has been deprecated**. The RFIC Reference Design Libraries are now included with the [NI RFIC Test Software](https://www.ni.com/en-us/shop/software/products/rfic-test-software.html). Use the [Automation Wizard](https://www.ni.com/pdf/manuals/378118b.pdf#page=3) to access a copy of the automation libraries for building a test program. 
+
 # RFIC Reference Design Libraries - C# 
 ![Build status](https://dev.azure.com/ni/ASE/_apis/build/status/RFIC%20Reference%20Design%20Libraries/rfic-reference-design-libraries-csharp)
 
